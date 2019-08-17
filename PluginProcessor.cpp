@@ -12,6 +12,7 @@
 #include "PluginEditor.h"
 #include <ctime>
 
+//TODO: MOVE THESE ALL TO INSTRUMENT
 const int KICK_MIC_COUNT=2;
 const int KICK_VELOCITY_COUNT = 3;
 const int SNARE_MIC_COUNT = 3;
@@ -60,7 +61,6 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 {
 	
 
-	formatManager.registerBasicFormats();
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Room Mix",       // parameter ID
 		"Kick Room Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -174,22 +174,23 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 
 	parameters.state = ValueTree(Identifier("DrumSamplerVT"));
 	
-	//samplesFolder=new File(String("C:\\Users\\Ani\\Documents\\JUCE Projects\\DrumSampler\\Samples"));
-	
-	FileChooser samplesFinder("Please choose the folder containing the samples for DrumSampler.");
-	samplesFinder.browseForDirectory();
-	File returned = samplesFinder.getResult();
-	samplesFolder=new File(returned);
-	
-	iterators = new list<IteratorPack>();
-	/*
-	InstrumentPack* kickPack = new InstrumentPack("kick", 6, this);
-	kickPack->createBuffers();*/
+	sampleManager=new SampleManager();
 
-	kickSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> kickMics = { "Direct","Room" };
-	vector<String> kickVelocities = { "Soft","Medium","Hard" };
-	createBuffers(kickSampleBuffers, "Kick", kickMics, kickVelocities);
+	//list<IteratorPack>* iterators;
+	iterators = new list<IteratorPack>();
+
+	formatManager=new AudioFormatManager();
+	kickPack = new Instrument(String("kick"), 6, formatManager, sampleManager, iterators);
+
+	kickPack->createBuffers();
+
+	//kickSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
+	//vector<String> kickMics = { "Direct","Room" };
+	//vector<String> kickVelocities = { "Soft","Medium","Hard" };
+	//createBuffers(kickSampleBuffers, "Kick", kickMics, kickVelocities);
+	//kickPack->micPointers = kickSampleBuffers;
+	
+
 	/*
 	snareSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
 	vector<String> snareMics = { "Top","Bottom","Room" };
@@ -349,8 +350,6 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 */
 bool DrumSamplerAudioProcessor::createBuffers
 	(AudioSampleBuffer** sampleBuffersToFill, String instrumentName, vector<String> micNames, vector<String> velocityNames) {
-	
-	
 
 	for (int hardness = 0; hardness < velocityNames.size(); hardness++) {
 
@@ -358,9 +357,9 @@ bool DrumSamplerAudioProcessor::createBuffers
 
 			for (int i = 1; i <= NUM_OF_SAME_SAMPLE; i++) {
 				std::unique_ptr<AudioFormatReaderSource> readerSource;
-				File newFile(String(getSamplesFolder()->getFullPathName() + "\\"+instrumentName+" "+micNames.at(mic)+" "+velocityNames.at(hardness)+"  (" + String(i) + ").wav"));
+				File newFile(String(sampleManager->getSamplesFolder()->getFullPathName() + "\\"+instrumentName+" "+micNames.at(mic)+" "+velocityNames.at(hardness)+"  (" + String(i) + ").wav"));
 				if (newFile.existsAsFile()) {
-					std::unique_ptr<AudioFormatReader> reader(this->formatManager.createReaderFor(newFile));
+					std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
 					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(1, reader->lengthInSamples);
 					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, false);
 					Range<float> range = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
@@ -389,125 +388,6 @@ void DrumSamplerAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
-}
-
-//void DrumSamplerAudioProcessor::triggerInstrument
-//	(AudioBuffer<float> *bufferToFill, AudioSampleBuffer** instrumentSamples, vector<float> micGains, int numLevels, float noteVelocity, int timeStamp) {
-//	
-//	//TODO:Mix in the room sound and other mics
-//	// Change 5
-//	//AudioSampleBuffer *newArray = instrumentSamples[5];
-//	
-//	//Calculate which hardness level of each sample top play based on velocity of the note and 
-//	//the number of available velocities.
-//	float levelNumber = 128*noteVelocity*float(numLevels) / 129;
-//	//Vector to hold the read pointers of each sample to be played.
-//	vector<const float*> inVector;
-//	//vector to hold how many sample from each read pointer is going to be played.
-//	vector<int> sampleCountVector;
-//	
-//	//Randomize which version of the same sample it is going to play
-//	int version = rand() % NUM_OF_SAME_SAMPLE;
-//
-//	//Create an iterator to be played for each microphone
-//	for (int i = 0; i < micGains.size() ; i++) {
-//		//Find the correct index that holds each sample of each room mic.
-//		int index = (int(levelNumber)*NUM_OF_SAME_SAMPLE*micGains.size()) + (version + i * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
-//		inVector.push_back(instrumentSamples[index]->getReadPointer(0));
-//		//Add the number of samples to be played to another vector
-//		sampleCountVector.push_back(instrumentSamples[version + i * NUM_OF_SAME_SAMPLE]->getNumSamples());
-//
-//	}
-//	//auto in = newArray[5]->getReadPointer(0);
-//	//int sampleNum = newArray->getNumSamples();
-//	
-//	int i = 0;
-//	//TODO:Set Stereo gain levels
-//	//Write the samples to the output buffer and store the remaining in iteratorPack.
-//	for (int channel = 0; channel < getTotalNumOutputChannels(); ++channel) {
-//		float *out = bufferToFill->getWritePointer(channel);
-//
-//		for (int j = 0; j < inVector.size(); j++) {
-//			for (i = 0; ((i < sampleCountVector.at(j)) && (i < getBlockSize() - timeStamp)); i++) {
-//				
-//				out[timeStamp + i] += (inVector.at(j)[i] * noteVelocity*micGains.at(j));
-//			}
-//			if ((i + timeStamp >= getBlockSize())&&channel==0) {
-//				IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i,(instrumentSamples==hi_hat_openSampleBuffers));
-//				iterators->push_back(newPack);
-//			}
-//		}
-//		
-//	}
-//	//If we triggered a closed hi-hat, mute open hi_hat hits.
-//	if (instrumentSamples == hi_hat_closedSampleBuffers) {
-//		for (IteratorPack &currPack : *iterators) {
-//			if (currPack.isHiHatOpen) {
-//				currPack.samplesLeft = timeStamp+HI_HAT_SAMPLE_OFFSET;
-//			}
-//		}
-//	}
-//
-//	
-//}
-void DrumSamplerAudioProcessor::triggerInstrument
-(AudioBuffer<float> *bufferToFill, AudioSampleBuffer** instrumentSamples, vector<float> micGains, int numLevels, float noteVelocity, int timeStamp) {
-
-	//TODO:Mix in the room sound and other mics
-	// Change 5
-	//AudioSampleBuffer *newArray = instrumentSamples[5];
-
-	//Calculate which hardness level of each sample top play based on velocity of the note and 
-	//the number of available velocities.
-	float levelNumber = 128 * noteVelocity*float(numLevels) / 129;
-	//Vector to hold the read pointers of each sample to be played.
-	vector<const float*> inVector;
-	//vector to hold how many sample from each read pointer is going to be played.
-	vector<int> sampleCountVector;
-
-	//Randomize which version of the same sample it is going to play
-	int version = rand() % NUM_OF_SAME_SAMPLE;
-
-	//Create an iterator to be played for each microphone
-	for (int i = 0; i < micGains.size(); i++) {
-		//Find the correct index that holds each sample of each room mic.
-		int index = (int(levelNumber)*NUM_OF_SAME_SAMPLE*micGains.size()) + (version + i * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
-		inVector.push_back(instrumentSamples[index]->getReadPointer(0));
-		//Add the number of samples to be played to another vector
-		sampleCountVector.push_back(instrumentSamples[version + i * NUM_OF_SAME_SAMPLE]->getNumSamples());
-
-	}
-	//auto in = newArray[5]->getReadPointer(0);
-	//int sampleNum = newArray->getNumSamples();
-
-	int i = 0;
-	//TODO:Set Stereo gain levels
-	//Write the samples to the output buffer and store the remaining in iteratorPack.
-	for (int channel = 0; channel < getTotalNumOutputChannels(); ++channel) {
-		float *out = bufferToFill->getWritePointer(channel);
-
-		for (int j = 0; j < inVector.size(); j++) {
-			for (i = 0; ((i < sampleCountVector.at(j)) && (i < getBlockSize() - timeStamp)); i++) {
-
-				out[timeStamp + i] += (inVector.at(j)[i] * noteVelocity*micGains.at(j));
-			}
-			if ((i + timeStamp >= getBlockSize()) && channel == 0) {
-				IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
-				iterators->push_back(newPack);
-			}
-		}
-
-	}
-	//If we triggered a closed hi-hat, mute open hi_hat hits.
-	if (instrumentSamples == hi_hat_closedSampleBuffers) {
-		for (IteratorPack &currPack : *iterators) {
-			if (currPack.isHiHatOpen) {
-				currPack.samplesLeft = timeStamp + HI_HAT_SAMPLE_OFFSET;
-			}
-		}
-	}
-
-
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -607,7 +487,18 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			roomFader *= *parameters.getRawParameterValue("Kick Room Mix");
 			micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
 			micVector.push_back(roomFader*masterFader*kickMaster);//room
-			triggerInstrument(&buffer, kickSampleBuffers, micVector, KICK_VELOCITY_COUNT, noteVelocity, timeStamp);
+			////TODO: Pass in the instrument
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			micVector.push_back(0.1);
+			kickPack->triggerInstrument(&buffer, (kickPack->micPointers), micVector, KICK_VELOCITY_COUNT, noteVelocity, timeStamp, getNumOutputChannels(),getBlockSize());
+
 		//}
 
 			//Very long if statements to map each midi note to an instrument. TODO:Fix it
@@ -786,70 +677,4 @@ void DrumSamplerAudioProcessor::setStateInformation (const void* data, int sizeI
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new DrumSamplerAudioProcessor();
-}
-
-DrumSamplerAudioProcessor::InstrumentPack::InstrumentPack(String instrumentName, int velocityCount, DrumSamplerAudioProcessor* processor) {
-	this->velocityCount = velocityCount;
-	this->instrumentName = instrumentName;
-	this->processor = processor;
-}
-
-void DrumSamplerAudioProcessor::InstrumentPack::createBuffers() {
-	this->micPointers = ((AudioSampleBuffer***)calloc(MIC_COUNT, sizeof(AudioSampleBuffer**)));
-	
-	for (int micNumber = 0; micNumber < MIC_NAMES->length();micNumber++) {
-		String micName = MIC_NAMES[micNumber];
-		bool arrayCreated = 0;
-
-		for (int velocityNumber = 0; velocityNumber < this->velocityCount; velocityNumber++) {
-			String velocityName;
-			velocityName.append("v", 1);
-			velocityName.append(String(velocityNumber + 1),1);
-			
-			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {			
-				if (micPointers[micNumber] == 0) {
-					micPointers[micNumber]=(AudioSampleBuffer**)calloc(NUM_OF_SAME_SAMPLE*this->velocityCount, sizeof(AudioSampleBuffer*));
-				}
-
-				String version;
-				version.append("(", 1);
-				version.append(String(versionNumber + 1),1);
-				version.append((")"),1);
-
-				std::unique_ptr<AudioFormatReaderSource> readerSource;
-				File newFile(String(processor->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav"));
-				
-				if (newFile.existsAsFile()) {
-					
-					std::unique_ptr<AudioFormatReader> reader(this->processor->formatManager.createReaderFor(newFile));
-					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(1, reader->lengthInSamples);
-					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, false);
-					Range<float> range = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
-					float max = std::max(abs(range.getStart()), abs(range.getEnd()));
-					newBuffer->applyGain(1 / max);
-					newBuffer->applyGainRamp(0, 10, 0, 1);
-					//TODO:Delete testint
-					int testint = (velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber);
-					micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = newBuffer;
-				}
-				else {
-
-					if (velocityNumber == 0 && versionNumber == 0) {
-						delete this->micPointers[micNumber];
-						this->micPointers[micNumber] = 0;
-						break;
-					}
-					else {
-						micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = new AudioSampleBuffer();
-					}
-				}
-				if (micPointers[micNumber] == 0) break;
-			}
-			if (micPointers[micNumber] == 0) break;
-		}
-	}
-}
-
-void DrumSamplerAudioProcessor::InstrumentPack::fillBuffer(int velocity, AudioSampleBuffer* bufferToFill) {
-
 }
