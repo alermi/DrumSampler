@@ -17,9 +17,9 @@ public:
 	File * samplesFolder;
 
 	void findSamplesFolder();
-
+	void fillMidiMap();
 	File *getSamplesFolder();
-
+	std::map<int, std::pair<String,int>> MidiMap;
 };
 
 

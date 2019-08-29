@@ -16,5 +16,7 @@ public:
 	float velocity;
 	int samplesLeft;
 	bool isHiHatOpen;
-	IteratorPack(float* address, float velocity, int samplesLeft, bool isHiHatOpen);
+	int channelNum;
+
+	IteratorPack(float* address, float velocity, int samplesLeft, bool isHiHatOpen, int channelNum);
 };

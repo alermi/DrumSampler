@@ -62,7 +62,7 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 	
-	bool createBuffers(AudioSampleBuffer** sampleBuffersToFill, String instrumentName, vector<String> micNames, vector<String> velocityNames);
+	//bool createBuffers(AudioSampleBuffer** sampleBuffersToFill, String instrumentName, vector<String> micNames, vector<String> velocityNames);
 
 	AudioProcessorValueTreeState parameters;
 
@@ -91,6 +91,7 @@ protected:
 	AudioSampleBuffer** hi_hat_openSampleBuffers;
 	AudioSampleBuffer** rideSampleBuffers;
 	AudioSampleBuffer** stackSampleBuffers;
+	std::map<int, Instrument> instrumentMap;
 
 	float roomFader;
 	float masterFader;

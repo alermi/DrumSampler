@@ -10,9 +10,10 @@
 
 #include "IteratorPack.h"
 
-IteratorPack::IteratorPack(float* address, float velocity, int samplesLeft, bool isHiHatOpen) {
+IteratorPack::IteratorPack(float* address, float velocity, int samplesLeft, bool isHiHatOpen, int channelNum) {
 	this->address = address;
 	this->velocity = velocity;
 	this->samplesLeft = samplesLeft;
 	this->isHiHatOpen = isHiHatOpen;
+	this->channelNum = channelNum;
 }

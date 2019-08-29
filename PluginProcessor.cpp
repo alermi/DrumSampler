@@ -51,10 +51,8 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
+						.withOutput("Kick", AudioChannelSet::mono(), true)
                      #endif
                        )
 #endif
@@ -178,78 +176,30 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 
 	//list<IteratorPack>* iterators;
 	iterators = new list<IteratorPack>();
+	formatManager = new AudioFormatManager();
+	// TODO: Move to file manager
+	formatManager->registerBasicFormats();
 
-	formatManager=new AudioFormatManager();
+
+	instrumentMap = std::map<int, Instrument>();
+	
+	for (std::map<int, std::pair<String, int>>::iterator iter = sampleManager->MidiMap.begin(); iter != sampleManager->MidiMap.end(); ++iter)
+	{
+		if (iter->second.first.compare("")) {
+			Instrument newInstrument(iter->second.first, iter->second.second, formatManager, sampleManager, iterators);
+			newInstrument.createBuffers();
+			instrumentMap.insert(pair<int, Instrument>(iter->first, newInstrument));
+		}
+
+	}
+/*
 	kickPack = new Instrument(String("kick"), 6, formatManager, sampleManager, iterators);
 
-	kickPack->createBuffers();
+	kickPack->createBuffers();*/
 
-	//kickSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	//vector<String> kickMics = { "Direct","Room" };
-	//vector<String> kickVelocities = { "Soft","Medium","Hard" };
-	//createBuffers(kickSampleBuffers, "Kick", kickMics, kickVelocities);
-	//kickPack->micPointers = kickSampleBuffers;
-	
 
-	/*
-	snareSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> snareMics = { "Top","Bottom","Room" };
-	vector<String> snareVelocities = { "Feather","Soft","Medium","Hard" };
-	createBuffers(snareSampleBuffers, "Snare", snareMics, snareVelocities);
 
-	chinaSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> chinaMics = { "OH" };
-	vector<String> chinaVelocities = { "Medium" };
-	createBuffers(chinaSampleBuffers, "China", chinaMics, chinaVelocities);
-	
-	crash_altSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> crash_altMics = { "OH" };
-	vector<String> crash_altVelocities = { "Medium" };
-	createBuffers(crash_altSampleBuffers, "Crash_Alt", crash_altMics, crash_altVelocities);
 
-	crash_mainSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> crash_mainMics = { "OH" };
-	vector<String> crash_mainVelocities = { "Soft", "Hard" };
-	createBuffers(crash_mainSampleBuffers, "Crash_Main", crash_mainMics, crash_mainVelocities);
-
-	floor_tomSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> floor_tomMics = { "Direct", "Room" };
-	vector<String> floor_tomVelocities = { "Soft","Medium", "Hard" };
-	createBuffers(floor_tomSampleBuffers, "Floor_Tom", floor_tomMics, floor_tomVelocities);
-
-	rack_tomSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> rack_tomMics = { "Direct", "Room" };
-	vector<String> rack_tomVelocities = { "Soft","Medium", "Hard" };
-	createBuffers(rack_tomSampleBuffers, "Rack_Tom", rack_tomMics, rack_tomVelocities);
-
-	hi_hat_closedSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> hi_hat_closedMics = { "Direct", "Room" };
-	vector<String> hi_hat_closedVelocities = { "Soft","Medium", "Hard" };
-	createBuffers(hi_hat_closedSampleBuffers, "Hi_Hat_Closed", hi_hat_closedMics, hi_hat_closedVelocities);
-	
-	hi_hat_openSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> hi_hat_openMics = { "Direct", "Room" };
-	vector<String> hi_hat_openVelocities = { "Soft", "Hard" };
-	createBuffers(hi_hat_openSampleBuffers, "Hi_Hat_Open", hi_hat_openMics, hi_hat_openVelocities);
-
-	rideSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> rideMics = { "OH" };
-	vector<String> rideVelocities = { "Soft", "Hard" };
-	createBuffers(rideSampleBuffers, "Ride", rideMics, rideVelocities);
-
-	stackSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> stackMics = { "OH" };
-	vector<String> stackVelocities = { "Medium" };
-	createBuffers(stackSampleBuffers, "Stack", stackMics, stackVelocities);
-
-	snare_rimSampleBuffers = (AudioSampleBuffer **)calloc(NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT, sizeof(AudioSampleBuffer*));
-	vector<String> snare_rimMics = { "Top","Bottom","Room" };
-	vector<String> snare_rimVelocities = { "Medium" };
-	createBuffers(snare_rimSampleBuffers, "Snare_Rim", snare_rimMics, snare_rimVelocities);*/
-	/*
-	for (int i = 0; i < NUM_OF_SAME_SAMPLE*KICK_MIC_COUNT*KICK_VELOCITY_COUNT; i++) {
-		auto test = kickSampleBuffers[i];
-	}*/
 }
 
 DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
@@ -345,38 +295,6 @@ const String DrumSamplerAudioProcessor::getProgramName (int index)
 void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
-
-/* Method to fill the Audio Buffers with corresponding samples.
-*/
-bool DrumSamplerAudioProcessor::createBuffers
-	(AudioSampleBuffer** sampleBuffersToFill, String instrumentName, vector<String> micNames, vector<String> velocityNames) {
-
-	for (int hardness = 0; hardness < velocityNames.size(); hardness++) {
-
-		for (int mic = 0; mic < micNames.size(); mic++) {
-
-			for (int i = 1; i <= NUM_OF_SAME_SAMPLE; i++) {
-				std::unique_ptr<AudioFormatReaderSource> readerSource;
-				File newFile(String(sampleManager->getSamplesFolder()->getFullPathName() + "\\"+instrumentName+" "+micNames.at(mic)+" "+velocityNames.at(hardness)+"  (" + String(i) + ").wav"));
-				if (newFile.existsAsFile()) {
-					std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
-					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(1, reader->lengthInSamples);
-					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, false);
-					Range<float> range = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
-					float max = std::max(abs(range.getStart()), abs(range.getEnd()));
-					newBuffer->applyGain(1 / max);
-					newBuffer->applyGainRamp(0, 10, 0, 1);
-					int testint = (hardness*NUM_OF_SAME_SAMPLE*micNames.size()) + (NUM_OF_SAME_SAMPLE*mic) + (i - 1);
-					sampleBuffersToFill[(hardness*NUM_OF_SAME_SAMPLE*micNames.size())+(NUM_OF_SAME_SAMPLE*mic)+(i - 1)] = newBuffer;
-				}
-				else {
-					sampleBuffersToFill[(hardness*NUM_OF_SAME_SAMPLE*micNames.size()) + (NUM_OF_SAME_SAMPLE*mic) + (i - 1)] = new AudioSampleBuffer();
-				}
-			}
-		}
-	}
-	return true;
-}
 //==============================================================================
 void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
@@ -388,6 +306,7 @@ void DrumSamplerAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+	
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -450,12 +369,12 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	while (it!=end) {
 		IteratorPack currPack = *it;
 		int i=0;
-		for (int channel = 0; channel < totalNumOutputChannels; ++channel){
-			float *out = buffer.getWritePointer(channel);
-			for (i = 0; (i < currPack.samplesLeft) && (i < getBlockSize()); i++) {
-				out[i] += currPack.address[i]*currPack.velocity;
-			}
+		//for (int channel = 0; channel < 1; ++channel){
+		float *out = buffer.getWritePointer(currPack.channelNum);
+		for (i = 0; (i < currPack.samplesLeft) && (i < getBlockSize()); i++) {
+			out[i] += currPack.address[i]*currPack.velocity;
 		}
+		//}
 		//If the iterator has reached the end, erase the element.
 		if (i < getBlockSize()) {
 			it=iterators->erase(it);
@@ -483,166 +402,35 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			vector<float> micVector; 
 			////If kick
 		//else if (noteNumber>=34 && noteNumber<=36) {
-			float kickMaster = *parameters.getRawParameterValue("Kick Master Mix");
+
+
+			//TODO: Vary these parameters based on the isntrument
+			float master = *parameters.getRawParameterValue("Kick Master Mix");
 			roomFader *= *parameters.getRawParameterValue("Kick Room Mix");
-			micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
-			micVector.push_back(roomFader*masterFader*kickMaster);//room
-			////TODO: Pass in the instrument
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			micVector.push_back(0.1);
-			kickPack->triggerInstrument(&buffer, (kickPack->micPointers), micVector, KICK_VELOCITY_COUNT, noteVelocity, timeStamp, getNumOutputChannels(),getBlockSize());
-
-		//}
-
-			//Very long if statements to map each midi note to an instrument. TODO:Fix it
-
-			// //if hi_hat_closed
-			//if ((noteNumber <= 11 && noteNumber>=7)||
-			//		(noteNumber>=18 && noteNumber<=22) ||
-			//		noteNumber==42 || 
-			//		noteNumber==44 ||
-			//		(noteNumber>=61 && noteNumber<=65)||
-			//		noteNumber==119 ||
-			//		noteNumber==122){
-			//	float hi_hat_closedMaster = *parameters.getRawParameterValue("Hi_Hat Master Mix");
-			//	roomFader *= *parameters.getRawParameterValue("Hi_Hat Room Mix");
-			//	micVector.push_back((1 - roomFader)*masterFader*hi_hat_closedMaster);//direct
-			//	micVector.push_back(roomFader*masterFader*hi_hat_closedMaster);//room
-			//	triggerInstrument(&buffer, hi_hat_closedSampleBuffers, micVector, HI_HAT_CLOSED_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////If snare
-			//else if (noteNumber == 6 || 
-			//		noteNumber==33|| 
-			//		noteNumber==37||
-			//		noteNumber==38||
-			//		(noteNumber>=66 && noteNumber<=71)||
-			//		noteNumber==125){
-			//	float snareBottomFader = *parameters.getRawParameterValue("Snare Bottom Mix");
-			//	float snareMaster = *parameters.getRawParameterValue("Snare Master Mix");
-			//	roomFader *= *parameters.getRawParameterValue("Snare Room Mix");
-			//	micVector.push_back(((1 - roomFader)*(1 - snareBottomFader))*masterFader*snareMaster);//top
-			//	micVector.push_back(((1 - roomFader)*snareBottomFader)*masterFader*snareMaster);//bottom
-			//	micVector.push_back(roomFader*masterFader*snareMaster);//room
-			//	triggerInstrument(&buffer, snareSampleBuffers, micVector, SNARE_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////If kick
-			//else if (noteNumber>=34 && noteNumber<=36) {
-			//	float kickMaster = *parameters.getRawParameterValue("Kick Master Mix");
-			//	roomFader *= *parameters.getRawParameterValue("Kick Room Mix");
-			//	micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
-			//	micVector.push_back(roomFader*masterFader*kickMaster);//room
-			//	triggerInstrument(&buffer, kickSampleBuffers, micVector, KICK_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////if hi_hat_open
-			//else if ((noteNumber >= 12 && noteNumber<=17||
-			//		(noteNumber >= 23 && noteNumber <= 26)||
-			//		noteNumber==46)||
-			//		noteNumber==60||
-			//		noteNumber>=120 && noteNumber<=124) {
-			//	float hi_hat_openMaster = *parameters.getRawParameterValue("Hi_Hat Master Mix");
-			//	roomFader *= *parameters.getRawParameterValue("Hi_Hat Room Mix");
-			//	micVector.push_back((1 - roomFader)*masterFader*hi_hat_openMaster);//direct
-			//	micVector.push_back(roomFader*masterFader*hi_hat_openMaster);//room
-			//	triggerInstrument(&buffer, hi_hat_openSampleBuffers, micVector, HI_HAT_OPEN_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////If crash_main
-			//else if (noteNumber == 28||
-			//	noteNumber==29||
-			//	noteNumber==49||
-			//	noteNumber==54||
-			//	noteNumber==83||
-			//	noteNumber==94||
-			//	noteNumber==95) {
-			//	float crash_mainMaster = *parameters.getRawParameterValue("Crash_Main Master Mix");
-			//	micVector.push_back(crash_mainMaster*noteVelocity*masterFader);
-			//	triggerInstrument(&buffer, crash_mainSampleBuffers, micVector, CRASH_MAIN_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}//If crash_alt
-			//else if ((noteNumber >= 30 && noteNumber <= 32)||
-			//	noteNumber==57||
-			//	noteNumber==58||
-			//	noteNumber==76||
-			//	noteNumber==106||
-			//	noteNumber==107||
-			//	noteNumber==118) {
-			//	float crash_altMaster = *parameters.getRawParameterValue("Crash_Alt Master Mix");
-			//	micVector.push_back(crash_altMaster*noteVelocity*masterFader);
-			//	triggerInstrument(&buffer, crash_altSampleBuffers, micVector, CRASH_ALT_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////If china
-			//else if (noteNumber == 52 ||
-			//	noteNumber == 93||
-			//	noteNumber==117) {
-			//	float chinaMaster = *parameters.getRawParameterValue("China Master Mix");
-			//	micVector.push_back(chinaMaster*noteVelocity*masterFader);
-			//	triggerInstrument(&buffer, chinaSampleBuffers, micVector, CHINA_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////if ride
-			//else if (noteNumber == 51||
-			//	noteNumber==53||
-			//	noteNumber==56||
-			//	noteNumber==59||
-			//	(noteNumber>=84 && noteNumber<= 92)||
-			//	(noteNumber>=96 && noteNumber <= 105||
-			//	(noteNumber>=108 && noteNumber<=116))) {
-			//	float rideMaster = *parameters.getRawParameterValue("Ride Master Mix");
-			//	micVector.push_back(rideMaster*noteVelocity*masterFader);
-			//	triggerInstrument(&buffer, rideSampleBuffers, micVector, RIDE_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////if stack
-			//else if (noteNumber == 27 ||
-			//	noteNumber==55) {
-			//	float stackMaster = *parameters.getRawParameterValue("Stack Master Mix");
-			//	micVector.push_back(stackMaster*noteVelocity*masterFader);
-			//	triggerInstrument(&buffer, stackSampleBuffers, micVector, STACK_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
+			//micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
+			//micVector.push_back(roomFader*masterFader*kickMaster);//room
 			//
-			////if rack tom
-			//else if (noteNumber <= 3||
-			//	noteNumber==45||
-			//	noteNumber==47||
-			//	noteNumber==48||
-			//	noteNumber==50||
-			//	(noteNumber>=77 && noteNumber<=82)) {
-			//	float rack_tomMaster = *parameters.getRawParameterValue("Rack_Tom Master Mix");
-			//	roomFader = *parameters.getRawParameterValue("Rack_Tom Room Mix");
-			//	micVector.push_back((1 - roomFader)*masterFader*rack_tomMaster);//direct
-			//	micVector.push_back(roomFader*masterFader*rack_tomMaster);//room
-			//	triggerInstrument(&buffer, rack_tomSampleBuffers, micVector, RACK_TOM_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			////if floor tom
-			//else if (noteNumber == 4 ||
-			//	noteNumber == 5 |
-			//	noteNumber == 41 ||
-			//	noteNumber == 43||
-			//	(noteNumber>=72 && noteNumber<=75)) {
-			//	float floor_tomMaster = *parameters.getRawParameterValue("Floor_Tom Master Mix");
-			//	roomFader *= *parameters.getRawParameterValue("Floor_Tom Room Mix");
-			//	micVector.push_back((1 - roomFader)*masterFader*floor_tomMaster);//direct
-			//	micVector.push_back(roomFader*masterFader*floor_tomMaster);//room
-			//	triggerInstrument(&buffer, floor_tomSampleBuffers, micVector, FLOOR_TOM_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-			//
-			////if snare rim
-			//else if (noteNumber == 39||
-			//	noteNumber==40|
-			//	noteNumber==126||
-			//	noteNumber==127) {
-			//	float snare_rimBottomFader = *parameters.getRawParameterValue("Snare Bottom Mix");
-			//	float snare_rimMaster = *parameters.getRawParameterValue("Snare Master Mix");
-			//	roomFader *= *parameters.getRawParameterValue("Snare Room Mix");
+			micVector.push_back(float(0.2*master)); // kick_in 1
+			micVector.push_back(float(0.2*master)); // kick_out 1
+			micVector.push_back(float(1)); // snare_bottom
+			micVector.push_back(float(1)); // snare_top
+			micVector.push_back(float(1)); // tom1
+			micVector.push_back(float(1)); // tom2
+			micVector.push_back(float(1)); // tom3
+			micVector.push_back(float(1)); // ride
+			micVector.push_back(float(0)); // overhead
+			micVector.push_back(float(0.2*roomFader)); // room_main
+			micVector.push_back(float(0.2*roomFader)); // room_mono
+			micVector.push_back(float(0.2*roomFader)); // room_wide
+
 			//	micVector.push_back(((1 - roomFader)*(1 - snare_rimBottomFader))*masterFader*snare_rimMaster);//top
 			//	micVector.push_back(((1 - roomFader)*snare_rimBottomFader)*masterFader*snare_rimMaster);//bottom
-			//	micVector.push_back(roomFader*masterFader*snare_rimMaster);//room
-			//	triggerInstrument(&buffer, snare_rimSampleBuffers, micVector, SNARE_RIM_VELOCITY_COUNT, noteVelocity, timeStamp);
-			//}
-
+			std::map<int, Instrument>::iterator iter = instrumentMap.find(noteNumber);
+			if (iter != instrumentMap.end()) {
+				Instrument tempInst = iter->second;
+				//TODO: Remove micPointers, velocityCount
+				tempInst.triggerInstrument(&buffer, tempInst.micPointers, micVector, tempInst.velocityCount, noteVelocity, timeStamp, totalNumOutputChannels, getBlockSize());
+			}
 		}
 	}
 }

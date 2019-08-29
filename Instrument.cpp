@@ -43,8 +43,8 @@ const int HI_HAT_SAMPLE_OFFSET = 32;
 
 
 const int MIC_COUNT = 12;
-const String MIC_NAMES[12] = { "floor_tom_1", "floor_tom_2", "kick_in", "kick_out",
-			"mono_room", "overhead", "rack_tom", "ride", "room", "snare_bottom", "snare_top", "wide_room" };
+const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "overhead", "room_main",
+			"room_mono", "room_wide"};
 Instrument::Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager, list<IteratorPack>* iterators) {
 	this->velocityCount = velocityCount;
 	this->instrumentName = instrumentName;
@@ -52,38 +52,33 @@ Instrument::Instrument(String instrumentName, int velocityCount, AudioFormatMana
 	this->formatManager = formatManager;
 	this->sampleManager = sampleManager;
 	this->iterators = iterators;
-	// TODO: Move to file manager
-	formatManager->registerBasicFormats();
+
 
 }
 
 void Instrument::createBuffers() {
 	this->micPointers = ((AudioSampleBuffer***)calloc(MIC_COUNT, sizeof(AudioSampleBuffer**)));
 
-	for (int micNumber = 0; micNumber < MIC_NAMES->length(); micNumber++) {
+	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
 		String micName = MIC_NAMES[micNumber];
 		bool arrayCreated = 0;
 
 		for (int velocityNumber = 0; velocityNumber < this->velocityCount; velocityNumber++) {
 			String velocityName;
-			velocityName.append("v", 1);
+			//velocityName.append("v", 1);
 			velocityName.append(String(velocityNumber + 1), 1);
 
 			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
 				if (micPointers[micNumber] == 0) {
 					micPointers[micNumber] = (AudioSampleBuffer**)calloc(NUM_OF_SAME_SAMPLE*this->velocityCount, sizeof(AudioSampleBuffer*));
 				}
-
 				String version;
-				version.append("(", 1);
 				version.append(String(versionNumber + 1), 1);
-				version.append((")"), 1);
 
 				std::unique_ptr<AudioFormatReaderSource> readerSource;
 				File newFile(String(sampleManager->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav"));
 
 				if (newFile.existsAsFile()) {
-
 					std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
 					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(1, reader->lengthInSamples);
 					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, false);
@@ -92,6 +87,8 @@ void Instrument::createBuffers() {
 					newBuffer->applyGain(1 / max);
 					newBuffer->applyGainRamp(0, 10, 0, 1);
 					//TODO:Delete testint
+					//int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
+
 					int testint = (velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber);
 					micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = newBuffer;
 				}
@@ -126,7 +123,7 @@ void Instrument::triggerInstrument
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
-	float levelNumber = 128 * noteVelocity*float(numLevels) / 129;
+	int levelNumber = 128 * noteVelocity*float(numLevels) / 129;
 	//Vector to hold the read pointers of each sample to be played.
 	std::vector<const float*> inVector;
 	//vector to hold how many sample from each read pointer is going to be played.
@@ -138,8 +135,6 @@ void Instrument::triggerInstrument
 	//Create an iterator to be played for each microphone
 	for (int i = 0; i < micGains.size(); i++) {
 		AudioSampleBuffer** tempMic = instrumentSamples[i];
-
-
 		//Find the correct index that holds each sample of each room mic.
 		int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
 		//TODO: Fix this hacky fix
@@ -148,6 +143,10 @@ void Instrument::triggerInstrument
 			inVector.push_back(sample->getReadPointer(0));
 			//Add the number of samples to be played to another vector
 			sampleCountVector.push_back(tempMic[index]->getNumSamples());
+		}// Push nulls for empty buffers so that the indices dont get messed up
+		else {
+			inVector.push_back(NULL);
+			sampleCountVector.push_back(NULL);
 		}
 
 	}
@@ -157,18 +156,21 @@ void Instrument::triggerInstrument
 	int i = 0;
 	//TODO:Set Stereo gain levels
 	//Write the samples to the output buffer and store the remaining in iteratorPack.
-	for (int channel = 0; channel < numOutputChannels; ++channel) {
+	for (int channel = 0; channel < 3; ++channel) {
 		float *out = bufferToFill->getWritePointer(channel);
 
 		for (int j = 0; j < inVector.size(); j++) {
+			if (inVector.at(j) == NULL) {
+				continue;
+			}
 			for (i = 0; ((i < sampleCountVector.at(j)) && (i < blockSize - timeStamp)); i++) {
 
 				out[timeStamp + i] += (inVector.at(j)[i] * noteVelocity*micGains.at(j));
 			}
-			if ((i + timeStamp >= blockSize) && channel == 0) {
+			if ((i + timeStamp >= blockSize)) {
 				//TODO: Fix the boolean of if this is a hi hat open
 				//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
-				IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (false));
+				IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (false), channel);
 				iterators->push_back(newPack);
 			}
 		}
