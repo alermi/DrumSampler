@@ -145,7 +145,7 @@ void Instrument::triggerInstrument
 			sampleCountVector.push_back(tempMic[index]->getNumSamples());
 		}// Push nulls for empty buffers so that the indices dont get messed up
 		else {
-			inVector.push_back(NULL);
+			inVector.push_back(0);
 			sampleCountVector.push_back(NULL);
 		}
 
@@ -160,7 +160,7 @@ void Instrument::triggerInstrument
 		float *out = bufferToFill->getWritePointer(channel);
 
 		for (int j = 0; j < inVector.size(); j++) {
-			if (inVector.at(j) == NULL) {
+			if (inVector.at(j) == 0 ) {
 				continue;
 			}
 			for (i = 0; ((i < sampleCountVector.at(j)) && (i < blockSize - timeStamp)); i++) {

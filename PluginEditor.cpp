@@ -33,6 +33,18 @@ DrumSamplerAudioProcessorEditor::DrumSamplerAudioProcessorEditor (DrumSamplerAud
 	kickMasterSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(processor.parameters, "Kick Master Mix", kickMasterSlider);
 	addAndMakeVisible(&kickMasterSlider);
 
+	kickOverheadSlider.setRange(0, 1);
+	kickOverheadSlider.setSliderStyle(Slider::RotaryVerticalDrag);
+	kickOverheadSlider.setTextBoxStyle(Slider::NoTextBox, false, 100, 20);
+	kickOverheadSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(processor.parameters, "Kick Overhead Mix", kickOverheadSlider);
+	addAndMakeVisible(&kickOverheadSlider);
+
+	kickInOutSlider.setRange(0, 1);
+	kickInOutSlider.setSliderStyle(Slider::RotaryVerticalDrag);
+	kickInOutSlider.setTextBoxStyle(Slider::NoTextBox, false, 100, 20);
+	kickInOutSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(processor.parameters, "Kick In/Out Mix", kickInOutSlider);
+	addAndMakeVisible(&kickInOutSlider);
+
 	snareRoomSlider.setRange(0, 1);
 	snareRoomSlider.setSliderStyle(Slider::RotaryVerticalDrag);
 	snareRoomSlider.setTextBoxStyle(Slider::NoTextBox, false, 100, 20);
@@ -158,6 +170,9 @@ void DrumSamplerAudioProcessorEditor::paint (Graphics& g)
 	g.setFont(10);
 	g.drawText("Master:", 3, 38, 60, 20, Justification::left);
 	g.drawText("Room Mix:", 53, 38, 60, 20, Justification::left);
+	g.drawText("OH Mix:", 113, 38, 60, 20, Justification::left);
+	g.drawText("In/Out Mix:", 153, 38, 60, 20, Justification::left);
+
 	g.drawText("Master:", 203, 38, 60, 20, Justification::left);
 	g.drawText("Room Mix:", 253, 38, 60, 20, Justification::left);
 	g.drawText("Bottom/Top Mix:", 313, 38, 80, 20, Justification::left);
@@ -183,6 +198,9 @@ void DrumSamplerAudioProcessorEditor::resized()
 	
 	kickMasterSlider.setBounds(14, 50, 40, 40);//left top width height
 	kickRoomSlider.setBounds(64, 50, 40, 40);
+	kickOverheadSlider.setBounds(114, 50, 40, 40);
+	kickInOutSlider.setBounds(164, 50, 40, 40);
+
 	snareMasterSlider.setBounds(214, 50, 40, 40);
 	snareRoomSlider.setBounds(264, 50, 40, 40);
 	snareBottomSlider.setBounds(324, 50, 40, 40);

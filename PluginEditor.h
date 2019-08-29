@@ -37,6 +37,12 @@ private:
 	Slider kickMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickMasterSliderAttachment;
 
+	Slider kickInOutSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickInOutSliderAttachment;
+
+	Slider kickOverheadSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickOverheadSliderAttachment;
+
 	Slider snareRoomSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> snareRoomSliderAttachment;
 

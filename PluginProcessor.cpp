@@ -64,6 +64,17 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		NormalisableRange<float>(0, 1),    // range
 		0.2f,         // default value
 		""));
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick In/Out Mix",       // parameter ID
+		"Kick In/Out Mix",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Overhead Mix",       // parameter ID
+		"Kick Overhead Mix",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
 
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Master Mix",       // parameter ID
 		"Kick Master Mix",       // parameter name
@@ -405,23 +416,27 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 
 			//TODO: Vary these parameters based on the isntrument
-			float master = *parameters.getRawParameterValue("Kick Master Mix");
 			roomFader *= *parameters.getRawParameterValue("Kick Room Mix");
+			float master = *parameters.getRawParameterValue("Kick Master Mix");
+			float overHead = *parameters.getRawParameterValue("Kick Overhead Mix");
+
+
+			float kickInOut = *parameters.getRawParameterValue("Kick In/Out Mix");
 			//micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
 			//micVector.push_back(roomFader*masterFader*kickMaster);//room
 			//
-			micVector.push_back(float(0.2*master)); // kick_in 1
-			micVector.push_back(float(0.2*master)); // kick_out 1
+			micVector.push_back(float(0.2*master*kickInOut)); // kick_in 1
+			micVector.push_back(float(0.2*master*(1-kickInOut))); // kick_out 1
 			micVector.push_back(float(1)); // snare_bottom
 			micVector.push_back(float(1)); // snare_top
 			micVector.push_back(float(1)); // tom1
 			micVector.push_back(float(1)); // tom2
 			micVector.push_back(float(1)); // tom3
 			micVector.push_back(float(1)); // ride
-			micVector.push_back(float(0)); // overhead
-			micVector.push_back(float(0.2*roomFader)); // room_main
-			micVector.push_back(float(0.2*roomFader)); // room_mono
-			micVector.push_back(float(0.2*roomFader)); // room_wide
+			micVector.push_back(float(0.2*overHead*master)); // overhead
+			micVector.push_back(float(0.2*roomFader*master)); // room_main
+			micVector.push_back(float(0.2*roomFader*master)); // room_mono
+			micVector.push_back(float(0.2*roomFader*master)); // room_wide
 
 			//	micVector.push_back(((1 - roomFader)*(1 - snare_rimBottomFader))*masterFader*snare_rimMaster);//top
 			//	micVector.push_back(((1 - roomFader)*snare_rimBottomFader)*masterFader*snare_rimMaster);//bottom
