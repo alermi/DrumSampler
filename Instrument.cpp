@@ -125,7 +125,7 @@ void Instrument::triggerInstrument
 	//the number of available velocities.
 	int levelNumber = 128 * noteVelocity*float(numLevels) / 129;
 	//Vector to hold the read pointers of each sample to be played.
-	std::vector<const float*> inVector;
+	std::vector<AudioSampleBuffer*> inVector;
 	//vector to hold how many sample from each read pointer is going to be played.
 	std::vector<int> sampleCountVector;
 
@@ -140,7 +140,7 @@ void Instrument::triggerInstrument
 		//TODO: Fix this hacky fix
 		AudioSampleBuffer* sample = tempMic[index];
 		if (sample->getNumChannels() > 0) {
-			inVector.push_back(sample->getReadPointer(0));
+			inVector.push_back(sample);
 			//Add the number of samples to be played to another vector
 			sampleCountVector.push_back(tempMic[index]->getNumSamples());
 		}// Push nulls for empty buffers so that the indices dont get messed up
@@ -153,24 +153,30 @@ void Instrument::triggerInstrument
 	//auto in = newArray[5]->getReadPointer(0);
 	//int sampleNum = newArray->getNumSamples();
 
-	int i = 0;
 	//TODO:Set Stereo gain levels
 	//Write the samples to the output buffer and store the remaining in iteratorPack.
 	for (int channel = 0; channel < 3; ++channel) {
-		float *out = bufferToFill->getWritePointer(channel);
+		//float *out = bufferToFill->getWritePointer(channel);
 
 		for (int j = 0; j < inVector.size(); j++) {
 			if (inVector.at(j) == 0 ) {
 				continue;
 			}
-			for (i = 0; ((i < sampleCountVector.at(j)) && (i < blockSize - timeStamp)); i++) {
+			int samplesToCopy = std::min(sampleCountVector.at(j), blockSize - timeStamp);
 
-				out[timeStamp + i] += (inVector.at(j)[i] * noteVelocity*micGains.at(j));
-			}
-			if ((i + timeStamp >= blockSize)) {
+			// Fix source channel and gain applied
+
+			bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
+			//LEFT OFF: ADD A INT TO THE IteratorPack TO TELL YOU WHERE YOU LEFT OFF INSTEAD OF CREATING ANOTHER AUDIOSAMPLEBUFFER EVERY TIME
+			if ((samplesToCopy + timeStamp >= blockSize)) {
 				//TODO: Fix the boolean of if this is a hi hat open
 				//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
-				IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (false), channel);
+
+				//IteratorPack newPack(((float*)(inVector.at(j) + samplesToCopy)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
+				
+				IteratorPack newPack(inVector.at(j), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
+
+				newPack.sampleLeftAt = samplesToCopy;
 				iterators->push_back(newPack);
 			}
 		}

@@ -40,6 +40,9 @@ private:
 	Slider kickInOutSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickInOutSliderAttachment;
 
+	Slider kickDirectSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickDirectSliderAttachment;
+
 	Slider kickOverheadSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickOverheadSliderAttachment;
 
@@ -52,6 +55,12 @@ private:
 	Slider snareMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> snareMasterSliderAttachment;
 
+	Slider snareOverheadSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> snareOverheadSliderAttachment;
+
+	Slider snareDirectSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> snareDirectSliderAttachment;
+
 	Slider chinaMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> chinaMasterSliderAttachment;
 
@@ -61,23 +70,38 @@ private:
 	Slider crash_mainMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> crash_mainMasterSliderAttachment;
 
-	Slider floor_tomMasterSlider;
-	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> floor_tomMasterSliderAttachment;
+	Slider tom1MasterSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom1MasterSliderAttachment;
 
-	Slider floor_tomRoomSlider;
-	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> floor_tomRoomSliderAttachment;
+	Slider tom1RoomSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom1RoomSliderAttachment;
+
+	Slider tom1DirectSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom1DirectSliderAttachment;
+
+	Slider tom2MasterSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom2MasterSliderAttachment;
+
+	Slider tom2RoomSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom2RoomSliderAttachment;
+
+	Slider tom2DirectSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom2DirectSliderAttachment;
+
+	Slider tom3MasterSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom3MasterSliderAttachment;
+
+	Slider tom3RoomSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom3RoomSliderAttachment;
+
+	Slider tom3DirectSlider;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> tom3DirectSliderAttachment;
 
 	Slider hi_hatRoomSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> hi_hatRoomSliderAttachment;
 
 	Slider hi_hatMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> hi_hatMasterSliderAttachment;
-
-	Slider rack_tomMasterSlider;
-	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> rack_tomMasterSliderAttachment;
-
-	Slider rack_tomRoomSlider;
-	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> rack_tomRoomSliderAttachment;
 
 	Slider rideMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> rideMasterSliderAttachment;
