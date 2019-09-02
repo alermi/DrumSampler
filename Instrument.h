@@ -20,7 +20,6 @@ using namespace std;
 class Instrument {
 public:
 
-
 	String instrumentName;
 	int velocityCount;
 	AudioSampleBuffer*** micPointers;
@@ -32,11 +31,11 @@ public:
 
 	void createBuffers();
 	void fillBuffer(int velocity, AudioSampleBuffer* bufferToFill);
-	void triggerInstrument(AudioBuffer<float>* bufferToFill, AudioSampleBuffer *** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize);
+	void triggerInstrument(AudioBuffer<float>* bufferToFill, AudioSampleBuffer *** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]);
 	//void triggerInstrument(AudioBuffer<float>* bufferToFill, AudioSampleBuffer ** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize);
 	AudioSampleBuffer getBuffer();
-	Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager, list<IteratorPack>* iterators);
-
-
+	Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager);
+	void panMono(AudioSampleBuffer* input, int inputChannel, AudioSampleBuffer* output, float pan);
+	void Instrument::fillFromIterators(AudioSampleBuffer output);
 
 };

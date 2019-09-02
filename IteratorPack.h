@@ -15,10 +15,11 @@ class IteratorPack {
 public:
 	AudioSampleBuffer *address;
 	int sampleLeftAt;
+	int timestamp;
 	float velocity;
 	int samplesLeft;
 	bool isHiHatOpen;
 	int channelNum;
 
-	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, bool isHiHatOpen, int channelNum);
+	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, bool isHiHatOpen, int channelNum, int timestamp);
 };

@@ -43,15 +43,15 @@ const double PI = 3.141592653589793238462643383279502884;
 
 
 const int MIC_COUNT = 12;
-const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "overhead", "room_main",
-			"room_mono", "room_wide"};
-Instrument::Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager, list<IteratorPack>* iterators) {
+const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
+			"room_wide", "overhead" };
+Instrument::Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager) {
 	this->velocityCount = velocityCount;
 	this->instrumentName = instrumentName;
 	//TODO: remove processor and just pass in the format manager
 	this->formatManager = formatManager;
 	this->sampleManager = sampleManager;
-	this->iterators = iterators;
+	iterators = new list<IteratorPack>();
 
 
 }
@@ -82,22 +82,22 @@ void Instrument::createBuffers() {
 					std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
 					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
 					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
-					//TODO: Normalize again
-					//Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
-					//float max1 = std::max(abs(range1.getStart()), abs(range1.getEnd()));
-					//float max;
-					//if (newBuffer->getNumChannels() == 2) {
-					//	Range<float> range2 = newBuffer->findMinMax(1, 0, reader->lengthInSamples);
-					//	float max2 = std::max(abs(range2.getStart()), abs(range2.getEnd()));
-					//	float max = std::max(max1, max2);
 
-					//}
+					//TODO: Normalize again
+					Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
+					float max1 = std::max(abs(range1.getStart()), abs(range1.getEnd()));
+					newBuffer->applyGain(0, 0, newBuffer->getNumSamples(), 1 / max1);
+					newBuffer->applyGainRamp(0, 0, 10, 0, 1);
+
+					if (newBuffer->getNumChannels() == 2) {
+						Range<float> range2 = newBuffer->findMinMax(1, 0, reader->lengthInSamples);
+						float max2 = std::max(abs(range2.getStart()), abs(range2.getEnd()));
+						newBuffer->applyGain(1, 0, newBuffer->getNumSamples(), 1 / max2);
+						newBuffer->applyGainRamp(1, 0, 10, 0, 1);
+					}
 					//else {
 					//	max = max1;
 					//}
-
-					//newBuffer->applyGain(1 / max);
-					newBuffer->applyGainRamp(0, 10, 0, 1);
 					//TODO:Delete testint
 					//int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
 
@@ -127,7 +127,9 @@ void Instrument::fillBuffer(int velocity, AudioSampleBuffer* bufferToFill) {
 }
 
 void Instrument::triggerInstrument
-(AudioBuffer<float> *bufferToFill, AudioSampleBuffer*** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize) {
+(AudioBuffer<float> *bufferToFill, AudioSampleBuffer*** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]) {
+	//float monoPan = 0.1;
+	//float stereoPan[2] = { 0.1,0.9 };
 
 	//TODO:Mix in the room sound and other mics
 	// Change 5
@@ -163,55 +165,57 @@ void Instrument::triggerInstrument
 
 	}
 
-	//auto in = newArray[5]->getReadPointer(0);
-	//int sampleNum = newArray->getNumSamples();
+	//TODO: Fix the boolean of if this is a hi hat open
 
 	//TODO:Set Stereo gain levels
 	//Write the samples to the output buffer and store the remaining in iteratorPack.
-		//float *out = bufferToFill->getWritePointer(channel);
 
-	for (int j = 0; j < inVector.size(); j++) {
+	//vector<float> pans = { float(0.5) , float(0.5) };
+	//vector<std::array<float, 2>> panValues;
+	//for (int i = 0; i < size(pans); i++) {
+	//	float pan = pans.at(i);
+	//	std::array<float, 2> tempPanArray = { sin(pan*(PI / 2)) ,sin((PI / 2) * (1 - pan)) };
+	//	panValues.push_back(tempPanArray);
+	//}
+
+	std::array<float, 2> monoPanValues = { sin(monoPan*(PI / 2)) ,sin((PI / 2) * (1 - monoPan)) };
+	vector<std::array<float, 2>> stereoPanValues;
+	std::array<float, 2> tempArray1 = { sin(stereoPan[0] * (PI / 2)) ,sin((PI / 2) * (1 - stereoPan[0])) };
+	stereoPanValues.push_back(tempArray1);
+	std::array<float, 2> tempArray2 = { sin(stereoPan[1] * (PI / 2)), sin((PI / 2) * (1 - stereoPan[1])) };
+	stereoPanValues.push_back(tempArray2);
+
+
+	for (int j = 0; j < 9; j++) {
 		AudioSampleBuffer* currBuffer = inVector.at(j);
 		if (currBuffer == 0) {
 			continue;
 		}
-		vector<float> pans = { float(0.2) , float(0.5) };
-		vector<std::array<float, 2>> panValues;
-
-		for (int i = 0; i < size(pans); i++) {
-			float pan = pans.at(i);
-			std::array<float, 2> tempPanArray =  { sin(pan*(PI / 2)) ,sin((PI / 2) * (1 - pan)) };
-			panValues.push_back(tempPanArray);
-			//panValues.at(i)[0] = sin(pan*(PI / 2));
-			//panValues.at(i)[1] = sin((PI / 2) * (1 - pan));
-		}
-		int samplesToCopy = std::min(sampleCountVector.at(j), blockSize - timeStamp);
-
-
+		jassert(currBuffer->getNumChannels() == 1);
 		for (int sourceChannel = 0; sourceChannel < 1; sourceChannel++) {
-			for (int destChannel = 0; destChannel < 1; ++destChannel) {
+			for (int destChannel = 0; destChannel < 2; ++destChannel) {
 
-				// Fix source channel and gain applied
-				float panValue = panValues.at(sourceChannel).at(destChannel);
-				bufferToFill->addFrom(destChannel, timeStamp, *currBuffer, sourceChannel, 0, samplesToCopy, noteVelocity*micGains.at(j)*panValue);
-				if ((samplesToCopy + timeStamp >= blockSize)) {
-					//TODO: Fix the boolean of if this is a hi hat open
-					//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
-					//IteratorPack newPack(((float*)(inVector.at(j) + samplesToCopy)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
-					
-					
-					IteratorPack newPack1(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j) - samplesToCopy, (false), destChannel);
-					newPack1.sampleLeftAt = samplesToCopy;
-					iterators->push_back(newPack1);
-/*
-					IteratorPack newPack2(currBuffer, noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), destChannel);
-					newPack2.sampleLeftAt = samplesToCopy;
-					iterators->push_back(newPack2);*/
-				}
+				float panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
+					+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
+				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), (false), destChannel, timeStamp);
+				iterators->push_back(newPack);
 			}
 		}
 	}
-
+	for (int j = 9; j < inVector.size(); j++) {
+		AudioSampleBuffer* currBuffer = inVector.at(j);
+		if (currBuffer == 0) {
+			continue;
+		}
+		jassert(currBuffer->getNumChannels() == 2);
+		for (int sourceChannel = 0; sourceChannel < 2; sourceChannel++) {
+			for (int destChannel = 0; destChannel < 2; ++destChannel) {
+				float panValue = stereoPanValues[sourceChannel][destChannel];
+				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), (false), destChannel, timeStamp);
+				iterators->push_back(newPack);
+			}
+		}
+	}
 
 	//for (int channel = 0; channel < 3; ++channel) {
 	//	//float *out = bufferToFill->getWritePointer(channel);
@@ -252,4 +256,43 @@ void Instrument::triggerInstrument
 	//}
 
 
+}
+void Instrument::panMono(AudioSampleBuffer* input, int inputChannel, AudioSampleBuffer* output, float pan) {
+	jassert(output->getNumChannels() == 2);
+	jassert(input->getNumChannels() > inputChannel);
+
+
+}
+
+void Instrument::fillFromIterators(AudioSampleBuffer output) {
+	std::list<IteratorPack>::iterator it;
+	std::list<IteratorPack>::iterator end;
+	it = iterators->begin();
+	end = iterators->end();
+
+	//Loop through the iterators left from previous blocks and fill the current block
+	while (it != end) {
+		IteratorPack currPack = *it;
+		//int i=0;
+		//for (int channel = 0; channel < 1; ++channel){
+		//float *out = buffer.getWritePointer(currPack.channelNum);
+		int samplesToCopy = std::min(currPack.samplesLeft, output.getNumSamples()- currPack.timestamp);
+		//bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
+		output.addFrom(currPack.channelNum, currPack.timestamp, *currPack.address, 0, currPack.sampleLeftAt, samplesToCopy, currPack.velocity);
+		//buffer.addFrom(,,)
+
+		//}
+		//If the iterator has reached the end, erase the element.
+		if (samplesToCopy == currPack.samplesLeft) {
+			it = iterators->erase(it);
+		}
+		//Else update the remaining numbers.
+		else {
+			it->sampleLeftAt += samplesToCopy;
+			it->samplesLeft -= samplesToCopy;
+			it->timestamp = 0;
+			//it->address += i;
+			it++;
+		}
+	}
 }

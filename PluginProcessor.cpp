@@ -82,6 +82,30 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		0.5f,         // default value
 		""));
 
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Direct Mix",       // parameter ID
+		"Kick Direct Mix",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Mono Pan",       // parameter ID
+		"Kick Mono Pan",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Stereo Pan L",       // parameter ID
+		"Kick Stereo Pan L",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.0f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Stereo Pan R",       // parameter ID
+		"Kick Stereo Pan R",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		1.0f,         // default value
+		""));
+
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Snare Room Mix",       // parameter ID
 		"Snare Room Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -106,6 +130,30 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		0.5f,         // default value
 		""));
 
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Snare Direct Mix",       // parameter ID
+		"Snare Direct Mix",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Snare Mono Pan",       // parameter ID
+		"Snare Mono Pan",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Snare Stereo Pan L",       // parameter ID
+		"Snare Stereo Pan L",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.0f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Snare Stereo Pan R",       // parameter ID
+		"Snare Stereo Pan R",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		1.0f,         // default value
+		""));
+
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("China Master Mix",       // parameter ID
 		"China Master Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -122,18 +170,6 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		"Crash_Main Master Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
 		0.3f,         // default value
-		""));
-
-	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Floor_Tom Room Mix",       // parameter ID
-		"Floor_Tom Room Mix",       // parameter name
-		NormalisableRange<float>(0, 1),    // range
-		0.2f,         // default value
-		""));
-
-	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Floor_Tom Master Mix",       // parameter ID
-		"Floor_Tom Master Mix",       // parameter name
-		NormalisableRange<float>(0, 1),    // range
-		0.35f,         // default value
 		""));
 
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Hi_Hat Master Mix",       // parameter ID
@@ -173,6 +209,24 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		0.2f,         // default value
 		""));
 
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom1 Mono Pan",       // parameter ID
+		"Tom1 Mono Pan",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom1 Stereo Pan L",       // parameter ID
+		"Tom1 Stereo Pan L",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.0f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom1 Stereo Pan R",       // parameter ID
+		"Tom1 Stereo Pan R",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		1.0f,         // default value
+		""));
+
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom2 Room Mix",       // parameter ID
 		"Tom2 Room Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -197,6 +251,24 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		0.35f,         // default value
 		""));
 
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom2 Mono Pan",       // parameter ID
+		"Tom2 Mono Pan",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom2 Stereo Pan L",       // parameter ID
+		"Tom2 Stereo Pan L",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.0f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom2 Stereo Pan R",       // parameter ID
+		"Tom2 Stereo Pan R",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		1.0f,         // default value
+		""));
+
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom3 Room Mix",       // parameter ID
 		"Tom3 Room Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -219,6 +291,24 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		"Tom3 Overhead Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
 		0.35f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom3 Mono Pan",       // parameter ID
+		"Tom3 Mono Pan",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.5f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom3 Stereo Pan L",       // parameter ID
+		"Tom3 Stereo Pan L",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		0.0f,         // default value
+		""));
+
+	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Tom3 Stereo Pan R",       // parameter ID
+		"Tom3 Stereo Pan R",       // parameter name
+		NormalisableRange<float>(0, 1),    // range
+		1.0f,         // default value
 		""));
 
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Ride Master Mix",       // parameter ID
@@ -250,8 +340,6 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	
 	sampleManager=new SampleManager();
 
-	//list<IteratorPack>* iterators;
-	iterators = new list<IteratorPack>();
 	formatManager = new AudioFormatManager();
 	// TODO: Move to file manager
 	formatManager->registerBasicFormats();
@@ -262,20 +350,12 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	for (std::map<int, std::pair<String, int>>::iterator iter = sampleManager->MidiMap.begin(); iter != sampleManager->MidiMap.end(); ++iter)
 	{
 		if (iter->second.first.compare("")) {
-			Instrument newInstrument(iter->second.first, iter->second.second, formatManager, sampleManager, iterators);
+			Instrument newInstrument(iter->second.first, iter->second.second, formatManager, sampleManager);
 			newInstrument.createBuffers();
 			instrumentMap.insert(pair<int, Instrument>(iter->first, newInstrument));
 		}
 
 	}
-/*
-	kickPack = new Instrument(String("kick"), 6, formatManager, sampleManager, iterators);
-
-	kickPack->createBuffers();*/
-
-
-
-
 }
 
 DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
@@ -436,36 +516,37 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	MidiBuffer::Iterator iterator(midiMessages);
 	int midiPosition = -1;
 	
-	std::list<IteratorPack>::iterator it;
-	std::list<IteratorPack>::iterator end;
-	it = iterators->begin();
-	end = iterators->end();
-	
-	//Loop through the iterators left from previous blocks and fill the current block
-	while (it!=end) {
-		IteratorPack currPack = *it;
-		//int i=0;
-		//for (int channel = 0; channel < 1; ++channel){
-		//float *out = buffer.getWritePointer(currPack.channelNum);
-		int samplesToCopy = std::min(currPack.samplesLeft, buffer.getNumSamples());
-		//bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
-		buffer.addFrom(currPack.channelNum, 0, *currPack.address,0,currPack.sampleLeftAt ,samplesToCopy, currPack.velocity);
-		//buffer.addFrom(,,)
+	//std::list<IteratorPack>::iterator it;
+	//std::list<IteratorPack>::iterator end;
+	//it = iterators->begin();
+	//end = iterators->end();
+	//
+	////Loop through the iterators left from previous blocks and fill the current block
+	//while (it!=end) {
+	//	IteratorPack currPack = *it;
+	//	//int i=0;
+	//	//for (int channel = 0; channel < 1; ++channel){
+	//	//float *out = buffer.getWritePointer(currPack.channelNum);
+	//	int samplesToCopy = std::min(currPack.samplesLeft, buffer.getNumSamples());
+	//	//bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
+	//	buffer.addFrom(currPack.channelNum, 0, *currPack.address,0,currPack.sampleLeftAt ,samplesToCopy, currPack.velocity);
+	//	//buffer.addFrom(,,)
 
-		//}
-		//If the iterator has reached the end, erase the element.
-		if (samplesToCopy == currPack.samplesLeft) {
-			it=iterators->erase(it);
-		}
-		//Else update the remaining numbers.
-		else {
-			it->sampleLeftAt += samplesToCopy;
-			it->samplesLeft -= samplesToCopy;
-			//it->address += i;
-			it++;
-		}
-	}
-	
+	//	//}
+	//	//If the iterator has reached the end, erase the element.
+	//	if (samplesToCopy == currPack.samplesLeft) {
+	//		it=iterators->erase(it);
+	//	}
+	//	//Else update the remaining numbers.
+	//	else {
+	//		it->sampleLeftAt += samplesToCopy;
+	//		it->samplesLeft -= samplesToCopy;
+	//		//it->address += i;
+	//		it++;
+	//	}
+	//}
+	map<int, Instrument>::iterator it;
+
 	while (iterator.getNextEvent(currMessage, midiPosition)) {
 
 		if (currMessage.isNoteOn(false)){
@@ -499,8 +580,14 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				roomFader = (*parameters.getRawParameterValue(instrumentName + " Room Mix")) * (*parameters.getRawParameterValue("Master Room Mix"));
 				master = (*parameters.getRawParameterValue(instrumentName + " Master Mix")) * (*parameters.getRawParameterValue("Master Mix"));
 				overHead = *parameters.getRawParameterValue(instrumentName + " Overhead Mix");
-				
+				float monoPan = *parameters.getRawParameterValue(instrumentName + " Mono Pan");
+				float stereoPan[2];
+				stereoPan[0]= *parameters.getRawParameterValue(instrumentName + " Stereo Pan L");
+				stereoPan[1] = *parameters.getRawParameterValue(instrumentName + " Stereo Pan R");
+
 				float kickInOut = *parameters.getRawParameterValue("Kick In/Out Mix");
+				float kickDirect = *parameters.getRawParameterValue("Kick Direct Mix");
+				float snareDirect = *parameters.getRawParameterValue("Snare Direct Mix");
 				float snareBottomTop = *parameters.getRawParameterValue("Snare Bottom Mix");
 				float tom1Direct= *parameters.getRawParameterValue("Tom1 Direct Mix");
 				float tom2Direct = *parameters.getRawParameterValue("Tom2 Direct Mix");
@@ -508,25 +595,33 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 				//micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
 				//micVector.push_back(roomFader*masterFader*kickMaster);//room
-				//
-				micVector.push_back(float(0.2*master*kickInOut)); // kick_in 1
-				micVector.push_back(float(0.2*master*(1 - kickInOut))); // kick_out 1
-				micVector.push_back(float(0.2*master*snareBottomTop)); // snare_bottom
-				micVector.push_back(float(0.2*master*(1 - snareBottomTop))); // snare_top
+
+				//const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
+				//"room_wide", "overhead"};
+				micVector.push_back(float(0.2*master*kickDirect*kickInOut)); // kick_in 1
+				micVector.push_back(float(0.2*master*kickDirect*(1 - kickInOut))); // kick_out 1
+				micVector.push_back(float(0.2*master*snareDirect*snareBottomTop)); // snare_bottom
+				micVector.push_back(float(0.2*master*snareDirect*(1 - snareBottomTop))); // snare_top
 				micVector.push_back(float(0.5*master*tom1Direct)); // tom1
 				micVector.push_back(float(0.5*master*tom2Direct)); // tom2
 				micVector.push_back(float(0.5*master*tom3Direct)); // tom3
-				micVector.push_back(float(1)); // ride
-				micVector.push_back(float(0.2*overHead*master)); // overhead
-				micVector.push_back(float(0.2*roomFader*master)); // room_main
+				micVector.push_back(float(0.5*master)); // ride
 				micVector.push_back(float(0.2*roomFader*master)); // room_mono
+				micVector.push_back(float(0.2*roomFader*master)); // room_main
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
+				micVector.push_back(float(0.2*overHead*master)); // overhead
 				
 				//TODO: Remove micPointers, velocityCount
-				tempInst.triggerInstrument(&buffer, tempInst.micPointers, micVector, tempInst.velocityCount, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples());
+				tempInst.triggerInstrument(&buffer, tempInst.micPointers, micVector, tempInst.velocityCount, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan);
 			}
 		}
 	}
+
+	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
+	{
+		it->second.fillFromIterators(buffer);
+	}
+
 }
 
 //==============================================================================

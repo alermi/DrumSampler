@@ -15,7 +15,7 @@
 
 //TODO: Make static
 void SampleManager::findSamplesFolder(){
-	samplesFolder=new File(String("C:\\Users\\Ani\\Desktop\\Samples Real"));
+	samplesFolder=new File(String("C:\\Users\\Ani\\Desktop\\Samples Mono"));
 /*
 	FileChooser samplesFinder("Please choose the folder containing the samples for DrumSampler.");
 	samplesFinder.browseForDirectory();
