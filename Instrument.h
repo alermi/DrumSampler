@@ -14,6 +14,7 @@
 #include <vector>
 #include <list>
 #include <iterator>
+#include <array>
 using namespace std;
 
 class Instrument {

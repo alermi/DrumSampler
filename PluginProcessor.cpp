@@ -474,8 +474,8 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			const float noteVelocity = currMessage.getFloatVelocity();
 			const int timeStamp=currMessage.getTimeStamp();
 			//Get the master parameters.
-			masterFader = *parameters.getRawParameterValue("Master Mix");
-			roomFader= *parameters.getRawParameterValue("Master Room Mix");
+			//masterFader = *parameters.getRawParameterValue("Master Mix");
+			//roomFader= *parameters.getRawParameterValue("Master Room Mix");
 			
 			
 
@@ -492,11 +492,12 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				if (instrumentName.compareIgnoreCase("sidestick")==0 || instrumentName.compareIgnoreCase("rimshot")==0) {
 					instrumentName = String("snare");
 				}
+				// Convert the instrument name to capital so that we can find the parameter value
 				instrumentName=instrumentName.replaceSection(0, 1, instrumentName.substring(0, 1).toUpperCase());
 				//TODO: Vary these parameters based on the isntrument
 
-				roomFader *= *parameters.getRawParameterValue(instrumentName + " Room Mix");
-				master = *parameters.getRawParameterValue(instrumentName + " Master Mix");
+				roomFader = (*parameters.getRawParameterValue(instrumentName + " Room Mix")) * (*parameters.getRawParameterValue("Master Room Mix"));
+				master = (*parameters.getRawParameterValue(instrumentName + " Master Mix")) * (*parameters.getRawParameterValue("Master Mix"));
 				overHead = *parameters.getRawParameterValue(instrumentName + " Overhead Mix");
 				
 				float kickInOut = *parameters.getRawParameterValue("Kick In/Out Mix");
@@ -512,15 +513,15 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				micVector.push_back(float(0.2*master*(1 - kickInOut))); // kick_out 1
 				micVector.push_back(float(0.2*master*snareBottomTop)); // snare_bottom
 				micVector.push_back(float(0.2*master*(1 - snareBottomTop))); // snare_top
-				micVector.push_back(float(0.2*master*tom1Direct)); // tom1
-				micVector.push_back(float(0.2*master*tom2Direct)); // tom2
-				micVector.push_back(float(0.2*master*tom3Direct)); // tom3
+				micVector.push_back(float(0.5*master*tom1Direct)); // tom1
+				micVector.push_back(float(0.5*master*tom2Direct)); // tom2
+				micVector.push_back(float(0.5*master*tom3Direct)); // tom3
 				micVector.push_back(float(1)); // ride
 				micVector.push_back(float(0.2*overHead*master)); // overhead
 				micVector.push_back(float(0.2*roomFader*master)); // room_main
 				micVector.push_back(float(0.2*roomFader*master)); // room_mono
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
-
+				
 				//TODO: Remove micPointers, velocityCount
 				tempInst.triggerInstrument(&buffer, tempInst.micPointers, micVector, tempInst.velocityCount, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples());
 			}

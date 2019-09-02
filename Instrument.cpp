@@ -39,7 +39,7 @@ const int MAX_VELOCITY_COUNT = 4;
 const int NUM_OF_SAME_SAMPLE = 5;
 
 const int HI_HAT_SAMPLE_OFFSET = 32;
-
+const double PI = 3.141592653589793238462643383279502884;
 
 
 const int MIC_COUNT = 12;
@@ -80,11 +80,23 @@ void Instrument::createBuffers() {
 
 				if (newFile.existsAsFile()) {
 					std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
-					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(1, reader->lengthInSamples);
-					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, false);
-					Range<float> range = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
-					float max = std::max(abs(range.getStart()), abs(range.getEnd()));
-					newBuffer->applyGain(1 / max);
+					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
+					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
+					//TODO: Normalize again
+					//Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
+					//float max1 = std::max(abs(range1.getStart()), abs(range1.getEnd()));
+					//float max;
+					//if (newBuffer->getNumChannels() == 2) {
+					//	Range<float> range2 = newBuffer->findMinMax(1, 0, reader->lengthInSamples);
+					//	float max2 = std::max(abs(range2.getStart()), abs(range2.getEnd()));
+					//	float max = std::max(max1, max2);
+
+					//}
+					//else {
+					//	max = max1;
+					//}
+
+					//newBuffer->applyGain(1 / max);
 					newBuffer->applyGainRamp(0, 10, 0, 1);
 					//TODO:Delete testint
 					//int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
@@ -150,38 +162,85 @@ void Instrument::triggerInstrument
 		}
 
 	}
+
 	//auto in = newArray[5]->getReadPointer(0);
 	//int sampleNum = newArray->getNumSamples();
 
 	//TODO:Set Stereo gain levels
 	//Write the samples to the output buffer and store the remaining in iteratorPack.
-	for (int channel = 0; channel < 3; ++channel) {
 		//float *out = bufferToFill->getWritePointer(channel);
 
-		for (int j = 0; j < inVector.size(); j++) {
-			if (inVector.at(j) == 0 ) {
-				continue;
-			}
-			int samplesToCopy = std::min(sampleCountVector.at(j), blockSize - timeStamp);
+	for (int j = 0; j < inVector.size(); j++) {
+		AudioSampleBuffer* currBuffer = inVector.at(j);
+		if (currBuffer == 0) {
+			continue;
+		}
+		vector<float> pans = { float(0.2) , float(0.5) };
+		vector<std::array<float, 2>> panValues;
 
-			// Fix source channel and gain applied
+		for (int i = 0; i < size(pans); i++) {
+			float pan = pans.at(i);
+			std::array<float, 2> tempPanArray =  { sin(pan*(PI / 2)) ,sin((PI / 2) * (1 - pan)) };
+			panValues.push_back(tempPanArray);
+			//panValues.at(i)[0] = sin(pan*(PI / 2));
+			//panValues.at(i)[1] = sin((PI / 2) * (1 - pan));
+		}
+		int samplesToCopy = std::min(sampleCountVector.at(j), blockSize - timeStamp);
 
-			bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
-			//LEFT OFF: ADD A INT TO THE IteratorPack TO TELL YOU WHERE YOU LEFT OFF INSTEAD OF CREATING ANOTHER AUDIOSAMPLEBUFFER EVERY TIME
-			if ((samplesToCopy + timeStamp >= blockSize)) {
-				//TODO: Fix the boolean of if this is a hi hat open
-				//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
 
-				//IteratorPack newPack(((float*)(inVector.at(j) + samplesToCopy)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
-				
-				IteratorPack newPack(inVector.at(j), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
+		for (int sourceChannel = 0; sourceChannel < 1; sourceChannel++) {
+			for (int destChannel = 0; destChannel < 1; ++destChannel) {
 
-				newPack.sampleLeftAt = samplesToCopy;
-				iterators->push_back(newPack);
+				// Fix source channel and gain applied
+				float panValue = panValues.at(sourceChannel).at(destChannel);
+				bufferToFill->addFrom(destChannel, timeStamp, *currBuffer, sourceChannel, 0, samplesToCopy, noteVelocity*micGains.at(j)*panValue);
+				if ((samplesToCopy + timeStamp >= blockSize)) {
+					//TODO: Fix the boolean of if this is a hi hat open
+					//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
+					//IteratorPack newPack(((float*)(inVector.at(j) + samplesToCopy)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
+					
+					
+					IteratorPack newPack1(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j) - samplesToCopy, (false), destChannel);
+					newPack1.sampleLeftAt = samplesToCopy;
+					iterators->push_back(newPack1);
+/*
+					IteratorPack newPack2(currBuffer, noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), destChannel);
+					newPack2.sampleLeftAt = samplesToCopy;
+					iterators->push_back(newPack2);*/
+				}
 			}
 		}
-
 	}
+
+
+	//for (int channel = 0; channel < 3; ++channel) {
+	//	//float *out = bufferToFill->getWritePointer(channel);
+
+	//	for (int j = 0; j < inVector.size(); j++) {
+	//		if (inVector.at(j) == 0) {
+	//			continue;
+	//		}
+	//		int samplesToCopy = std::min(sampleCountVector.at(j), blockSize - timeStamp);
+
+	//		// Fix source channel and gain applied
+
+	//		bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
+	//		//LEFT OFF: ADD A INT TO THE IteratorPack TO TELL YOU WHERE YOU LEFT OFF INSTEAD OF CREATING ANOTHER AUDIOSAMPLEBUFFER EVERY TIME
+	//		if ((samplesToCopy + timeStamp >= blockSize)) {
+	//			//TODO: Fix the boolean of if this is a hi hat open
+	//			//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
+
+	//			//IteratorPack newPack(((float*)(inVector.at(j) + samplesToCopy)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
+
+	//			IteratorPack newPack(inVector.at(j), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
+
+	//			newPack.sampleLeftAt = samplesToCopy;
+	//			iterators->push_back(newPack);
+	//		}
+	//	}
+
+	//}
+
 	// TODO: Fix the hi-hat close that broke at refactoring
 	//If we triggered a closed hi-hat, mute open hi_hat hits.
 	//if (instrumentSamples == hi_hat_closedSampleBuffers) {
