@@ -9,7 +9,7 @@
 */
 //#include "../JuceLibraryCode/JuceHeader.h"
 #pragma once
-#include "SampleManager.h"
+#include "FileManager.h"
 #include "IteratorPack.h"
 #include <vector>
 #include <list>
@@ -24,17 +24,16 @@ public:
 	int velocityCount;
 	AudioSampleBuffer*** micPointers;
 	AudioSampleBuffer* tempBuffer;
-	SampleManager* sampleManager;
-	AudioFormatManager* formatManager;
+	FileManager* fileManager;
 
 	list<IteratorPack>* iterators;
 
 	void createBuffers();
 	void fillBuffer(int velocity, AudioSampleBuffer* bufferToFill);
-	void triggerInstrument(AudioBuffer<float>* bufferToFill, AudioSampleBuffer *** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]);
+	void triggerInstrument(AudioBuffer<float>* bufferToFill, std::vector<float> micGains, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]);
 	//void triggerInstrument(AudioBuffer<float>* bufferToFill, AudioSampleBuffer ** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize);
 	AudioSampleBuffer getBuffer();
-	Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager);
+	Instrument(String instrumentName, int velocityCount, FileManager* fileManager);
 	void panMono(AudioSampleBuffer* input, int inputChannel, AudioSampleBuffer* output, float pan);
 	void Instrument::fillFromIterators(AudioSampleBuffer output);
 

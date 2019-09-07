@@ -10,11 +10,10 @@
 
 #include "IteratorPack.h"
 
-IteratorPack::IteratorPack(AudioSampleBuffer* address, float velocity, int samplesLeft, bool isHiHatOpen, int channelNum, int timestamp) {
+IteratorPack::IteratorPack(AudioSampleBuffer* address, float velocity, int samplesLeft, int channelNum, int timestamp) {
 	this->address = address;
 	this->velocity = velocity;
 	this->samplesLeft = samplesLeft;
-	this->isHiHatOpen = isHiHatOpen;
 	this->channelNum = channelNum;
 	this->sampleLeftAt = 0;
 	this->timestamp = timestamp;

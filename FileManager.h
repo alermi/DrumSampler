@@ -11,15 +11,19 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 
-class SampleManager {
+class FileManager {
 public:
-	SampleManager();
+	FileManager();
 	File * samplesFolder;
+	std::map<int, std::pair<String, int>> MidiMap;
+	AudioFormatManager* formatManager;
 
 	void findSamplesFolder();
 	void fillMidiMap();
 	File *getSamplesFolder();
-	std::map<int, std::pair<String,int>> MidiMap;
+	AudioSampleBuffer* FileManager::readBuffer(String pathName);
+
+
 };
 
 

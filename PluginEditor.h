@@ -12,7 +12,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-
 //==============================================================================
 /**
 */
@@ -30,7 +29,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    
+
 	Slider kickRoomSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickRoomSliderAttachment;
 
@@ -161,6 +160,7 @@ private:
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> masterRoomSliderAttachment;
 
 	void createRotarySlider(Slider& slider, ScopedPointer<AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, String parameterID);
+	void drawPanSliders(Slider& monoSlider, Slider& stereoLSlider, Slider& stereoRSlider, int x, int y);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DrumSamplerAudioProcessorEditor)
 };

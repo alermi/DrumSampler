@@ -17,9 +17,7 @@ DrumSamplerAudioProcessorEditor::DrumSamplerAudioProcessorEditor (DrumSamplerAud
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-	
-
-	setSize(600, 500);
+	setSize(700, 500);
 
 	kickRoomSlider.setRange(0, 1);
 	kickRoomSlider.setSliderStyle(Slider::RotaryVerticalDrag);
@@ -184,6 +182,18 @@ DrumSamplerAudioProcessorEditor::DrumSamplerAudioProcessorEditor (DrumSamplerAud
 	createRotarySlider(kickMonoPanSlider, kickMonoPanSliderAttachment, "Kick Mono Pan");
 	createRotarySlider(kickStereoPanLSlider, kickStereoPanLSliderAttachment, "Kick Stereo Pan L");
 	createRotarySlider(kickStereoPanRSlider, kickStereoPanRSliderAttachment, "Kick Stereo Pan R");
+
+	createRotarySlider(snareMonoPanSlider, snareMonoPanSliderAttachment, "Snare Mono Pan");
+	createRotarySlider(snareStereoPanLSlider, snareStereoPanLSliderAttachment, "Snare Stereo Pan L");
+	createRotarySlider(snareStereoPanRSlider, snareStereoPanRSliderAttachment, "Snare Stereo Pan R");
+
+	createRotarySlider(tom1MonoPanSlider, tom1MonoPanSliderAttachment, "Tom1 Mono Pan");
+	createRotarySlider(tom1StereoPanLSlider, tom1StereoPanLSliderAttachment, "Tom1 Stereo Pan L");
+	createRotarySlider(tom1StereoPanRSlider, tom1StereoPanRSliderAttachment, "Tom1 Stereo Pan R");
+
+	createRotarySlider(tom2MonoPanSlider, tom2MonoPanSliderAttachment, "Tom2 Mono Pan");
+	createRotarySlider(tom2StereoPanLSlider, tom2StereoPanLSliderAttachment, "Tom2 Stereo Pan L");
+	createRotarySlider(tom2StereoPanRSlider, tom2StereoPanRSliderAttachment, "Tom2 Stereo Pan R");
 	//masterSlider.setRange(0, 1);
 	//masterSlider.setSliderStyle(Slider::RotaryVerticalDrag);
 	//masterSlider.setTextBoxStyle(Slider::NoTextBox, false, 100, 20);
@@ -216,6 +226,8 @@ void DrumSamplerAudioProcessorEditor::paint (Graphics& g)
 
     g.setColour (Colours::white);
 	Font instrumentFont(15, 1);
+
+
 	g.setFont(instrumentFont);
 	g.drawText("Kick:", 5, 20, 60, 20,Justification::left);
 	g.drawText("Hi-Hat:", 5, 90, 60, 20, Justification::left);
@@ -268,21 +280,22 @@ void DrumSamplerAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor.
 	
-	
 	kickMasterSlider.setBounds(14, 50, 40, 40);//left top width height
 	kickRoomSlider.setBounds(64, 50, 40, 40);
 	kickOverheadSlider.setBounds(114, 50, 40, 40);
 	kickInOutSlider.setBounds(164, 50, 40, 40);
 	kickDirectSlider.setBounds(214, 50, 40, 40);
-	kickMonoPanSlider.setBounds(264, 50, 40, 40);
-	kickStereoPanLSlider.setBounds(254, 70, 40, 40);
-	kickStereoPanRSlider.setBounds(274, 70, 40, 40);
+	drawPanSliders(kickMonoPanSlider, kickStereoPanLSlider, kickStereoPanRSlider, 264, 50);
+	//kickMonoPanSlider.setBounds(264, 50, 40, 40);
+	//kickStereoPanLSlider.setBounds(254, 70, 40, 40);
+	//kickStereoPanRSlider.setBounds(274, 70, 40, 40);
 
 	snareMasterSlider.setBounds(314, 50, 40, 40);
 	snareRoomSlider.setBounds(364, 50, 40, 40);
 	snareBottomSlider.setBounds(424, 50, 40, 40);
 	snareOverheadSlider.setBounds(474, 50, 40, 40);
 	snareDirectSlider.setBounds(524, 50, 40, 40);
+	drawPanSliders(snareMonoPanSlider, snareStereoPanLSlider, snareStereoPanRSlider, 574, 50);
 
 
 	hi_hatMasterSlider.setBounds(14, 120, 40, 40);
@@ -294,17 +307,25 @@ void DrumSamplerAudioProcessorEditor::resized()
 	tom1MasterSlider.setBounds(14, 260, 40, 40);
 	tom1RoomSlider.setBounds(64, 260, 40, 40);
 	tom1DirectSlider.setBounds(114, 260, 40, 40);
+	drawPanSliders(tom1MonoPanSlider, tom1StereoPanLSlider, tom1StereoPanRSlider, 164, 260);
 
 	tom2MasterSlider.setBounds(314, 260, 40, 40);
 	tom2RoomSlider.setBounds(364, 260, 40, 40);
 	tom2DirectSlider.setBounds(414, 260, 40, 40);
+	drawPanSliders(tom2MonoPanSlider, tom2StereoPanLSlider, tom2StereoPanRSlider, 464, 260);
 
 	tom3MasterSlider.setBounds(314, 330, 40, 40);
 	tom3RoomSlider.setBounds(364, 330, 40, 40);
 	tom3DirectSlider.setBounds(414, 330, 40, 40);
+	drawPanSliders(tom2MonoPanSlider, tom2StereoPanLSlider, tom2StereoPanRSlider, 464, 330);
 
 	rideMasterSlider.setBounds(14, 330, 40, 40);
 	
 	masterRoomSlider.setBounds(244, 400, 40, 40);
 	masterSlider.setBounds(244, 430, 40, 40);
+}
+void DrumSamplerAudioProcessorEditor::drawPanSliders(Slider& monoSlider, Slider& stereoLSlider, Slider& stereoRSlider, int x, int y) {
+	monoSlider.setBounds(x, y, 40, 40);
+	stereoLSlider.setBounds(x-10, y+20, 40, 40);
+	stereoRSlider.setBounds(x+10, y+20, 40, 40);
 }

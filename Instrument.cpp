@@ -9,33 +9,6 @@
 */
 
 #include "Instrument.h"
-const int KICK_MIC_COUNT = 2;
-const int KICK_VELOCITY_COUNT = 3;
-const int SNARE_MIC_COUNT = 3;
-const int SNARE_RIM_MIC_COUNT = 3;
-const int SNARE_VELOCITY_COUNT = 4;
-const int SNARE_RIM_VELOCITY_COUNT = 1;
-const int FLOOR_TOM_MIC_COUNT = 2;
-const int FLOOR_TOM_VELOCITY_COUNT = 3;
-const int HI_HAT_CLOSED_MIC_COUNT = 2;
-const int HI_HAT_CLOSED_VELOCITY_COUNT = 3;
-const int HI_HAT_OPEN_MIC_COUNT = 2;
-const int HI_HAT_OPEN_VELOCITY_COUNT = 2;
-const int RACK_TOM_MIC_COUNT = 2;
-const int RACK_TOM_VELOCITY_COUNT = 3;
-const int CRASH_ALT_MIC_COUNT = 1;
-const int CRASH_ALT_VELOCITY_COUNT = 1;
-const int CHINA_MIC_COUNT = 1;
-const int CHINA_VELOCITY_COUNT = 1;
-const int CRASH_MAIN_MIC_COUNT = 1;
-const int CRASH_MAIN_VELOCITY_COUNT = 2;
-const int RIDE_MIC_COUNT = 1;
-const int RIDE_VELOCITY_COUNT = 2;
-const int STACK_MIC_COUNT = 1;
-const int STACK_VELOCITY_COUNT = 1;
-
-const int MAX_MIC_COUNT = 3;
-const int MAX_VELOCITY_COUNT = 4;
 const int NUM_OF_SAME_SAMPLE = 5;
 
 const int HI_HAT_SAMPLE_OFFSET = 32;
@@ -45,15 +18,11 @@ const double PI = 3.141592653589793238462643383279502884;
 const int MIC_COUNT = 12;
 const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
 			"room_wide", "overhead" };
-Instrument::Instrument(String instrumentName, int velocityCount, AudioFormatManager* formatManager, SampleManager* sampleManager) {
+Instrument::Instrument(String instrumentName, int velocityCount, FileManager* fileManager) {
 	this->velocityCount = velocityCount;
 	this->instrumentName = instrumentName;
-	//TODO: remove processor and just pass in the format manager
-	this->formatManager = formatManager;
-	this->sampleManager = sampleManager;
+	this->fileManager = fileManager;
 	iterators = new list<IteratorPack>();
-
-
 }
 
 void Instrument::createBuffers() {
@@ -74,50 +43,9 @@ void Instrument::createBuffers() {
 				}
 				String version;
 				version.append(String(versionNumber + 1), 1);
-
-				std::unique_ptr<AudioFormatReaderSource> readerSource;
-				File newFile(String(sampleManager->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav"));
-
-				if (newFile.existsAsFile()) {
-					std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
-					AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
-					reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
-
-					//TODO: Normalize again
-					Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
-					float max1 = std::max(abs(range1.getStart()), abs(range1.getEnd()));
-					newBuffer->applyGain(0, 0, newBuffer->getNumSamples(), 1 / max1);
-					newBuffer->applyGainRamp(0, 0, 10, 0, 1);
-
-					if (newBuffer->getNumChannels() == 2) {
-						Range<float> range2 = newBuffer->findMinMax(1, 0, reader->lengthInSamples);
-						float max2 = std::max(abs(range2.getStart()), abs(range2.getEnd()));
-						newBuffer->applyGain(1, 0, newBuffer->getNumSamples(), 1 / max2);
-						newBuffer->applyGainRamp(1, 0, 10, 0, 1);
-					}
-					//else {
-					//	max = max1;
-					//}
-					//TODO:Delete testint
-					//int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
-
-					int testint = (velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber);
-					micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = newBuffer;
-				}
-				else {
-/*					//TODO: Find out what this block was doing and fix
-					if (velocityNumber == 0 && versionNumber == 0) {
-						delete this->micPointers[micNumber];
-						this->micPointers[micNumber] = 0;
-						break;
-					}
-					else {*/
-						micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = new AudioSampleBuffer();
-					/*}*/
-				}
-				//if (micPointers[micNumber] == 0) break;
+				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav";
+				micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = fileManager->readBuffer(pathName);
 			}
-			//if (micPointers[micNumber] == 0) break;
 		}
 	}
 }
@@ -127,17 +55,14 @@ void Instrument::fillBuffer(int velocity, AudioSampleBuffer* bufferToFill) {
 }
 
 void Instrument::triggerInstrument
-(AudioBuffer<float> *bufferToFill, AudioSampleBuffer*** instrumentSamples, std::vector<float> micGains, int numLevels, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]) {
+(AudioBuffer<float> *bufferToFill, std::vector<float> micGains, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]) {
 	//float monoPan = 0.1;
 	//float stereoPan[2] = { 0.1,0.9 };
 
-	//TODO:Mix in the room sound and other mics
-	// Change 5
-	//AudioSampleBuffer *newArray = instrumentSamples[5];
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
-	int levelNumber = 128 * noteVelocity*float(numLevels) / 129;
+	int levelNumber = 128 * noteVelocity*float(velocityCount) / 129;
 	//Vector to hold the read pointers of each sample to be played.
 	std::vector<AudioSampleBuffer*> inVector;
 	//vector to hold how many sample from each read pointer is going to be played.
@@ -148,10 +73,9 @@ void Instrument::triggerInstrument
 
 	//Create an iterator to be played for each microphone
 	for (int i = 0; i < micGains.size(); i++) {
-		AudioSampleBuffer** tempMic = instrumentSamples[i];
+		AudioSampleBuffer** tempMic = micPointers[i];
 		//Find the correct index that holds each sample of each room mic.
 		int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
-		//TODO: Fix this hacky fix
 		AudioSampleBuffer* sample = tempMic[index];
 		if (sample->getNumChannels() > 0) {
 			inVector.push_back(sample);
@@ -167,7 +91,6 @@ void Instrument::triggerInstrument
 
 	//TODO: Fix the boolean of if this is a hi hat open
 
-	//TODO:Set Stereo gain levels
 	//Write the samples to the output buffer and store the remaining in iteratorPack.
 
 	//vector<float> pans = { float(0.5) , float(0.5) };
@@ -178,11 +101,11 @@ void Instrument::triggerInstrument
 	//	panValues.push_back(tempPanArray);
 	//}
 
-	std::array<float, 2> monoPanValues = { sin(monoPan*(PI / 2)) ,sin((PI / 2) * (1 - monoPan)) };
+	std::array<float, 2> monoPanValues = { sin((PI / 2) * (1 - monoPan)) ,sin(monoPan*(PI / 2))};
 	vector<std::array<float, 2>> stereoPanValues;
-	std::array<float, 2> tempArray1 = { sin(stereoPan[0] * (PI / 2)) ,sin((PI / 2) * (1 - stereoPan[0])) };
+	std::array<float, 2> tempArray1 = {  sin((PI / 2) * (1 - stereoPan[0])) ,sin(stereoPan[0] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray1);
-	std::array<float, 2> tempArray2 = { sin(stereoPan[1] * (PI / 2)), sin((PI / 2) * (1 - stereoPan[1])) };
+	std::array<float, 2> tempArray2 = { sin((PI / 2) * (1 - stereoPan[1])) ,sin(stereoPan[1] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray2);
 
 
@@ -197,7 +120,7 @@ void Instrument::triggerInstrument
 
 				float panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
 					+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
-				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), (false), destChannel, timeStamp);
+				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), destChannel, timeStamp);
 				iterators->push_back(newPack);
 			}
 		}
@@ -211,7 +134,7 @@ void Instrument::triggerInstrument
 		for (int sourceChannel = 0; sourceChannel < 2; sourceChannel++) {
 			for (int destChannel = 0; destChannel < 2; ++destChannel) {
 				float panValue = stereoPanValues[sourceChannel][destChannel];
-				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), (false), destChannel, timeStamp);
+				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), destChannel, timeStamp);
 				iterators->push_back(newPack);
 			}
 		}

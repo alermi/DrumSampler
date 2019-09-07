@@ -21,5 +21,5 @@ public:
 	bool isHiHatOpen;
 	int channelNum;
 
-	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, bool isHiHatOpen, int channelNum, int timestamp);
+	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, int channelNum, int timestamp);
 };

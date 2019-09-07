@@ -12,34 +12,6 @@
 #include "PluginEditor.h"
 #include <ctime>
 
-//TODO: MOVE THESE ALL TO INSTRUMENT
-const int KICK_MIC_COUNT=2;
-const int KICK_VELOCITY_COUNT = 3;
-const int SNARE_MIC_COUNT = 3;
-const int SNARE_RIM_MIC_COUNT = 3;
-const int SNARE_VELOCITY_COUNT = 4;
-const int SNARE_RIM_VELOCITY_COUNT = 1;
-const int FLOOR_TOM_MIC_COUNT = 2;
-const int FLOOR_TOM_VELOCITY_COUNT = 3;
-const int HI_HAT_CLOSED_MIC_COUNT = 2;
-const int HI_HAT_CLOSED_VELOCITY_COUNT = 3;
-const int HI_HAT_OPEN_MIC_COUNT = 2;
-const int HI_HAT_OPEN_VELOCITY_COUNT = 2;
-const int RACK_TOM_MIC_COUNT = 2;
-const int RACK_TOM_VELOCITY_COUNT = 3;
-const int CRASH_ALT_MIC_COUNT = 1;
-const int CRASH_ALT_VELOCITY_COUNT = 1;
-const int CHINA_MIC_COUNT = 1;
-const int CHINA_VELOCITY_COUNT = 1;
-const int CRASH_MAIN_MIC_COUNT = 1;
-const int CRASH_MAIN_VELOCITY_COUNT = 2;
-const int RIDE_MIC_COUNT = 1;
-const int RIDE_VELOCITY_COUNT = 2;
-const int STACK_MIC_COUNT = 1;
-const int STACK_VELOCITY_COUNT = 1;
-
-const int MAX_MIC_COUNT = 3;
-const int MAX_VELOCITY_COUNT = 4;
 const int NUM_OF_SAME_SAMPLE = 5;
 
 const int HI_HAT_SAMPLE_OFFSET = 32;
@@ -338,19 +310,16 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 
 	parameters.state = ValueTree(Identifier("DrumSamplerVT"));
 	
-	sampleManager=new SampleManager();
+	fileManager=new FileManager();
 
-	formatManager = new AudioFormatManager();
-	// TODO: Move to file manager
-	formatManager->registerBasicFormats();
 
 
 	instrumentMap = std::map<int, Instrument>();
 	
-	for (std::map<int, std::pair<String, int>>::iterator iter = sampleManager->MidiMap.begin(); iter != sampleManager->MidiMap.end(); ++iter)
+	for (std::map<int, std::pair<String, int>>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
 		if (iter->second.first.compare("")) {
-			Instrument newInstrument(iter->second.first, iter->second.second, formatManager, sampleManager);
+			Instrument newInstrument(iter->second.first, iter->second.second, fileManager);
 			newInstrument.createBuffers();
 			instrumentMap.insert(pair<int, Instrument>(iter->first, newInstrument));
 		}
@@ -385,10 +354,6 @@ DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
 	delete iterators;
 	delete samplesFolder;*/
 }
-
-
-
-
 
 //==============================================================================
 const String DrumSamplerAudioProcessor::getName() const
@@ -558,8 +523,6 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			//masterFader = *parameters.getRawParameterValue("Master Mix");
 			//roomFader= *parameters.getRawParameterValue("Master Room Mix");
 			
-			
-
 			//	micVector.push_back(((1 - roomFader)*(1 - snare_rimBottomFader))*masterFader*snare_rimMaster);//top
 			//	micVector.push_back(((1 - roomFader)*snare_rimBottomFader)*masterFader*snare_rimMaster);//bottom
 			std::map<int, Instrument>::iterator iter = instrumentMap.find(noteNumber);
@@ -575,7 +538,6 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				}
 				// Convert the instrument name to capital so that we can find the parameter value
 				instrumentName=instrumentName.replaceSection(0, 1, instrumentName.substring(0, 1).toUpperCase());
-				//TODO: Vary these parameters based on the isntrument
 
 				roomFader = (*parameters.getRawParameterValue(instrumentName + " Room Mix")) * (*parameters.getRawParameterValue("Master Room Mix"));
 				master = (*parameters.getRawParameterValue(instrumentName + " Master Mix")) * (*parameters.getRawParameterValue("Master Mix"));
@@ -611,8 +573,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
 				micVector.push_back(float(0.2*overHead*master)); // overhead
 				
-				//TODO: Remove micPointers, velocityCount
-				tempInst.triggerInstrument(&buffer, tempInst.micPointers, micVector, tempInst.velocityCount, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan);
+				tempInst.triggerInstrument(&buffer, micVector, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan);
 			}
 		}
 	}

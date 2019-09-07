@@ -76,7 +76,7 @@ protected:
 	
 	//pointer to the sample left at and velocity value
 	Instrument* kickPack;
-	SampleManager* sampleManager;
+	FileManager* fileManager;
 	AudioFormatManager* formatManager;
 	list<IteratorPack>* iterators;
 	AudioSampleBuffer** kickSampleBuffers;
