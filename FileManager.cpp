@@ -42,13 +42,11 @@ void FileManager::fillMidiMap() {
 	File rootDirectory = hostApplicationPath.getParentDirectory();
 	const int charSize = rootDirectory.getFileName().toStdString().size() + 18;
 
-	char* mapLocation= new char[charSize];
 	//strcpy(mapLocation, rootDirectory.getFullPathName(). + "//MidiMapping.ini");
 	//rootDirectory.getFullPathName().append(String("//MidiMapping.ini");
 	//	
 	//	.copyToUTF8(mapLocation, 1000);
 
-	char *a = new char[100];
 	String mapname = String(hostApplicationPath.getFullPathName() + "\\MidiMapping.ini");
 	//a.append(mapname,100);
 	
@@ -96,4 +94,9 @@ AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 	else {
 		return new AudioSampleBuffer();
 	}
+}
+
+FileManager::~FileManager() {
+	delete formatManager;
+	delete samplesFolder;
 }

@@ -22,7 +22,7 @@ public:
 	void fillMidiMap();
 	File *getSamplesFolder();
 	AudioSampleBuffer* FileManager::readBuffer(String pathName);
-
+	~FileManager();
 
 };
 

@@ -18,8 +18,9 @@ public:
 	int timestamp;
 	float velocity;
 	int samplesLeft;
-	bool isHiHatOpen;
 	int channelNum;
+	bool hasEnded;
 
 	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, int channelNum, int timestamp);
+	void iterate(AudioSampleBuffer output);
 };

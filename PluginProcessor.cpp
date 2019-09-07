@@ -311,17 +311,14 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	parameters.state = ValueTree(Identifier("DrumSamplerVT"));
 	
 	fileManager=new FileManager();
-
-
-
-	instrumentMap = std::map<int, Instrument>();
+	instrumentMap = std::map<int, Instrument*>();
 	
 	for (std::map<int, std::pair<String, int>>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
 		if (iter->second.first.compare("")) {
-			Instrument newInstrument(iter->second.first, iter->second.second, fileManager);
-			newInstrument.createBuffers();
-			instrumentMap.insert(pair<int, Instrument>(iter->first, newInstrument));
+			Instrument* newInstrument=new Instrument(iter->second.first, iter->second.second, fileManager);
+			newInstrument->createBuffers();
+			instrumentMap.insert(pair<int, Instrument*>(iter->first, newInstrument));
 		}
 
 	}
@@ -329,6 +326,11 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 
 DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
 {
+	for (map<int, Instrument*>::iterator it = instrumentMap.begin(); it != instrumentMap.end(); it++)
+	{
+		delete it->second;
+	}
+	delete fileManager;
 	//Free each buffer in each array of buffers.
 	/*vector<AudioSampleBuffer**> buffersList;
 	buffersList.push_back(kickSampleBuffers);
@@ -481,36 +483,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	MidiBuffer::Iterator iterator(midiMessages);
 	int midiPosition = -1;
 	
-	//std::list<IteratorPack>::iterator it;
-	//std::list<IteratorPack>::iterator end;
-	//it = iterators->begin();
-	//end = iterators->end();
-	//
-	////Loop through the iterators left from previous blocks and fill the current block
-	//while (it!=end) {
-	//	IteratorPack currPack = *it;
-	//	//int i=0;
-	//	//for (int channel = 0; channel < 1; ++channel){
-	//	//float *out = buffer.getWritePointer(currPack.channelNum);
-	//	int samplesToCopy = std::min(currPack.samplesLeft, buffer.getNumSamples());
-	//	//bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
-	//	buffer.addFrom(currPack.channelNum, 0, *currPack.address,0,currPack.sampleLeftAt ,samplesToCopy, currPack.velocity);
-	//	//buffer.addFrom(,,)
-
-	//	//}
-	//	//If the iterator has reached the end, erase the element.
-	//	if (samplesToCopy == currPack.samplesLeft) {
-	//		it=iterators->erase(it);
-	//	}
-	//	//Else update the remaining numbers.
-	//	else {
-	//		it->sampleLeftAt += samplesToCopy;
-	//		it->samplesLeft -= samplesToCopy;
-	//		//it->address += i;
-	//		it++;
-	//	}
-	//}
-	map<int, Instrument>::iterator it;
+	map<int, Instrument*>::iterator it;
 
 	while (iterator.getNextEvent(currMessage, midiPosition)) {
 
@@ -525,14 +498,14 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			
 			//	micVector.push_back(((1 - roomFader)*(1 - snare_rimBottomFader))*masterFader*snare_rimMaster);//top
 			//	micVector.push_back(((1 - roomFader)*snare_rimBottomFader)*masterFader*snare_rimMaster);//bottom
-			std::map<int, Instrument>::iterator iter = instrumentMap.find(noteNumber);
+			std::map<int, Instrument*>::iterator iter = instrumentMap.find(noteNumber);
 			if (iter != instrumentMap.end()) {
 				float master;
 				float overHead;
-				Instrument tempInst = iter->second;
+				Instrument *tempInst = (iter->second);
 
 				vector<float> micVector;
-				String instrumentName = tempInst.instrumentName;
+				String instrumentName = tempInst->instrumentName;
 				if (instrumentName.compareIgnoreCase("sidestick")==0 || instrumentName.compareIgnoreCase("rimshot")==0) {
 					instrumentName = String("snare");
 				}
@@ -573,14 +546,14 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
 				micVector.push_back(float(0.2*overHead*master)); // overhead
 				
-				tempInst.triggerInstrument(&buffer, micVector, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan);
+				tempInst->triggerInstrument(&buffer, micVector, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan);
 			}
 		}
 	}
 
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
-		it->second.fillFromIterators(buffer);
+		it->second->fillFromIterators(buffer);
 	}
 
 }

@@ -10,7 +10,6 @@
 
 #include "Instrument.h"
 const int NUM_OF_SAME_SAMPLE = 5;
-
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
 
@@ -56,9 +55,6 @@ void Instrument::fillBuffer(int velocity, AudioSampleBuffer* bufferToFill) {
 
 void Instrument::triggerInstrument
 (AudioBuffer<float> *bufferToFill, std::vector<float> micGains, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]) {
-	//float monoPan = 0.1;
-	//float stereoPan[2] = { 0.1,0.9 };
-
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
@@ -88,19 +84,7 @@ void Instrument::triggerInstrument
 		}
 
 	}
-
-	//TODO: Fix the boolean of if this is a hi hat open
-
-	//Write the samples to the output buffer and store the remaining in iteratorPack.
-
-	//vector<float> pans = { float(0.5) , float(0.5) };
-	//vector<std::array<float, 2>> panValues;
-	//for (int i = 0; i < size(pans); i++) {
-	//	float pan = pans.at(i);
-	//	std::array<float, 2> tempPanArray = { sin(pan*(PI / 2)) ,sin((PI / 2) * (1 - pan)) };
-	//	panValues.push_back(tempPanArray);
-	//}
-
+// TODO: instead of calculating each time, save these values unless changed.
 	std::array<float, 2> monoPanValues = { sin((PI / 2) * (1 - monoPan)) ,sin(monoPan*(PI / 2))};
 	vector<std::array<float, 2>> stereoPanValues;
 	std::array<float, 2> tempArray1 = {  sin((PI / 2) * (1 - stereoPan[0])) ,sin(stereoPan[0] * (PI / 2)) };
@@ -139,52 +123,6 @@ void Instrument::triggerInstrument
 			}
 		}
 	}
-
-	//for (int channel = 0; channel < 3; ++channel) {
-	//	//float *out = bufferToFill->getWritePointer(channel);
-
-	//	for (int j = 0; j < inVector.size(); j++) {
-	//		if (inVector.at(j) == 0) {
-	//			continue;
-	//		}
-	//		int samplesToCopy = std::min(sampleCountVector.at(j), blockSize - timeStamp);
-
-	//		// Fix source channel and gain applied
-
-	//		bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
-	//		//LEFT OFF: ADD A INT TO THE IteratorPack TO TELL YOU WHERE YOU LEFT OFF INSTEAD OF CREATING ANOTHER AUDIOSAMPLEBUFFER EVERY TIME
-	//		if ((samplesToCopy + timeStamp >= blockSize)) {
-	//			//TODO: Fix the boolean of if this is a hi hat open
-	//			//IteratorPack newPack(((float*)(inVector.at(j) + i)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - i, (instrumentSamples == hi_hat_openSampleBuffers));
-
-	//			//IteratorPack newPack(((float*)(inVector.at(j) + samplesToCopy)), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
-
-	//			IteratorPack newPack(inVector.at(j), noteVelocity*micGains.at(j), sampleCountVector.at(j) - samplesToCopy, (false), channel);
-
-	//			newPack.sampleLeftAt = samplesToCopy;
-	//			iterators->push_back(newPack);
-	//		}
-	//	}
-
-	//}
-
-	// TODO: Fix the hi-hat close that broke at refactoring
-	//If we triggered a closed hi-hat, mute open hi_hat hits.
-	//if (instrumentSamples == hi_hat_closedSampleBuffers) {
-	//	for (IteratorPack &currPack : *iterators) {
-	//		if (currPack.isHiHatOpen) {
-	//			currPack.samplesLeft = timeStamp + HI_HAT_SAMPLE_OFFSET;
-	//		}
-	//	}
-	//}
-
-
-}
-void Instrument::panMono(AudioSampleBuffer* input, int inputChannel, AudioSampleBuffer* output, float pan) {
-	jassert(output->getNumChannels() == 2);
-	jassert(input->getNumChannels() > inputChannel);
-
-
 }
 
 void Instrument::fillFromIterators(AudioSampleBuffer output) {
@@ -196,26 +134,25 @@ void Instrument::fillFromIterators(AudioSampleBuffer output) {
 	//Loop through the iterators left from previous blocks and fill the current block
 	while (it != end) {
 		IteratorPack currPack = *it;
-		//int i=0;
-		//for (int channel = 0; channel < 1; ++channel){
-		//float *out = buffer.getWritePointer(currPack.channelNum);
-		int samplesToCopy = std::min(currPack.samplesLeft, output.getNumSamples()- currPack.timestamp);
-		//bufferToFill->addFrom(channel, timeStamp, *inVector.at(j), 0, 0, samplesToCopy, noteVelocity*micGains.at(j));
-		output.addFrom(currPack.channelNum, currPack.timestamp, *currPack.address, 0, currPack.sampleLeftAt, samplesToCopy, currPack.velocity);
-		//buffer.addFrom(,,)
-
-		//}
-		//If the iterator has reached the end, erase the element.
-		if (samplesToCopy == currPack.samplesLeft) {
+		it->iterate(output);
+		if (it->hasEnded) {
 			it = iterators->erase(it);
 		}
-		//Else update the remaining numbers.
 		else {
-			it->sampleLeftAt += samplesToCopy;
-			it->samplesLeft -= samplesToCopy;
-			it->timestamp = 0;
-			//it->address += i;
 			it++;
 		}
 	}
+}
+
+Instrument::~Instrument() {
+	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
+		for (int velocityNumber = 0; velocityNumber < this->velocityCount; velocityNumber++) {
+			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
+				delete micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)];
+			}
+		}
+		delete micPointers[micNumber];
+	}
+	delete micPointers;
+	delete iterators;
 }

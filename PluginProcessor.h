@@ -91,7 +91,7 @@ protected:
 	AudioSampleBuffer** hi_hat_openSampleBuffers;
 	AudioSampleBuffer** rideSampleBuffers;
 	AudioSampleBuffer** stackSampleBuffers;
-	std::map<int, Instrument> instrumentMap;
+	std::map<int, Instrument*> instrumentMap;
 
 	float roomFader;
 	float masterFader;

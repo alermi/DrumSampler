@@ -194,17 +194,6 @@ DrumSamplerAudioProcessorEditor::DrumSamplerAudioProcessorEditor (DrumSamplerAud
 	createRotarySlider(tom2MonoPanSlider, tom2MonoPanSliderAttachment, "Tom2 Mono Pan");
 	createRotarySlider(tom2StereoPanLSlider, tom2StereoPanLSliderAttachment, "Tom2 Stereo Pan L");
 	createRotarySlider(tom2StereoPanRSlider, tom2StereoPanRSliderAttachment, "Tom2 Stereo Pan R");
-	//masterSlider.setRange(0, 1);
-	//masterSlider.setSliderStyle(Slider::RotaryVerticalDrag);
-	//masterSlider.setTextBoxStyle(Slider::NoTextBox, false, 100, 20);
-	//masterSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(processor.parameters, "Master Mix", masterSlider);
-	//addAndMakeVisible(&masterSlider);
-
-	//masterRoomSlider.setRange(0, 1);
-	//masterRoomSlider.setSliderStyle(Slider::RotaryVerticalDrag);
-	//masterRoomSlider.setTextBoxStyle(Slider::NoTextBox, false, 100, 20);
-	//masterRoomSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(processor.parameters, "Master Room Mix", masterRoomSlider);
-	//addAndMakeVisible(&masterRoomSlider);
 }
 
 DrumSamplerAudioProcessorEditor::~DrumSamplerAudioProcessorEditor()
@@ -286,9 +275,6 @@ void DrumSamplerAudioProcessorEditor::resized()
 	kickInOutSlider.setBounds(164, 50, 40, 40);
 	kickDirectSlider.setBounds(214, 50, 40, 40);
 	drawPanSliders(kickMonoPanSlider, kickStereoPanLSlider, kickStereoPanRSlider, 264, 50);
-	//kickMonoPanSlider.setBounds(264, 50, 40, 40);
-	//kickStereoPanLSlider.setBounds(254, 70, 40, 40);
-	//kickStereoPanRSlider.setBounds(274, 70, 40, 40);
 
 	snareMasterSlider.setBounds(314, 50, 40, 40);
 	snareRoomSlider.setBounds(364, 50, 40, 40);
