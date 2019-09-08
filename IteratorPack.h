@@ -28,7 +28,7 @@ public:
 	std::array<float, 2> monoPanValues;
 	std::vector<std::array<float, 2>> stereoPanValues;
 
-	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, int channelNum, int timestamp, AudioSampleBuffer *mainBuffer, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues);
+	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, int timestamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber);
 	//void iterate(AudioSampleBuffer output);
 	void iterate(std::array<AudioSampleBuffer*, 2> outputs);
 };

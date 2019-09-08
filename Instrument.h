@@ -30,8 +30,7 @@ public:
 	//AudioSampleBuffer mainBuffer;
 	//static const int micToExtraChannelMap[7];
 	void createBuffers();
-	void fillBuffer(int velocity, AudioSampleBuffer* bufferToFill);
-	void triggerInstrument(AudioBuffer<float>* bufferToFill, std::vector<float> micGains, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2], AudioProcessor *processor);
+	void triggerInstrument(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
 	Instrument(String instrumentName, int velocityCount, FileManager* fileManager, AudioProcessor* processor);
 	void Instrument::fillFromIterators(AudioSampleBuffer output);
 	~Instrument();

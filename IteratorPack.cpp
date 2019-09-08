@@ -10,18 +10,16 @@
 
 #include "IteratorPack.h"
 
-IteratorPack::IteratorPack(AudioSampleBuffer* address, float velocity, int samplesLeft, int channelNum, int timestamp, AudioSampleBuffer *mainBuffer, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues) {
-	//this->mainBuffer = mainBuffer;
+IteratorPack::IteratorPack(AudioSampleBuffer* address, float velocity, int samplesLeft, int timestamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber) {
 	this->address = address;
 	this->velocity = velocity;
 	this->samplesLeft = samplesLeft;
-	this->channelNum = channelNum;
 	this->sampleLeftAt = 0;
 	this->timestamp = timestamp;
 	this->hasEnded = false;
 	this->monoPanValues = monoPanValues;
 	this->stereoPanValues = stereoPanValues;
-	//jassert(mainBuffer->getNumChannels() == 2);
+	this->extraBusNumber = extraBusNumber;
 
 }
 //

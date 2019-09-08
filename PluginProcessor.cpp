@@ -24,13 +24,14 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                         .withOutput ("Master", AudioChannelSet::stereo(), true)
+						.withOutput("Room Stereo", AudioChannelSet::stereo(), true)
+						.withOutput("Overhead Stereo", AudioChannelSet::stereo(), true)
 						.withOutput("Kick", AudioChannelSet::mono(), true)
 						.withOutput("Snare", AudioChannelSet::mono(), true)
 						.withOutput("Tom1", AudioChannelSet::mono(), true)
 						.withOutput("Tom2", AudioChannelSet::mono(), true)
 						.withOutput("Tom3", AudioChannelSet::mono(), true)
-						.withOutput("Room", AudioChannelSet::stereo(), true)
-						.withOutput("Overhead", AudioChannelSet::stereo(), true)
+
 
                      #endif
                        )
@@ -417,24 +418,60 @@ void DrumSamplerAudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    ignoreUnused (layouts);
-    return true;
-  #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
-        return false;
+	//AudioChannelSet::dis
+	//TODO: Fix if we add a ride bus too
+	//layouts.getChannelSet(false,0)
+	if (layouts.outputBuses.size() != 8) { 
+		return false;
+	}
+	if (layouts.getChannelSet(false,0) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 1) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 2) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 3) != AudioChannelSet::mono()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 4) != AudioChannelSet::mono()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 5) != AudioChannelSet::mono()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 6) != AudioChannelSet::mono()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 7) != AudioChannelSet::mono()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 8) != AudioChannelSet::mono()) {
+		return false;
+	}
 
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-   #endif
+	return true;
+	//layouts.
+ // #if JucePlugin_IsMidiEffect
+ //   ignoreUnused (layouts);
+ //   return true;
+ // #else
+ //   // This is the place where you check if the layout is supported.
+ //   // In this template code we only support mono or stereo.
+ //   if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono()
+ //    && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
+ //       return false;
 
-    return true;
-  #endif
+ //   // This checks if the input layout matches the output layout
+ //  #if ! JucePlugin_IsSynth
+ //   if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+ //       return false;
+ //  #endif
+
+ //   return true;
+ // #endif
 }
 #endif
 
@@ -525,7 +562,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				micVector.push_back(float(0.2*roomFader*master)); // room_main
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
 				micVector.push_back(float(0.2*overHead*master)); // overhead
-				tempInst->triggerInstrument(&buffer, micVector, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan, this);
+				tempInst->triggerInstrument(micVector, noteVelocity, timeStamp, monoPan, stereoPan, this);
 			}
 		}
 	}
