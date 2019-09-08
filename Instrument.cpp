@@ -13,15 +13,17 @@ const int NUM_OF_SAME_SAMPLE = 5;
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
 
-
+const int micToExtraChannelMap[] = { 2,2,3,3,4,5,6,8, };
 const int MIC_COUNT = 12;
 const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
 			"room_wide", "overhead" };
-Instrument::Instrument(String instrumentName, int velocityCount, FileManager* fileManager) {
+Instrument::Instrument(String instrumentName, int velocityCount, FileManager* fileManager, AudioProcessor* processor) {
 	this->velocityCount = velocityCount;
 	this->instrumentName = instrumentName;
 	this->fileManager = fileManager;
 	iterators = new list<IteratorPack>();
+	this->processor = processor;
+
 }
 
 void Instrument::createBuffers() {
@@ -54,7 +56,7 @@ void Instrument::fillBuffer(int velocity, AudioSampleBuffer* bufferToFill) {
 }
 
 void Instrument::triggerInstrument
-(AudioBuffer<float> *bufferToFill, std::vector<float> micGains, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2]) {
+(AudioBuffer<float> *bufferToFill, std::vector<float> micGains, float noteVelocity, int timeStamp, int numOutputChannels, int blockSize, float monoPan, float stereoPan[2], AudioProcessor* processor) {
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
@@ -92,6 +94,26 @@ void Instrument::triggerInstrument
 	std::array<float, 2> tempArray2 = { sin((PI / 2) * (1 - stereoPan[1])) ,sin(stereoPan[1] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray2);
 
+	//for (int micNumber = 0; micNumber < 2; micNumber++) {
+	//	AudioSampleBuffer* currBuffer = inVector.at(micNumber);
+	//	if (currBuffer == 0) {
+	//		continue;
+	//	}
+	//	jassert(currBuffer->getNumChannels() == 1);
+	//	for (int sourceChannel = 0; sourceChannel < 1; sourceChannel++) {
+	//		for (int destChannel = 0; destChannel < 2; ++destChannel) {
+	//			float panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
+	//				+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
+	//			IteratorPack newPack(currBuffer, noteVelocity*micGains.at(micNumber)*panValue, sampleCountVector.at(micNumber), destChannel, timeStamp);
+	//			iterators->push_back(newPack);
+	//		}
+	//		// Put iterator for kick channel
+	//		IteratorPack newPack(currBuffer, noteVelocity*micGains.at(micNumber), sampleCountVector.at(micNumber), 2, timeStamp);
+	//		iterators->push_back(newPack);
+	//	}
+	//}
+
+
 
 	for (int j = 0; j < 9; j++) {
 		AudioSampleBuffer* currBuffer = inVector.at(j);
@@ -99,15 +121,20 @@ void Instrument::triggerInstrument
 			continue;
 		}
 		jassert(currBuffer->getNumChannels() == 1);
-		for (int sourceChannel = 0; sourceChannel < 1; sourceChannel++) {
+		//TODO: Change this buffertofill based on different output channels
+		//AudioSampleBuffer mainBuffer=processor->getBusBuffer(*bufferToFill, false, 0);
+		//AudioSampleBuffer *temp= processor->getBusBuffer(bufferToFill,true,0);
+		IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j), sampleCountVector.at(j), -1, timeStamp, NULL, monoPanValues, stereoPanValues);
+		iterators->push_back(newPack);
+		/*for (int sourceChannel = 0; sourceChannel < 1; sourceChannel++) {
 			for (int destChannel = 0; destChannel < 2; ++destChannel) {
 
 				float panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
 					+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
-				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), destChannel, timeStamp);
+				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), destChannel, timeStamp, NULL, monoPanValues,stereoPanValues);
 				iterators->push_back(newPack);
 			}
-		}
+		}*/
 	}
 	for (int j = 9; j < inVector.size(); j++) {
 		AudioSampleBuffer* currBuffer = inVector.at(j);
@@ -115,14 +142,17 @@ void Instrument::triggerInstrument
 			continue;
 		}
 		jassert(currBuffer->getNumChannels() == 2);
-		for (int sourceChannel = 0; sourceChannel < 2; sourceChannel++) {
+		IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j), sampleCountVector.at(j), -1, timeStamp, NULL, monoPanValues, stereoPanValues);
+		iterators->push_back(newPack);
+		/*for (int sourceChannel = 0; sourceChannel < 2; sourceChannel++) {
 			for (int destChannel = 0; destChannel < 2; ++destChannel) {
 				float panValue = stereoPanValues[sourceChannel][destChannel];
-				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), destChannel, timeStamp);
+				IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j)*panValue, sampleCountVector.at(j), destChannel, timeStamp, NULL, NULL, NULL);
 				iterators->push_back(newPack);
 			}
-		}
+		}*/
 	}
+
 }
 
 void Instrument::fillFromIterators(AudioSampleBuffer output) {
@@ -134,7 +164,8 @@ void Instrument::fillFromIterators(AudioSampleBuffer output) {
 	//Loop through the iterators left from previous blocks and fill the current block
 	while (it != end) {
 		IteratorPack currPack = *it;
-		it->iterate(output);
+		std::array<AudioSampleBuffer*, 2> outputs = { &processor->getBusBuffer(output,false,0) ,&processor->getBusBuffer(output,false,1) };
+		it->iterate(outputs);
 		if (it->hasEnded) {
 			it = iterators->erase(it);
 		}

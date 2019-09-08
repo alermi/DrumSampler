@@ -23,14 +23,20 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
+                        .withOutput ("Master", AudioChannelSet::stereo(), true)
 						.withOutput("Kick", AudioChannelSet::mono(), true)
+						.withOutput("Snare", AudioChannelSet::mono(), true)
+						.withOutput("Tom1", AudioChannelSet::mono(), true)
+						.withOutput("Tom2", AudioChannelSet::mono(), true)
+						.withOutput("Tom3", AudioChannelSet::mono(), true)
+						.withOutput("Room", AudioChannelSet::stereo(), true)
+						.withOutput("Overhead", AudioChannelSet::stereo(), true)
+
                      #endif
                        )
 #endif
 {
 	
-
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Room Mix",       // parameter ID
 		"Kick Room Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -53,7 +59,6 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		NormalisableRange<float>(0, 1),    // range
 		0.5f,         // default value
 		""));
-
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Direct Mix",       // parameter ID
 		"Kick Direct Mix",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -65,7 +70,7 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		NormalisableRange<float>(0, 1),    // range
 		0.5f,         // default value
 		""));
-
+	
 	parameters.createAndAddParameter(std::make_unique<AudioParameterFloat>("Kick Stereo Pan L",       // parameter ID
 		"Kick Stereo Pan L",       // parameter name
 		NormalisableRange<float>(0, 1),    // range
@@ -316,7 +321,7 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	for (std::map<int, std::pair<String, int>>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
 		if (iter->second.first.compare("")) {
-			Instrument* newInstrument=new Instrument(iter->second.first, iter->second.second, fileManager);
+			Instrument* newInstrument=new Instrument(iter->second.first, iter->second.second, fileManager, this);
 			newInstrument->createBuffers();
 			instrumentMap.insert(pair<int, Instrument*>(iter->first, newInstrument));
 		}
@@ -331,30 +336,7 @@ DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
 		delete it->second;
 	}
 	delete fileManager;
-	//Free each buffer in each array of buffers.
-	/*vector<AudioSampleBuffer**> buffersList;
-	buffersList.push_back(kickSampleBuffers);
-	buffersList.push_back(snareSampleBuffers);
-	buffersList.push_back(snare_rimSampleBuffers);
-	buffersList.push_back(chinaSampleBuffers);
-	buffersList.push_back(crash_altSampleBuffers);
-	buffersList.push_back(crash_mainSampleBuffers);
-	buffersList.push_back(floor_tomSampleBuffers);
-	buffersList.push_back(rack_tomSampleBuffers);
-	buffersList.push_back(hi_hat_closedSampleBuffers);
-	buffersList.push_back(hi_hat_openSampleBuffers);
-	buffersList.push_back(rideSampleBuffers);
-	buffersList.push_back(stackSampleBuffers);
-	
-	for (AudioSampleBuffer** &currBuffer : buffersList) {
-		for (int i = 0; i < NUM_OF_SAME_SAMPLE*MAX_MIC_COUNT*MAX_VELOCITY_COUNT; i++) {
-			if (currBuffer[i])
-				delete currBuffer[i];
-		}
-	}
-	
-	delete iterators;
-	delete samplesFolder;*/
+
 }
 
 //==============================================================================
@@ -528,8 +510,6 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				float tom2Direct = *parameters.getRawParameterValue("Tom2 Direct Mix");
 				float tom3Direct = *parameters.getRawParameterValue("Tom3 Direct Mix");
 
-				//micVector.push_back((1 - roomFader)*masterFader*kickMaster);//direct
-				//micVector.push_back(roomFader*masterFader*kickMaster);//room
 
 				//const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
 				//"room_wide", "overhead"};
@@ -545,8 +525,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				micVector.push_back(float(0.2*roomFader*master)); // room_main
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
 				micVector.push_back(float(0.2*overHead*master)); // overhead
-				
-				tempInst->triggerInstrument(&buffer, micVector, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan);
+				tempInst->triggerInstrument(&buffer, micVector, noteVelocity, timeStamp, totalNumOutputChannels, buffer.getNumSamples(), monoPan, stereoPan, this);
 			}
 		}
 	}
@@ -575,10 +554,21 @@ void DrumSamplerAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+	ValueTree state = parameters.copyState();
+	std::unique_ptr<XmlElement> xml(state.createXml());
+	copyXmlToBinary(*xml, destData);
 }
 
 void DrumSamplerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+
+	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+	if (xmlState.get() != nullptr) {
+		if (xmlState->hasTagName(parameters.state.getType())) {
+			parameters.replaceState(ValueTree::fromXml(*xmlState));
+		}
+	}
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
