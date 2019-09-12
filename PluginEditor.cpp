@@ -16,7 +16,7 @@ DrumSamplerAudioProcessorEditor::DrumSamplerAudioProcessorEditor (DrumSamplerAud
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-	setSize(700, 500);
+	setSize(700, 700);
 
 	kickRoomSlider.setRange(0, 1);
 	kickRoomSlider.setSliderStyle(Slider::RotaryVerticalDrag);
@@ -200,7 +200,7 @@ DrumSamplerAudioProcessorEditor::DrumSamplerAudioProcessorEditor (DrumSamplerAud
 	//testMaster(new String(""));
 	//InstrumentMaster testMasterr("");
 	
-	testMaster.attach(&processor.parameters, "Kick");
+	testMaster.attach(&processor.parameters);
 	//testMaster.setText("Kick");
 	//testMaster.setLookAndFeel(&lookAndFeel);
 	addAndMakeVisible(testMaster);
@@ -324,7 +324,7 @@ void DrumSamplerAudioProcessorEditor::resized()
 	masterRoomSlider.setBounds(244, 400, 40, 40);
 	masterSlider.setBounds(244, 430, 40, 40);
 	
-	testMaster.setBounds(0,0,100,200);
+	testMaster.setBounds(0,400,500,200);
 }
 void DrumSamplerAudioProcessorEditor::drawPanSliders(Slider& monoSlider, Slider& stereoLSlider, Slider& stereoRSlider, int x, int y) {
 	monoSlider.setBounds(x, y, 40, 40);

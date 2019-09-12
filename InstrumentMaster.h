@@ -64,6 +64,7 @@ private:
     std::unique_ptr<Slider> leftPan;
     std::unique_ptr<Slider> rightPan;
     std::unique_ptr<Slider> monoPan;
+    std::unique_ptr<Component> component;
 
 
     //==============================================================================

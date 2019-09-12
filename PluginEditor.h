@@ -9,7 +9,7 @@
 */
 
 #pragma once
-#include "InstrumentControl.h"
+#include "MasterPanel.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 //==============================================================================
@@ -161,7 +161,7 @@ private:
 
 	//LookAndFeel_V1 lookAndFeel;
 
-	InstrumentControl testMaster;
+	MasterPanel testMaster;
 
 
 	void createRotarySlider(Slider& slider, ScopedPointer<AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, String parameterID);

@@ -80,7 +80,7 @@ void InstrumentControl::attach(AudioProcessorValueTreeState* parameters, String 
 	monoPanSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(*parameters, instrumentName + " Mono Pan", monoPan);
 	stereoPanLSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(*parameters, instrumentName + " Stereo Pan L", leftPan);
 	stereoPanRSliderAttachment = new AudioProcessorValueTreeState::SliderAttachment(*parameters, instrumentName + " Stereo Pan R", rightPan);
-
+	groupComponent.get()->setText(instrumentName);
 }
 void InstrumentControl::paint (Graphics& g)
 {

@@ -74,6 +74,12 @@ InstrumentMaster::InstrumentMaster ()
 
     monoPan->setBounds (8, 152, 48, 8);
 
+    component.reset (new Component());
+    addAndMakeVisible (component.get());
+    component->setName ("new component");
+
+    component->setBounds (321, 248, 79, 152);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -95,6 +101,7 @@ InstrumentMaster::~InstrumentMaster()
     leftPan = nullptr;
     rightPan = nullptr;
     monoPan = nullptr;
+    component = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -188,6 +195,9 @@ BEGIN_JUCER_METADATA
           explicitFocusOrder="0" pos="8 152 48 8" min="0.0" max="10.0"
           int="0.0" style="LinearHorizontal" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <GENERICCOMPONENT name="new component" id="64982d7d9ced9efe" memberName="component"
+                    virtualName="" explicitFocusOrder="0" pos="321 248 79 152" class="Component"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
