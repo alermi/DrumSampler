@@ -23,6 +23,7 @@ FileManager::FileManager() {
 void FileManager::findSamplesFolder(){
 	File hostApplicationPath = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
 
+	//TODO: Fix samples directory
 	samplesFolder=new File(String(hostApplicationPath.getFullPathName() + "\\Samples Mono"));
 /*
 	FileChooser samplesFinder("Please choose the folder containing the samples for DrumSampler.");

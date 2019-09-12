@@ -9,7 +9,7 @@
 */
 
 #pragma once
-
+#include "InstrumentControl.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 //==============================================================================
@@ -32,10 +32,10 @@ private:
 
 	Slider kickRoomSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickRoomSliderAttachment;
-
+/*
 	Slider kickMasterSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickMasterSliderAttachment;
-
+*/
 	Slider kickInOutSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickInOutSliderAttachment;
 
@@ -44,7 +44,7 @@ private:
 
 	Slider kickOverheadSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickOverheadSliderAttachment;
-
+/*
 	Slider kickMonoPanSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickMonoPanSliderAttachment;
 
@@ -53,7 +53,7 @@ private:
 
 	Slider kickStereoPanLSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> kickStereoPanLSliderAttachment;
-
+*/
 	Slider snareRoomSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> snareRoomSliderAttachment;
 
@@ -158,6 +158,11 @@ private:
 
 	Slider masterRoomSlider;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> masterRoomSliderAttachment;
+
+	//LookAndFeel_V1 lookAndFeel;
+
+	InstrumentControl testMaster;
+
 
 	void createRotarySlider(Slider& slider, ScopedPointer<AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, String parameterID);
 	void drawPanSliders(Slider& monoSlider, Slider& stereoLSlider, Slider& stereoRSlider, int x, int y);
