@@ -32,17 +32,13 @@ void MasterPanel::paint (Graphics& g)
        drawing code..
     */
 
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
+    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));   // clear the background
 
 	addAndMakeVisible(&kickMaster);
 	addAndMakeVisible(&snareMaster);
 	addAndMakeVisible(&tom1Master);
 	addAndMakeVisible(&tom2Master);
 	addAndMakeVisible(&tom3Master);
-
 
 }
 void MasterPanel::attach(AudioProcessorValueTreeState* parameters) {

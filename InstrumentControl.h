@@ -21,7 +21,7 @@ public:
     InstrumentControl();
     ~InstrumentControl();
 
-	void InstrumentControl::attach(AudioProcessorValueTreeState* parameters, String instrumentName);
+	void attach(AudioProcessorValueTreeState* parameters, String instrumentName);
 
     void paint (Graphics&) override;
     void resized() override;

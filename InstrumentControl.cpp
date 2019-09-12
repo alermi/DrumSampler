@@ -30,7 +30,7 @@ InstrumentControl::InstrumentControl()
 	volumeSlider.setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
 	//volumeSlider->setColour(Slider::thumbColourId, Colours::white);
 
-	volumeSlider.setBounds(40, 48, 48, 144);
+	volumeSlider.setBounds(56, 40, 48, 144);
 
 	//leftPan.reset(new Slider("Left Pan"));
 	addAndMakeVisible(&leftPan);
@@ -90,8 +90,7 @@ void InstrumentControl::paint (Graphics& g)
        You should replace everything in this method with your own
        drawing code..
     */
-
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));   // clear the background
+    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));   // clear the background
 
 
 

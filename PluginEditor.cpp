@@ -222,11 +222,14 @@ void DrumSamplerAudioProcessorEditor::createRotarySlider(Slider& slider, ScopedP
 void DrumSamplerAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
-    g.setColour (Colours::white);
+	
+	//TODO: Set the backgroundColour with lookAndFeel
+    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+	g.fillAll(Colours::black);
+	g.setColour (Colours::white);
 	Font instrumentFont(15, 1);
 
+	getLookAndFeel().setColour(Slider::thumbColourId, Colours::white);
 
 	g.setFont(instrumentFont);
 	g.drawText("Kick:", 5, 20, 60, 20,Justification::left);

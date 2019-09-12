@@ -1,8 +1,8 @@
- /*
+/*
   ==============================================================================
 
-    MasterPanel.h
-    Created: 12 Sep 2019 2:36:19pm
+    KickControl.h
+    Created: 13 Sep 2019 1:15:37am
     Author:  Ani
 
   ==============================================================================
@@ -12,25 +12,24 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentControl.h"
-#include "KickControl.h"
 //==============================================================================
 /*
 */
-class MasterPanel    : public Component
+class KickControl: public InstrumentControl
 {
 public:
-    MasterPanel();
-    ~MasterPanel();
-	KickControl kickMaster;
-	InstrumentControl snareMaster;
-	InstrumentControl tom1Master;
-	InstrumentControl tom2Master;
-	InstrumentControl tom3Master;
+    KickControl();
+    ~KickControl();
+	
+	Slider inOutSlider;
+	Label inOutLabel;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> inOutSliderAttachment;
 
-	void MasterPanel::attach(AudioProcessorValueTreeState* parameters);
+	void attach(AudioProcessorValueTreeState* parameters, String instrumentName);
+
     void paint (Graphics&) override;
     void resized() override;
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MasterPanel)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KickControl)
 };
