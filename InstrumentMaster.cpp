@@ -35,6 +35,8 @@ InstrumentMaster::InstrumentMaster ()
     groupComponent.reset (new GroupComponent ("new group",
                                               TRANS("Instrument")));
     addAndMakeVisible (groupComponent.get());
+    groupComponent->setTextLabelPosition (Justification::centred);
+    groupComponent->setColour (GroupComponent::outlineColourId, Colours::white);
 
     groupComponent->setBounds (0, 0, 100, 200);
 
@@ -45,7 +47,7 @@ InstrumentMaster::InstrumentMaster ()
     volumeSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
     volumeSlider->setColour (Slider::thumbColourId, Colours::white);
 
-    volumeSlider->setBounds (40, 48, 48, 144);
+    volumeSlider->setBounds (72, 60, 24, 126);
 
     leftPan.reset (new Slider ("Left Pan"));
     addAndMakeVisible (leftPan.get());
@@ -54,7 +56,7 @@ InstrumentMaster::InstrumentMaster ()
     leftPan->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
     leftPan->addListener (this);
 
-    leftPan->setBounds (8, 160, 32, 32);
+    leftPan->setBounds (36, 32, 32, 32);
 
     rightPan.reset (new Slider ("Right Pan"));
     addAndMakeVisible (rightPan.get());
@@ -63,7 +65,7 @@ InstrumentMaster::InstrumentMaster ()
     rightPan->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
     rightPan->addListener (this);
 
-    rightPan->setBounds (24, 160, 32, 32);
+    rightPan->setBounds (52, 32, 32, 32);
 
     monoPan.reset (new Slider ("Mono Pan"));
     addAndMakeVisible (monoPan.get());
@@ -72,13 +74,153 @@ InstrumentMaster::InstrumentMaster ()
     monoPan->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
     monoPan->addListener (this);
 
-    monoPan->setBounds (8, 152, 48, 8);
+    monoPan->setBounds (36, 24, 48, 8);
 
-    component.reset (new Component());
-    addAndMakeVisible (component.get());
-    component->setName ("new component");
+    label.reset (new Label ("new label",
+                            TRANS("Room Volume")));
+    addAndMakeVisible (label.get());
+    label->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label->setJustificationType (Justification::centredLeft);
+    label->setEditable (false, false, false);
+    label->setColour (TextEditor::textColourId, Colours::black);
+    label->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    component->setBounds (321, 248, 79, 152);
+    label->setBounds (448, 288, 96, 24);
+
+    label2.reset (new Label ("new label",
+                             TRANS("Master Volume")));
+    addAndMakeVisible (label2.get());
+    label2->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label2->setJustificationType (Justification::centredLeft);
+    label2->setEditable (false, false, false);
+    label2->setColour (TextEditor::textColourId, Colours::black);
+    label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label2->setBounds (552, 288, 104, 24);
+
+    masterSlider.reset (new Slider ("new slider"));
+    addAndMakeVisible (masterSlider.get());
+    masterSlider->setRange (0, 10, 0);
+    masterSlider->setSliderStyle (Slider::LinearVertical);
+    masterSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+
+    masterSlider->setBounds (584, 312, 32, 144);
+
+    roomSlider.reset (new Slider ("new slider"));
+    addAndMakeVisible (roomSlider.get());
+    roomSlider->setRange (0, 10, 0);
+    roomSlider->setSliderStyle (Slider::LinearVertical);
+    roomSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+
+    roomSlider->setBounds (480, 312, 32, 144);
+
+    groupComponent2.reset (new GroupComponent ("new group",
+                                               TRANS("group")));
+    addAndMakeVisible (groupComponent2.get());
+
+    groupComponent2->setBounds (432, 272, 240, 200);
+
+    label3.reset (new Label ("new label",
+                             TRANS("OH:")));
+    addAndMakeVisible (label3.get());
+    label3->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label3->setJustificationType (Justification::centredLeft);
+    label3->setEditable (false, false, false);
+    label3->setColour (TextEditor::textColourId, Colours::black);
+    label3->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label3->setBounds (0, 64, 72, 24);
+
+    label4.reset (new Label ("new label",
+                             TRANS("Room:")));
+    addAndMakeVisible (label4.get());
+    label4->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label4->setJustificationType (Justification::centredLeft);
+    label4->setEditable (false, false, false);
+    label4->setColour (TextEditor::textColourId, Colours::black);
+    label4->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label4->setBounds (0, 88, 56, 24);
+
+    label5.reset (new Label ("new label",
+                             TRANS("Top/Bottom:")));
+    addAndMakeVisible (label5.get());
+    label5->setFont (Font (11.90f, Font::plain).withTypefaceStyle ("Regular").withExtraKerningFactor (-0.092f));
+    label5->setJustificationType (Justification::centredLeft);
+    label5->setEditable (false, false, false);
+    label5->setColour (TextEditor::textColourId, Colours::black);
+    label5->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label5->setBounds (0, 136, 60, 24);
+
+    slider.reset (new Slider ("new slider"));
+    addAndMakeVisible (slider.get());
+    slider->setRange (0, 10, 0);
+    slider->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    slider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    slider->addListener (this);
+
+    slider->setBounds (45, 56, 32, 40);
+
+    slider2.reset (new Slider ("new slider"));
+    addAndMakeVisible (slider2.get());
+    slider2->setRange (0, 10, 0);
+    slider2->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    slider2->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    slider2->addListener (this);
+
+    slider2->setBounds (45, 80, 32, 40);
+
+    slider3.reset (new Slider ("new slider"));
+    addAndMakeVisible (slider3.get());
+    slider3->setRange (0, 10, 0);
+    slider3->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    slider3->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    slider3->addListener (this);
+
+    slider3->setBounds (50, 128, 32, 40);
+
+    label6.reset (new Label ("new label",
+                             TRANS("Direct:")));
+    addAndMakeVisible (label6.get());
+    label6->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label6->setJustificationType (Justification::centredLeft);
+    label6->setEditable (false, false, false);
+    label6->setColour (TextEditor::textColourId, Colours::black);
+    label6->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label6->setBounds (0, 112, 56, 24);
+
+    slider4.reset (new Slider ("new slider"));
+    addAndMakeVisible (slider4.get());
+    slider4->setRange (0, 10, 0);
+    slider4->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    slider4->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    slider4->addListener (this);
+
+    slider4->setBounds (45, 104, 32, 40);
+
+    label7.reset (new Label ("new label",
+                             TRANS("Pan:")));
+    addAndMakeVisible (label7.get());
+    label7->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label7->setJustificationType (Justification::centredLeft);
+    label7->setEditable (false, false, false);
+    label7->setColour (TextEditor::textColourId, Colours::black);
+    label7->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label7->setBounds (0, 24, 40, 24);
+
+    label8.reset (new Label ("new label",
+                             TRANS("Volume:")));
+    addAndMakeVisible (label8.get());
+    label8->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    label8->setJustificationType (Justification::centredLeft);
+    label8->setEditable (false, false, false);
+    label8->setColour (TextEditor::textColourId, Colours::black);
+    label8->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    label8->setBounds (0, 160, 64, 24);
 
 
     //[UserPreSize]
@@ -101,7 +243,21 @@ InstrumentMaster::~InstrumentMaster()
     leftPan = nullptr;
     rightPan = nullptr;
     monoPan = nullptr;
-    component = nullptr;
+    label = nullptr;
+    label2 = nullptr;
+    masterSlider = nullptr;
+    roomSlider = nullptr;
+    groupComponent2 = nullptr;
+    label3 = nullptr;
+    label4 = nullptr;
+    label5 = nullptr;
+    slider = nullptr;
+    slider2 = nullptr;
+    slider3 = nullptr;
+    label6 = nullptr;
+    slider4 = nullptr;
+    label7 = nullptr;
+    label8 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -149,6 +305,26 @@ void InstrumentMaster::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_monoPan] -- add your slider handling code here..
         //[/UserSliderCode_monoPan]
     }
+    else if (sliderThatWasMoved == slider.get())
+    {
+        //[UserSliderCode_slider] -- add your slider handling code here..
+        //[/UserSliderCode_slider]
+    }
+    else if (sliderThatWasMoved == slider2.get())
+    {
+        //[UserSliderCode_slider2] -- add your slider handling code here..
+        //[/UserSliderCode_slider2]
+    }
+    else if (sliderThatWasMoved == slider3.get())
+    {
+        //[UserSliderCode_slider3] -- add your slider handling code here..
+        //[/UserSliderCode_slider3]
+    }
+    else if (sliderThatWasMoved == slider4.get())
+    {
+        //[UserSliderCode_slider4] -- add your slider handling code here..
+        //[/UserSliderCode_slider4]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -175,29 +351,99 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="100" initialHeight="200">
   <BACKGROUND backgroundColour="ff000000"/>
   <GROUPCOMPONENT name="new group" id="7ee8d04f4c8e4fba" memberName="groupComponent"
-                  virtualName="" explicitFocusOrder="0" pos="0 0 100 200" title="Instrument"/>
+                  virtualName="" explicitFocusOrder="0" pos="0 0 100 200" outlinecol="ffffffff"
+                  title="Instrument" textpos="36"/>
   <SLIDER name="Volume Slider" id="293520ce5caabac1" memberName="volumeSlider"
-          virtualName="" explicitFocusOrder="0" pos="40 48 48 144" thumbcol="ffffffff"
+          virtualName="" explicitFocusOrder="0" pos="72 60 24 126" thumbcol="ffffffff"
           min="0.0" max="10.0" int="0.0" style="LinearVertical" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="0"/>
   <SLIDER name="Left Pan" id="d7aafd3f9c831cb9" memberName="leftPan" virtualName=""
-          explicitFocusOrder="0" pos="8 160 32 32" min="0.0" max="1.0"
+          explicitFocusOrder="0" pos="36 32 32 32" min="0.0" max="1.0"
           int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <SLIDER name="Right Pan" id="e099e87addeb9178" memberName="rightPan"
-          virtualName="" explicitFocusOrder="0" pos="24 160 32 32" min="0.0"
+          virtualName="" explicitFocusOrder="0" pos="52 32 32 32" min="0.0"
           max="1.0" int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <SLIDER name="Mono Pan" id="d01de9b44ba53c48" memberName="monoPan" virtualName=""
-          explicitFocusOrder="0" pos="8 152 48 8" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="36 24 48 8" min="0.0" max="10.0"
           int="0.0" style="LinearHorizontal" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
-  <GENERICCOMPONENT name="new component" id="64982d7d9ced9efe" memberName="component"
-                    virtualName="" explicitFocusOrder="0" pos="321 248 79 152" class="Component"
-                    params=""/>
+  <LABEL name="new label" id="449ec999673fcd23" memberName="label" virtualName=""
+         explicitFocusOrder="0" pos="448 288 96 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Room Volume" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="5fd1103a839fd213" memberName="label2" virtualName=""
+         explicitFocusOrder="0" pos="552 288 104 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Master Volume" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <SLIDER name="new slider" id="c98cceaa2bedb41e" memberName="masterSlider"
+          virtualName="" explicitFocusOrder="0" pos="584 312 32 144" min="0.0"
+          max="10.0" int="0.0" style="LinearVertical" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="0"/>
+  <SLIDER name="new slider" id="dc9f87689d7b8cb" memberName="roomSlider"
+          virtualName="" explicitFocusOrder="0" pos="480 312 32 144" min="0.0"
+          max="10.0" int="0.0" style="LinearVertical" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="0"/>
+  <GROUPCOMPONENT name="new group" id="c9bfa9edb5dfee91" memberName="groupComponent2"
+                  virtualName="" explicitFocusOrder="0" pos="432 272 240 200" title="group"/>
+  <LABEL name="new label" id="d422bc04e70f0ab7" memberName="label3" virtualName=""
+         explicitFocusOrder="0" pos="0 64 72 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="OH:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="e79a3be223180a1" memberName="label4" virtualName=""
+         explicitFocusOrder="0" pos="0 88 56 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Room:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="e4ed6c55f979fbce" memberName="label5" virtualName=""
+         explicitFocusOrder="0" pos="0 136 60 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Top/Bottom:" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="11.9" kerning="-0.092" bold="0" italic="0" justification="33"/>
+  <SLIDER name="new slider" id="3f6a8280e374db2f" memberName="slider" virtualName=""
+          explicitFocusOrder="0" pos="45 56 32 40" min="0.0" max="10.0"
+          int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <SLIDER name="new slider" id="161ea416e09cac1" memberName="slider2" virtualName=""
+          explicitFocusOrder="0" pos="45 80 32 40" min="0.0" max="10.0"
+          int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <SLIDER name="new slider" id="a8adbaaf31c31da5" memberName="slider3"
+          virtualName="" explicitFocusOrder="0" pos="50 128 32 40" min="0.0"
+          max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <LABEL name="new label" id="ca5a175a39d34a0c" memberName="label6" virtualName=""
+         explicitFocusOrder="0" pos="0 112 56 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Direct:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
+  <SLIDER name="new slider" id="26530b188fcff613" memberName="slider4"
+          virtualName="" explicitFocusOrder="0" pos="45 104 32 40" min="0.0"
+          max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="NoTextBox"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <LABEL name="new label" id="a67df8fdccf81427" memberName="label7" virtualName=""
+         explicitFocusOrder="0" pos="0 24 40 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Pan:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="474e8b7cf1d5a9b5" memberName="label8" virtualName=""
+         explicitFocusOrder="0" pos="0 160 64 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Volume:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

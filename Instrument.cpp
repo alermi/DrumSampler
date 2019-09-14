@@ -127,7 +127,9 @@ void Instrument::fillFromIterators(AudioSampleBuffer output) {
 		jassert(processor->getBus(false, 0)->isEnabled());
 		jassert(processor->getBus(false, currPack.extraBusNumber)->isEnabled());
 
-		std::array<AudioSampleBuffer*, 2> outputs = { &processor->getBusBuffer(output,false,0) ,&processor->getBusBuffer(output,false, currPack.extraBusNumber) };
+		AudioSampleBuffer mainBuffer = processor->getBusBuffer(output, false, 0);
+		AudioSampleBuffer extraBuffer = processor->getBusBuffer(output, false, currPack.extraBusNumber);
+		std::array<AudioSampleBuffer*, 2> outputs = { &mainBuffer ,&extraBuffer };
 		it->iterate(outputs);
 		if (it->hasEnded) {
 			it = iterators->erase(it);

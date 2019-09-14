@@ -19,24 +19,24 @@ KickControl::KickControl()
     // initialise any special settings that your component needs.
 	
 	//inOutSlider.reset(new Slider("inOut"));
-	addAndMakeVisible(inOutSlider);
+	addAndMakeVisible(&inOutSlider);
 	inOutSlider.setRange(0, 10, 0);
 	inOutSlider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
 	inOutSlider.setTextBoxStyle(Slider::NoTextBox, false, 80, 20);
 	//inOutSlider.setColour(Slider::thumbColourId, Colours::white);
 	//inOutSlider->addListener(this);
 
-	inOutSlider.setBounds(48, 120, 32, 40);
+	inOutSlider.setBounds(45, 128, 32, 40);
 
 	inOutLabel.setText(TRANS("In/Out:"), NotificationType::dontSendNotification);
-	addAndMakeVisible(inOutLabel);
+	addAndMakeVisible(&inOutLabel);
 	inOutLabel.setFont(Font(15.00f, Font::plain).withTypefaceStyle("Regular"));
 	inOutLabel.setJustificationType(Justification::centredLeft);
 	inOutLabel.setEditable(false, false, false);
 	inOutLabel.setColour(TextEditor::textColourId, Colours::black);
-	inOutLabel.setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+	//inOutLabel.setColour(TextEditor::backgroundColourId, Colour(0x00000000));
 
-	inOutLabel.setBounds(0, 128, 56, 24);
+	inOutLabel.setBounds(0, 136, 56, 24);
 }
 
 KickControl::~KickControl()

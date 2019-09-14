@@ -21,7 +21,7 @@ public:
 	void findSamplesFolder();
 	void fillMidiMap();
 	File *getSamplesFolder();
-	AudioSampleBuffer* FileManager::readBuffer(String pathName);
+	AudioSampleBuffer* readBuffer(String pathName);
 	~FileManager();
 
 };

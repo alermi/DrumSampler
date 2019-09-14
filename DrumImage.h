@@ -33,13 +33,13 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class InstrumentMaster  : public Component,
-                          public Slider::Listener
+class DrumImage  : public Component,
+                   public Button::Listener
 {
 public:
     //==============================================================================
-    InstrumentMaster ();
-    ~InstrumentMaster();
+    DrumImage ();
+    ~DrumImage();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -47,11 +47,11 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
     // Binary resources:
-    static const char* m_png;
-    static const int m_pngSize;
+    static const char* kaanAni_jpeg;
+    static const int kaanAni_jpegSize;
 
 
 private:
@@ -59,30 +59,11 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<GroupComponent> groupComponent;
-    std::unique_ptr<Slider> volumeSlider;
-    std::unique_ptr<Slider> leftPan;
-    std::unique_ptr<Slider> rightPan;
-    std::unique_ptr<Slider> monoPan;
-    std::unique_ptr<Label> label;
-    std::unique_ptr<Label> label2;
-    std::unique_ptr<Slider> masterSlider;
-    std::unique_ptr<Slider> roomSlider;
-    std::unique_ptr<GroupComponent> groupComponent2;
-    std::unique_ptr<Label> label3;
-    std::unique_ptr<Label> label4;
-    std::unique_ptr<Label> label5;
-    std::unique_ptr<Slider> slider;
-    std::unique_ptr<Slider> slider2;
-    std::unique_ptr<Slider> slider3;
-    std::unique_ptr<Label> label6;
-    std::unique_ptr<Slider> slider4;
-    std::unique_ptr<Label> label7;
-    std::unique_ptr<Label> label8;
+    std::unique_ptr<ImageButton> imageButton;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentMaster)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DrumImage)
 };
 
 //[EndFile] You can add extra defines here...

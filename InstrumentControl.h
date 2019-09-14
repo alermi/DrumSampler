@@ -33,11 +33,23 @@ private:
 	Slider leftPan;
 	Slider rightPan;
 	Slider monoPan;
+	Slider roomSlider;
+	Slider overheadSlider;
+	Slider directSlider;
+	Label panLabel;
+	Label roomLabel;
+	Label overheadLabel;
+	Label directLabel;
+	Label volumeLabel;
 
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> volumeSliderAttachment;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> monoPanSliderAttachment;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> stereoPanLSliderAttachment;
 	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> stereoPanRSliderAttachment;
+
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> overheadSliderAttachment;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> roomSliderAttachment;
+	ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> directSliderAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InstrumentControl)
 };

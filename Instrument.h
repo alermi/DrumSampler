@@ -32,6 +32,6 @@ public:
 	void createBuffers();
 	void triggerInstrument(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
 	Instrument(String instrumentName, int velocityCount, FileManager* fileManager, AudioProcessor* processor);
-	void Instrument::fillFromIterators(AudioSampleBuffer output);
+	void fillFromIterators(AudioSampleBuffer output);
 	~Instrument();
 };

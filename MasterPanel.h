@@ -13,6 +13,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "InstrumentControl.h"
 #include "KickControl.h"
+#include "SnareControl.h"
+#include "GeneralControl.h"
 //==============================================================================
 /*
 */
@@ -22,12 +24,13 @@ public:
     MasterPanel();
     ~MasterPanel();
 	KickControl kickMaster;
-	InstrumentControl snareMaster;
+	SnareControl snareMaster;
 	InstrumentControl tom1Master;
 	InstrumentControl tom2Master;
 	InstrumentControl tom3Master;
+	GeneralControl generalControl;
 
-	void MasterPanel::attach(AudioProcessorValueTreeState* parameters);
+	void attach(AudioProcessorValueTreeState* parameters);
     void paint (Graphics&) override;
     void resized() override;
 

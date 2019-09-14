@@ -16,7 +16,7 @@ MasterPanel::MasterPanel()
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
-	setSize(500, 200);
+	setSize(740, 200);
 }
 
 MasterPanel::~MasterPanel()
@@ -39,6 +39,7 @@ void MasterPanel::paint (Graphics& g)
 	addAndMakeVisible(&tom1Master);
 	addAndMakeVisible(&tom2Master);
 	addAndMakeVisible(&tom3Master);
+	addAndMakeVisible(&generalControl);
 
 }
 void MasterPanel::attach(AudioProcessorValueTreeState* parameters) {
@@ -47,7 +48,7 @@ void MasterPanel::attach(AudioProcessorValueTreeState* parameters) {
 	tom1Master.attach(parameters, "Tom1");
 	tom2Master.attach(parameters, "Tom2");
 	tom3Master.attach(parameters, "Tom3");
-
+	generalControl.attach(parameters);
 
 
 }
@@ -60,7 +61,7 @@ void MasterPanel::resized()
 	tom1Master.setBounds(r.removeFromLeft(100));
 	tom2Master.setBounds(r.removeFromLeft(100));
 	tom3Master.setBounds(r.removeFromLeft(100));
-
+	generalControl.setBounds(r.removeFromRight(240));
     // This method is where you should set the bounds of any child
     // components that your component contains..
 
