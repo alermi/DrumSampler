@@ -1,7 +1,7 @@
 # DrumSampler
 
-This is a VST plug-in project that plays pre-recorded drum samples from MIDI input. This was created using the JUCE framework and still being improved.
-Only the source files are included in this GitHub repository. The project has only been tested for Windows 10.
+This is a VST plug-in project that plays pre-recorded drum samples from MIDI input. This was created using the JUCE framework and still being improved. \n
+Only the source files are included in this GitHub repository. The project has only been tested for Windows 10.\n
 
 The samples and the latest build files can be downloaded from:
 https://drive.google.com/drive/folders/1Zf4qFwRMAtqTvOJloeQzLPFHFyJY2GXk?usp=sharing
