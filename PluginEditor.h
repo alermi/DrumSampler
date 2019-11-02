@@ -12,7 +12,7 @@
 #include "MasterPanel.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "DrumImage.h"
+//#include "DrumImage.h"
 //==============================================================================
 /**
 */
@@ -26,7 +26,7 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 	DrumSamplerAudioProcessor& processor;
-	DrumImage drumImage;
+	//DrumImage drumImage;
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -163,8 +163,7 @@ private:
 
 	//LookAndFeel_V1 lookAndFeel;
 
-	MasterPanel testMaster;
-
+	MasterPanel masterPanel;
 
 	void createRotarySlider(Slider& slider, ScopedPointer<AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, String parameterID);
 	void drawPanSliders(Slider& monoSlider, Slider& stereoLSlider, Slider& stereoRSlider, int x, int y);
