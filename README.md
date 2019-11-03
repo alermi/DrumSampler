@@ -8,6 +8,8 @@ https://drive.google.com/drive/folders/1Zf4qFwRMAtqTvOJloeQzLPFHFyJY2GXk?usp=sha
   
 The program was written by me, Anı Lermi and the samples were recorded by Kaan Yazıcı and played by Uluç Değirmenci in Royal Conservatory in The Hague.  
 
+Note: Some of the samples are missing right now but will be added soon. (Hi-Hat, Crash, Ride) 
+  
 Feel free to reach me at anilermi@gmail.com if you have any questions or concerns.
   
 ## How to run:  
@@ -16,9 +18,7 @@ Feel free to reach me at anilermi@gmail.com if you have any questions or concern
 3- Unzip the samples and move the folder called DrumSamples in your Documents folder.  
 4- Move the build file to a directory recognized by your DAW as a plug-in path.  
 5- Have lots of fun  
-  
-Note: Some of the samples are missing right now but will be added soon.  
-  
+    
 ## Controls: 
 ### Pan: 
 The horizontal slider controls the pan of the mono mic outputs  
