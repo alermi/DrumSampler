@@ -6,6 +6,8 @@ Only the source files are included in this GitHub repository. The project has on
 The samples and the latest build files can be downloaded from:  
 https://drive.google.com/drive/folders/1Zf4qFwRMAtqTvOJloeQzLPFHFyJY2GXk?usp=sharing  
   
+The program was written by me, Anı Lermi and the samples were recorded by Kaan Yazıcı and played by Uluç Değirmenci in Royal Conservatory in The Hague.  
+
 Feel free to reach me at anilermi@gmail.com if you have any questions or concerns.
   
 ## How to run:  
