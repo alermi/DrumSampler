@@ -6,6 +6,8 @@ Only the source files are included in this GitHub repository. The project has on
 The samples and the latest build files can be downloaded from:  
 https://drive.google.com/drive/folders/1Zf4qFwRMAtqTvOJloeQzLPFHFyJY2GXk?usp=sharing  
   
+Feel free to reach me at anilermi@gmail.com if you have any questions or concerns.
+  
 ## How to run:  
 1- Download the samples zip  
 2- Download the build file under x64 (.vst3 if you are going to run VST3 and .dll otherwise)  
@@ -29,7 +31,4 @@ Top/Bottom: The mix between the direct microphones of the snare. One is above an
   
 ### Overall Contorls:  
 The volume slider under each instrument controls the overall volume of that instrument. The Room Volume slider at the
-right side controls the overall room mic volume. The Master Volume slider controls the overall output of the plugin.  
-  
- 
- Feel free to reach me at anilermi@gmail.com if you have any questions or concerns.
+right side controls the overall room mic volume. The Master Volume slider controls the overall output of the plugin.
