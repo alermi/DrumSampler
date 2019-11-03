@@ -13,5 +13,20 @@ https://drive.google.com/drive/folders/1Zf4qFwRMAtqTvOJloeQzLPFHFyJY2GXk?usp=sha
 4- Move the build file to a directory recognized by your DAW as a plug-in path.  
 5- Have lots of fun  
   
-Note: Some of the samples are missing right now but will be added soon.
-
+Note: Some of the samples are missing right now but will be added soon.  
+  
+## Controls: 
+### Pan: 
+The horizontal slider controls the pan of the mono mic outputs  
+The left and right rotary sliders control the overall pan of the left and right channels  
+  
+### Instrument Microphone Controls:  
+OH: The volume of the OverHead microphones  
+Room: The volume of the Room microphones  
+Direct: The volume of the direct instrument microphones  
+In/Out: The mix between direct microphones of the kick. One is inside the kick drum and the other is outside  
+Top/Bottom: The mix between the direct microphones of the snare. One is above and one is below the snare  
+  
+### Overall Contorls:  
+The volume slider under each instrument controls the overall volume of that instrument. The Room Volume slider at the
+right side controls the overall room mic volume. The Master Volume slider controls the overall output of the plugin.
