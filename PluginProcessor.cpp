@@ -318,16 +318,17 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	
 	fileManager=new FileManager();
 	instrumentMap = std::map<int, Instrument*>();
-	
+	int buffersCreated = 0;
 	for (std::map<int, std::pair<String, int>>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
 		if (iter->second.first.compare("")) {
 			Instrument* newInstrument=new Instrument(iter->second.first, iter->second.second, fileManager, this);
-			newInstrument->createBuffers();
+			buffersCreated += newInstrument->createBuffers();
 			instrumentMap.insert(pair<int, Instrument*>(iter->first, newInstrument));
 		}
 
 	}
+	DBG("Buffers created count: " + String(buffersCreated));
 }
 
 DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()

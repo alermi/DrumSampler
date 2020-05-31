@@ -15,44 +15,22 @@
 FileManager::FileManager() {
 	MidiMap = std::map<int, std::pair<String, int>>();
 	fillMidiMap();
-	findSamplesFolder();
 	formatManager = new AudioFormatManager();
 	formatManager->registerBasicFormats();
-}
-
-void FileManager::findSamplesFolder(){
-	File hostApplicationPath = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
-
-	//TODO: Fix samples directory
-	samplesFolder=new File(String(hostApplicationPath.getFullPathName() + "\\DrumSamples"));
-/*
-	FileChooser samplesFinder("Please choose the folder containing the samples for DrumSampler.");
-	samplesFinder.browseForDirectory();
-	File returned = samplesFinder.getResult();
-	samplesFolder = new File(returned);*/
-}
-
-File* FileManager::getSamplesFolder() {
-	return samplesFolder;
 }
 
 
 void FileManager::fillMidiMap() {
 	int i;
-	File hostApplicationPath=File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
+	File hostApplicationPath = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
 	File rootDirectory = hostApplicationPath.getParentDirectory();
 	const int charSize = rootDirectory.getFileName().toStdString().size() + 18;
 
-	//strcpy(mapLocation, rootDirectory.getFullPathName(). + "//MidiMapping.ini");
-	//rootDirectory.getFullPathName().append(String("//MidiMapping.ini");
-	//	
-	//	.copyToUTF8(mapLocation, 1000);
 
 	String mapname = String(hostApplicationPath.getFullPathName() + "\\MidiMapping.ini");
-	//a.append(mapname,100);
 	
 	LPCTSTR path = _T(mapname.toUTF8());
-
+	DBG(String(path));
 	for (i = 0; i < 256; i++) {
 		LPSTR charArray[50];
 		std::string returnString;
@@ -71,9 +49,11 @@ void FileManager::fillMidiMap() {
 AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 
 	std::unique_ptr<AudioFormatReaderSource> readerSource;
-	File newFile(pathName);
 
-	if (newFile.existsAsFile()) {
+	int size;
+	auto data = BinaryData::getNamedResource(pathName.toUTF8(), size);
+	if (data) {
+		auto newFile = new MemoryInputStream(data, size, false);
 		std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
 		AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
 		reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
@@ -99,5 +79,4 @@ AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 
 FileManager::~FileManager() {
 	delete formatManager;
-	delete samplesFolder;
 }
