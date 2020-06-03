@@ -14,10 +14,13 @@
 class FileManager {
 public:
 	FileManager();
+	File * samplesFolder;
 	std::map<int, std::pair<String, int>> MidiMap;
 	AudioFormatManager* formatManager;
 
+	void findSamplesFolder();
 	void fillMidiMap();
+	File *getSamplesFolder();
 	AudioSampleBuffer* readBuffer(String pathName);
 	~FileManager();
 

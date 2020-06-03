@@ -26,8 +26,7 @@ Instrument::Instrument(String instrumentName, int velocityCount, FileManager* fi
 
 }
 
-int Instrument::createBuffers() {
-	int validBufferCount = 0;
+void Instrument::createBuffers() {
 	this->micPointers = ((AudioSampleBuffer***)calloc(MIC_COUNT, sizeof(AudioSampleBuffer**)));
 
 	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
@@ -45,17 +44,11 @@ int Instrument::createBuffers() {
 				}
 				String version;
 				version.append(String(versionNumber + 1), 1);
-				// String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav";
-				String pathName = instrumentName + "_" + MIC_NAMES[micNumber] + "_" + velocityName + "_" + version + "_wav";
-				AudioSampleBuffer* buffer = fileManager->readBuffer(pathName);
-				if (buffer->getNumChannels() != 0) {
-					validBufferCount++;
-				}
-				micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = buffer;
+				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav";
+				micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = fileManager->readBuffer(pathName);
 			}
 		}
 	}
-	return validBufferCount;
 }
 
 void Instrument::triggerInstrument
