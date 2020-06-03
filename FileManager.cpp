@@ -12,44 +12,37 @@
 #include <windows.h>
 #include <Tchar.h>
 
+const String APPDATA_FOLDER_NAME = "DrumSampler";
+
 FileManager::FileManager() {
+	findLoadedFolder();
 	MidiMap = std::map<int, std::pair<String, int>>();
 	fillMidiMap();
-	findSamplesFolder();
 	formatManager = new AudioFormatManager();
 	formatManager->registerBasicFormats();
 }
 
-void FileManager::findSamplesFolder(){
-	File hostApplicationPath = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
-
-	//TODO: Fix samples directory
-	samplesFolder=new File(String(hostApplicationPath.getFullPathName() + "\\DrumSamples"));
-/*
-	FileChooser samplesFinder("Please choose the folder containing the samples for DrumSampler.");
-	samplesFinder.browseForDirectory();
-	File returned = samplesFinder.getResult();
-	samplesFolder = new File(returned);*/
+void FileManager::findLoadedFolder() {
+	File loadedPathFile = File::getSpecialLocation(File::SpecialLocationType::userApplicationDataDirectory).getChildFile(APPDATA_FOLDER_NAME);
+	String loadedPath = loadedPathFile.getChildFile("installPath").loadFileAsString();
+	DBG("Loaded path " + loadedPath);
+	loadedFolder = File(loadedPath);
+	samplesFolder = (loadedFolder.getChildFile(".\\Samples"));
+	DBG("Samples path " + samplesFolder.getFullPathName());
+	midiMappingFolder = (loadedFolder.getChildFile(".\\MidiMapping.ini"));
+	DBG("Midi mapping path " + midiMappingFolder.getFullPathName());
 }
 
+
 File* FileManager::getSamplesFolder() {
-	return samplesFolder;
+	return &samplesFolder;
 }
 
 
 void FileManager::fillMidiMap() {
 	int i;
-	File hostApplicationPath=File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
-	File rootDirectory = hostApplicationPath.getParentDirectory();
-	const int charSize = rootDirectory.getFileName().toStdString().size() + 18;
 
-	//strcpy(mapLocation, rootDirectory.getFullPathName(). + "//MidiMapping.ini");
-	//rootDirectory.getFullPathName().append(String("//MidiMapping.ini");
-	//	
-	//	.copyToUTF8(mapLocation, 1000);
-
-	String mapname = String(hostApplicationPath.getFullPathName() + "\\MidiMapping.ini");
-	//a.append(mapname,100);
+	String mapname = String(midiMappingFolder.getFullPathName());
 	
 	LPCTSTR path = _T(mapname.toUTF8());
 
@@ -61,7 +54,6 @@ void FileManager::fillMidiMap() {
 
 		GetPrivateProfileString(_T("mapping"), (key_ptr), NULL, (LPSTR)charArray, sizeof(charArray), path);
 		returnString = (LPSTR)charArray;
-
 
 		UINT velocityCount=GetPrivateProfileInt(_T("velocities"), (returnString.c_str()), NULL, path);
 		
@@ -99,5 +91,4 @@ AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 
 FileManager::~FileManager() {
 	delete formatManager;
-	delete samplesFolder;
 }
