@@ -12,25 +12,40 @@
 #include <windows.h>
 #include <Tchar.h>
 
+const String APPDATA_FOLDER_NAME = "DrumSampler";
+
 FileManager::FileManager() {
+	findLoadedFolder();
 	MidiMap = std::map<int, std::pair<String, int>>();
 	fillMidiMap();
 	formatManager = new AudioFormatManager();
 	formatManager->registerBasicFormats();
 }
 
+void FileManager::findLoadedFolder() {
+	File loadedPathFile = File::getSpecialLocation(File::SpecialLocationType::userApplicationDataDirectory).getChildFile(APPDATA_FOLDER_NAME);
+	String loadedPath = loadedPathFile.getChildFile("installPath").loadFileAsString();
+	DBG("Loaded path " + loadedPath);
+	loadedFolder = File(loadedPath);
+	samplesFolder = (loadedFolder.getChildFile(".\\Samples"));
+	DBG("Samples path " + samplesFolder.getFullPathName());
+	midiMappingFolder = (loadedFolder.getChildFile(".\\MidiMapping.ini"));
+	DBG("Midi mapping path " + midiMappingFolder.getFullPathName());
+}
+
+
+File* FileManager::getSamplesFolder() {
+	return &samplesFolder;
+}
+
 
 void FileManager::fillMidiMap() {
 	int i;
-	File hostApplicationPath = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
-	File rootDirectory = hostApplicationPath.getParentDirectory();
-	const int charSize = rootDirectory.getFileName().toStdString().size() + 18;
 
-
-	String mapname = String(hostApplicationPath.getFullPathName() + "\\MidiMapping.ini");
+	String mapname = String(midiMappingFolder.getFullPathName());
 	
 	LPCTSTR path = _T(mapname.toUTF8());
-	DBG(String(path));
+
 	for (i = 0; i < 256; i++) {
 		LPSTR charArray[50];
 		std::string returnString;
@@ -40,7 +55,6 @@ void FileManager::fillMidiMap() {
 		GetPrivateProfileString(_T("mapping"), (key_ptr), NULL, (LPSTR)charArray, sizeof(charArray), path);
 		returnString = (LPSTR)charArray;
 
-
 		UINT velocityCount=GetPrivateProfileInt(_T("velocities"), (returnString.c_str()), NULL, path);
 		
 		MidiMap.insert(std::pair<int, std::pair<String, int>>(i, std::pair<String,int>(returnString, velocityCount)));
@@ -49,11 +63,9 @@ void FileManager::fillMidiMap() {
 AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 
 	std::unique_ptr<AudioFormatReaderSource> readerSource;
+	File newFile(pathName);
 
-	int size;
-	auto data = BinaryData::getNamedResource(pathName.toUTF8(), size);
-	if (data) {
-		auto newFile = new MemoryInputStream(data, size, false);
+	if (newFile.existsAsFile()) {
 		std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
 		AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
 		reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
