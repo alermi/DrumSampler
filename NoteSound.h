@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    Instrument.h
+    NoteSound.h
     Created: 13 Aug 2019 8:21:30pm
     Author:  Ani
 
@@ -19,10 +19,11 @@
 //TODO: Remove all namespace stds
 using namespace std;
 
-class Instrument {
+class NoteSound {
 public:
-	String instrumentName;
-	int velocityCount;
+	//String instrumentName;
+	//int velocityCount;
+	NoteProperties *noteProperties;
 	AudioSampleBuffer*** micPointers;
 	FileManager* fileManager;
 	list<IteratorPack>* iterators;
@@ -30,8 +31,8 @@ public:
 	//AudioSampleBuffer mainBuffer;
 	//static const int micToExtraChannelMap[7];
 	void createBuffers();
-	void triggerInstrument(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
-	Instrument(String instrumentName, int velocityCount, FileManager* fileManager, AudioProcessor* processor);
+	void triggerSound(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
+	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);
 	void fillFromIterators(AudioSampleBuffer output);
-	~Instrument();
+	~NoteSound();
 };

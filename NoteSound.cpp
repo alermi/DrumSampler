@@ -1,62 +1,65 @@
 /*
   ==============================================================================
 
-    Instrument.cpp
+    NoteSound.cpp
     Created: 13 Aug 2019 8:21:30pm
     Author:  Ani
 
   ==============================================================================
 */
 
-#include "Instrument.h"
+#include "NoteSound.h"
 const int NUM_OF_SAME_SAMPLE = 5;
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
 // TODO: Fix the ride mic extra channel map
 const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2 };
 const int MIC_COUNT = 12;
-const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
-			"room_wide", "overhead" };
-Instrument::Instrument(String instrumentName, int velocityCount, FileManager* fileManager, AudioProcessor* processor) {
-	this->velocityCount = velocityCount;
-	this->instrumentName = instrumentName;
+const String MIC_NAMES[MIC_COUNT] = { "kickin", "kickout", "snarebot", "snaretop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo",
+			"roomfar", "oh" };
+NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor) {
+	//this->velocityCount = velocityCount;
+	//this->instrumentName = instrumentName;
+	this->noteProperties = noteProperties;
 	this->fileManager = fileManager;
 	iterators = new list<IteratorPack>();
 	this->processor = processor;
 
 }
 
-void Instrument::createBuffers() {
+void NoteSound::createBuffers() {
 	this->micPointers = ((AudioSampleBuffer***)calloc(MIC_COUNT, sizeof(AudioSampleBuffer**)));
 
 	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
 		String micName = MIC_NAMES[micNumber];
 		bool arrayCreated = 0;
 
-		for (int velocityNumber = 0; velocityNumber < this->velocityCount; velocityNumber++) {
+		for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
 			String velocityName;
 			//velocityName.append("v", 1);
 			velocityName.append(String(velocityNumber + 1), 1);
 
 			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
 				if (micPointers[micNumber] == 0) {
-					micPointers[micNumber] = (AudioSampleBuffer**)calloc(NUM_OF_SAME_SAMPLE*this->velocityCount, sizeof(AudioSampleBuffer*));
+					micPointers[micNumber] = (AudioSampleBuffer**)calloc(NUM_OF_SAME_SAMPLE*this->noteProperties->velocityCount, sizeof(AudioSampleBuffer*));
 				}
 				String version;
 				version.append(String(versionNumber + 1), 1);
-				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav";
+				// TODO: Adjust for real samples
+				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav";
+				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + MIC_NAMES[micNumber] + "_v1_r1" + ".wav";
 				micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = fileManager->readBuffer(pathName);
 			}
 		}
 	}
 }
 
-void Instrument::triggerInstrument
+void NoteSound::triggerSound
 ( std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor* processor) {
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
-	int levelNumber = 128 * noteVelocity*float(velocityCount) / 129;
+	int levelNumber = 128 * noteVelocity*float(noteProperties->velocityCount) / 129;
 	//Vector to hold the read pointers of each sample to be played.
 	std::vector<AudioSampleBuffer*> inVector;
 	//vector to hold how many sample from each read pointer is going to be played.
@@ -115,7 +118,7 @@ void Instrument::triggerInstrument
 
 }
 
-void Instrument::fillFromIterators(AudioSampleBuffer output) {
+void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 	std::list<IteratorPack>::iterator it;
 	std::list<IteratorPack>::iterator end;
 	it = iterators->begin();
@@ -140,9 +143,9 @@ void Instrument::fillFromIterators(AudioSampleBuffer output) {
 	}
 }
 
-Instrument::~Instrument() {
+NoteSound::~NoteSound() {
 	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
-		for (int velocityNumber = 0; velocityNumber < this->velocityCount; velocityNumber++) {
+		for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
 			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
 				delete micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)];
 			}

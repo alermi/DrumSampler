@@ -12,6 +12,8 @@
 #include "PluginEditor.h"
 #include <ctime>
 
+#define LOADSAMPLES 1
+
 const int NUM_OF_SAME_SAMPLE = 5;
 
 const int HI_HAT_SAMPLE_OFFSET = 32;
@@ -317,14 +319,18 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	parameters.state = ValueTree(Identifier("DrumSamplerVT"));
 	
 	fileManager=new FileManager();
-	instrumentMap = std::map<int, Instrument*>();
-	
-	for (std::map<int, std::pair<String, int>>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
+	instrumentMap = std::map<int, NoteSound*>();
+	parameterTreeMap = std::map<String, String>();
+	if (!LOADSAMPLES) return;
+	// Gets the instrument names from the MidiMap file.
+	for (std::map<int, NoteProperties>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
-		if (iter->second.first.compare("")) {
-			Instrument* newInstrument=new Instrument(iter->second.first, iter->second.second, fileManager, this);
+		if (iter->second.controllerName.compare("")) {
+			//TODO: Handle the isInstrument cases
+			//TODO: add robin count parameter
+			NoteSound* newInstrument=new NoteSound(&iter->second, fileManager, this);
 			newInstrument->createBuffers();
-			instrumentMap.insert(pair<int, Instrument*>(iter->first, newInstrument));
+			instrumentMap.insert(pair<int, NoteSound*>(iter->first, newInstrument));
 		}
 
 	}
@@ -332,7 +338,7 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 
 DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
 {
-	for (map<int, Instrument*>::iterator it = instrumentMap.begin(); it != instrumentMap.end(); it++)
+	for (map<int, NoteSound*>::iterator it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
 		delete it->second;
 	}
@@ -502,7 +508,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	MidiBuffer::Iterator iterator(midiMessages);
 	int midiPosition = -1;
 	
-	map<int, Instrument*>::iterator it;
+	map<int, NoteSound*>::iterator it;
 
 	while (iterator.getNextEvent(currMessage, midiPosition)) {
 
@@ -515,29 +521,28 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			//masterFader = *parameters.getRawParameterValue("Master Mix");
 			//roomFader= *parameters.getRawParameterValue("Master Room Mix");
 			
-			//	micVector.push_back(((1 - roomFader)*(1 - snare_rimBottomFader))*masterFader*snare_rimMaster);//top
-			//	micVector.push_back(((1 - roomFader)*snare_rimBottomFader)*masterFader*snare_rimMaster);//bottom
-			std::map<int, Instrument*>::iterator iter = instrumentMap.find(noteNumber);
+			std::map<int, NoteSound*>::iterator iter = instrumentMap.find(noteNumber);
+			// Checks if the instrument is a valid one
 			if (iter != instrumentMap.end()) {
 				float master;
 				float overHead;
-				Instrument *tempInst = (iter->second);
+				NoteSound *tempInst = (iter->second);
 
 				vector<float> micVector;
-				String instrumentName = tempInst->instrumentName;
-				if (instrumentName.compareIgnoreCase("sidestick")==0 || instrumentName.compareIgnoreCase("rimshot")==0) {
-					instrumentName = String("snare");
+				String controllerName = tempInst->noteProperties->controllerName;
+				if (controllerName.compareIgnoreCase("sidestick")==0 || controllerName.compareIgnoreCase("rimshot")==0) {
+					controllerName = String("snare");
 				}
 				// Convert the instrument name to capital so that we can find the parameter value
-				instrumentName=instrumentName.replaceSection(0, 1, instrumentName.substring(0, 1).toUpperCase());
+				controllerName = controllerName.replaceSection(0, 1, controllerName.substring(0, 1).toUpperCase());
 
-				roomFader = (*parameters.getRawParameterValue(instrumentName + " Room Mix")) * (*parameters.getRawParameterValue("Master Room Mix"));
-				master = (*parameters.getRawParameterValue(instrumentName + " Master Mix")) * (*parameters.getRawParameterValue("Master Mix"));
-				overHead = *parameters.getRawParameterValue(instrumentName + " Overhead Mix");
-				float monoPan = *parameters.getRawParameterValue(instrumentName + " Mono Pan");
+				roomFader = (*parameters.getRawParameterValue(controllerName + " Room Mix")) * (*parameters.getRawParameterValue("Master Room Mix"));
+				master = (*parameters.getRawParameterValue(controllerName + " Master Mix")) * (*parameters.getRawParameterValue("Master Mix"));
+				overHead = *parameters.getRawParameterValue(controllerName + " Overhead Mix");
+				float monoPan = *parameters.getRawParameterValue(controllerName + " Mono Pan");
 				float stereoPan[2];
-				stereoPan[0]= *parameters.getRawParameterValue(instrumentName + " Stereo Pan L");
-				stereoPan[1] = *parameters.getRawParameterValue(instrumentName + " Stereo Pan R");
+				stereoPan[0]= *parameters.getRawParameterValue(controllerName + " Stereo Pan L");
+				stereoPan[1] = *parameters.getRawParameterValue(controllerName + " Stereo Pan R");
 
 				float kickInOut = *parameters.getRawParameterValue("Kick In/Out Mix");
 				float kickDirect = *parameters.getRawParameterValue("Kick Direct Mix");
@@ -546,10 +551,8 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				float tom1Direct= *parameters.getRawParameterValue("Tom1 Direct Mix");
 				float tom2Direct = *parameters.getRawParameterValue("Tom2 Direct Mix");
 				float tom3Direct = *parameters.getRawParameterValue("Tom3 Direct Mix");
+				//{ "kickin", "kickout", "snarebot", "snaretop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo", "roomfar", "oh" };
 
-
-				//const String MIC_NAMES[MIC_COUNT] = { "kick_in", "kick_out", "snare_bottom", "snare_top", "tom1", "tom2", "tom3", "ride", "room_mono", "room_main",
-				//"room_wide", "overhead"};
 				micVector.push_back(float(0.2*master*kickDirect*kickInOut)); // kick_in 1
 				micVector.push_back(float(0.2*master*kickDirect*(1 - kickInOut))); // kick_out 1
 				micVector.push_back(float(0.2*master*snareDirect*snareBottomTop)); // snare_bottom
@@ -557,16 +560,18 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				micVector.push_back(float(0.5*master*tom1Direct)); // tom1
 				micVector.push_back(float(0.5*master*tom2Direct)); // tom2
 				micVector.push_back(float(0.5*master*tom3Direct)); // tom3
-				micVector.push_back(float(0.5*master)); // ride
+				//Todo: set ride
+				micVector.push_back(float(0)); // ride
 				micVector.push_back(float(0.2*roomFader*master)); // room_mono
 				micVector.push_back(float(0.2*roomFader*master)); // room_main
 				micVector.push_back(float(0.2*roomFader*master)); // room_wide
 				micVector.push_back(float(0.2*overHead*master)); // overhead
-				tempInst->triggerInstrument(micVector, noteVelocity, timeStamp, monoPan, stereoPan, this);
+				tempInst->triggerSound(micVector, noteVelocity, timeStamp, monoPan, stereoPan, this);
 			}
 		}
 	}
 
+	// Fills the buffer with all already activate instruments
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
 		it->second->fillFromIterators(buffer);

@@ -9,6 +9,7 @@
 */
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "NoteProperties.h"
 
 
 class FileManager {
@@ -17,7 +18,7 @@ public:
 	File samplesFolder;
 	File loadedFolder;
 	File midiMappingFolder;
-	std::map<int, std::pair<String, int>> MidiMap;
+	std::map<int, NoteProperties> MidiMap;
 	AudioFormatManager* formatManager;
 
 	void findLoadedFolder();

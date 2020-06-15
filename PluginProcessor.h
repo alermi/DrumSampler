@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <iterator>
-#include "Instrument.h"
+#include "NoteSound.h"
 
 using namespace std;
 //==============================================================================
@@ -75,7 +75,7 @@ protected:
 	//float ***samples;
 	
 	//pointer to the sample left at and velocity value
-	Instrument* kickPack;
+	NoteSound* kickPack;
 	FileManager* fileManager;
 	AudioFormatManager* formatManager;
 	list<IteratorPack>* iterators;
@@ -91,7 +91,8 @@ protected:
 	AudioSampleBuffer** hi_hat_openSampleBuffers;
 	AudioSampleBuffer** rideSampleBuffers;
 	AudioSampleBuffer** stackSampleBuffers;
-	std::map<int, Instrument*> instrumentMap;
+	std::map<int, NoteSound*> instrumentMap;
+	std::map<String, String> parameterTreeMap;
 
 	float roomFader;
 	float masterFader;

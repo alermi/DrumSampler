@@ -16,7 +16,7 @@ const String APPDATA_FOLDER_NAME = "DrumSampler";
 
 FileManager::FileManager() {
 	findLoadedFolder();
-	MidiMap = std::map<int, std::pair<String, int>>();
+	MidiMap = std::map<int, NoteProperties>();
 	fillMidiMap();
 	formatManager = new AudioFormatManager();
 	formatManager->registerBasicFormats();
@@ -47,17 +47,28 @@ void FileManager::fillMidiMap() {
 	LPCTSTR path = _T(mapname.toUTF8());
 
 	for (i = 0; i < 256; i++) {
-		LPSTR charArray[50];
-		std::string returnString;
+		LPSTR instrumentCharArray[50];
+		LPSTR controlCharArray[50];
+		std::string instrumentString;
+		std::string controlString;
 		std::string tempStr = std::to_string(i);
 		LPCSTR key_ptr = tempStr.c_str();
 
-		GetPrivateProfileString(_T("mapping"), (key_ptr), NULL, (LPSTR)charArray, sizeof(charArray), path);
-		returnString = (LPSTR)charArray;
+		GetPrivateProfileString(_T("mapping"), (key_ptr), NULL, (LPSTR)instrumentCharArray, sizeof(instrumentCharArray), path);
+		instrumentString = (LPSTR)instrumentCharArray;
+		if (instrumentString.compare("") == 0) {
+			continue;
+		}
+		GetPrivateProfileString(_T("controllerMap"), (instrumentString.c_str()), NULL, (LPSTR)controlCharArray, sizeof(controlCharArray), path);
+		controlString = (LPSTR)controlCharArray;
+		UINT velocityCount = GetPrivateProfileInt(_T("velocities"), (instrumentString.c_str()), NULL, path);
+		UINT robinNumber = GetPrivateProfileInt(_T("robinNumbers"), (instrumentString.c_str()), NULL, path);
+		UINT isInstrument = GetPrivateProfileInt(_T("isInstrument"), (instrumentString.c_str()), NULL, path);
 
-		UINT velocityCount=GetPrivateProfileInt(_T("velocities"), (returnString.c_str()), NULL, path);
-		
-		MidiMap.insert(std::pair<int, std::pair<String, int>>(i, std::pair<String,int>(returnString, velocityCount)));
+		NoteProperties note(i, velocityCount, robinNumber, isInstrument, controlString, instrumentString);
+		MidiMap.insert(std::pair<int, NoteProperties>(i, note));
+
+		//MidiMap.insert(std::pair<int, std::pair<String, int>>(i, std::pair<String,int>(instrumentString, velocityCount)));
 	}
 }
 AudioSampleBuffer* FileManager::readBuffer(String pathName) {

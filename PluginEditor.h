@@ -163,6 +163,8 @@ private:
 
 	//LookAndFeel_V1 lookAndFeel;
 
+	std::unique_ptr<TabbedComponent> tabbedComponent;
+
 	MasterPanel masterPanel;
 
 	void createRotarySlider(Slider& slider, ScopedPointer<AudioProcessorValueTreeState::SliderAttachment>& sliderAttachment, String parameterID);
