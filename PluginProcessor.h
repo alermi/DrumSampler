@@ -13,6 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <iterator>
 #include "NoteSound.h"
+#include "ParameterBuilder.h"
 
 using namespace std;
 //==============================================================================
@@ -64,13 +65,11 @@ public:
 	
 	//bool createBuffers(AudioSampleBuffer** sampleBuffersToFill, String instrumentName, vector<String> micNames, vector<String> velocityNames);
 
-	AudioProcessorValueTreeState parameters;
 
 protected:
 
 	
     //==============================================================================
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DrumSamplerAudioProcessor)
 	
 	//float ***samples;
 	
@@ -96,7 +95,12 @@ protected:
 
 	float roomFader;
 	float masterFader;
-	
+private:
+	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+	AudioProcessorValueTreeState treeState;
+	foleys::MagicProcessorState magicState{ *this, treeState };
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DrumSamplerAudioProcessor)
 };
 
 
