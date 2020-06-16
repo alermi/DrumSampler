@@ -44,7 +44,7 @@ void IteratorPack::iterate(std::array<AudioSampleBuffer*,2> outputs) {
 	//TODO: jassert if mainbus numsamples == extrabus numsamples
 	int samplesToCopy = std::min(samplesLeft, outputs[0]->getNumSamples() - timestamp);
 	for (AudioSampleBuffer* output : outputs) {
-		jassert(output != NULL);
+		if (output == NULL) continue;
 		jassert(samplesToCopy == std::min(samplesLeft, output->getNumSamples() - timestamp));
 		for (int sourceChannel = 0; sourceChannel < address->getNumChannels(); sourceChannel++) {
 			for (int destChannel = 0; destChannel < output->getNumChannels(); ++destChannel) {

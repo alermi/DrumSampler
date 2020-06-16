@@ -12,7 +12,6 @@
 #include <ctime>
 
 #define LOADSAMPLES 1
-
 const int NUM_OF_SAME_SAMPLE = 5;
 
 const int HI_HAT_SAMPLE_OFFSET = 32;
@@ -23,7 +22,7 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	: treeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
+                     //#if ! JucePlugin_IsMidiEffect
                         .withOutput ("Master", AudioChannelSet::stereo(), true)
 						.withOutput("Room Stereo", AudioChannelSet::stereo(), true)
 						.withOutput("Overhead Stereo", AudioChannelSet::stereo(), true)
@@ -34,7 +33,7 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 						.withOutput("Tom3", AudioChannelSet::mono(), true)
 
 
-                     #endif
+                     //#endif
                        )
 #endif
 {
@@ -435,10 +434,18 @@ void DrumSamplerAudioProcessor::releaseResources()
 bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
 	//TODO:DELETE
-	return true;
+	if (JUCEApplication::isStandaloneApp()) {
+		if (layouts.getMainOutputChannelSet() != AudioChannelSet::disabled()
+			|| layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()) {
+			return true;
+		}
+		else return false;
+	}
+	//return true;
 	//AudioChannelSet::dis
 	//TODO: Fix if we add a ride bus too
 	//layouts.getChannelSet(false,0)
+
 	if (layouts.outputBuses.size() != 8) { 
 		return false;
 	}
@@ -464,9 +471,6 @@ bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 		return false;
 	}
 	if (layouts.getChannelSet(false, 7) != AudioChannelSet::mono()) {
-		return false;
-	}
-	if (layouts.getChannelSet(false, 8) != AudioChannelSet::mono()) {
 		return false;
 	}
 
@@ -501,6 +505,8 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+	// MAGIC GUI: send midi messages to the keyboard state
+	magicState.processMidiBuffer(midiMessages, buffer.getNumSamples(), true);
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).

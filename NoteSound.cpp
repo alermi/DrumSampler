@@ -128,7 +128,7 @@ void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 	while (it != end) {
 		IteratorPack currPack = *it;
 		jassert(processor->getBus(false, 0)->isEnabled());
-		jassert(processor->getBus(false, currPack.extraBusNumber)->isEnabled());
+		//jassert(processor->getBus(false, currPack.extraBusNumber)->isEnabled());
 
 		AudioSampleBuffer mainBuffer = processor->getBusBuffer(output, false, 0);
 		AudioSampleBuffer extraBuffer = processor->getBusBuffer(output, false, currPack.extraBusNumber);
