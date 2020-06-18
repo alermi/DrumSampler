@@ -552,7 +552,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 					controllerName = String("snare");
 				}
 				// Convert the instrument name to capital so that we can find the parameter value
-				controllerName = controllerName.replaceSection(0, 1, controllerName.substring(0, 1).toUpperCase());
+				//controllerName = controllerName.replaceSection(0, 1, controllerName.substring(0, 1).toUpperCase());
 
 				roomFader = (*treeState.getRawParameterValue(controllerName + " Room Mix")) * (*treeState.getRawParameterValue("Master Room Mix"));
 				master = (*treeState.getRawParameterValue(controllerName + " Master Mix")) * (*treeState.getRawParameterValue("Master Mix"));

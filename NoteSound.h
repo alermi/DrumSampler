@@ -24,12 +24,14 @@ public:
 	//String instrumentName;
 	//int velocityCount;
 	NoteProperties *noteProperties;
-	AudioSampleBuffer*** micPointers;
+
+	std::map<String, std::map<String, AudioSampleBuffer*>> micMap;
 	FileManager* fileManager;
 	list<IteratorPack>* iterators;
 	AudioProcessor* processor;
 	//AudioSampleBuffer mainBuffer;
-	//static const int micToExtraChannelMap[7];
+	//static const int micToExtraChannelMap[7];S
+	String getBufferMapKey(int velocityNum, int versionNum);
 	void createBuffers();
 	void triggerSound(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);

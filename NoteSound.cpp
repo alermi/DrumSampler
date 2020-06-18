@@ -9,13 +9,14 @@
 */
 
 #include "NoteSound.h"
+#include "MicController.h"
 const int NUM_OF_SAME_SAMPLE = 5;
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
 // TODO: Fix the ride mic extra channel map
 const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2 };
 const int MIC_COUNT = 12;
-const String MIC_NAMES[MIC_COUNT] = { "kickin", "kickout", "snarebot", "snaretop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo",
+const String MIC_NAMES[MIC_COUNT] = { "kickin", "kickout", "snrbot", "snrtop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo",
 			"roomfar", "oh" };
 NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor) {
 	//this->velocityCount = velocityCount;
@@ -27,28 +28,50 @@ NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, A
 
 }
 
+String NoteSound::getBufferMapKey(int velocityNum, int versionNum)
+{
+	String indexString = String(velocityNum) + "_" + String(versionNum);
+	return indexString;
+}
+
 void NoteSound::createBuffers() {
-	this->micPointers = ((AudioSampleBuffer***)calloc(MIC_COUNT, sizeof(AudioSampleBuffer**)));
+	this->micMap = std::map<String, std::map<String, AudioSampleBuffer*>>();
+
+	vector<String> micNames = MicController::getMicNames();
+	std::map<String, int> micChannelMap = MicController::getMicChannelMap();
 
 	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
-		String micName = MIC_NAMES[micNumber];
+		String micName = micNames[micNumber];
+		//String micName = MIC_NAMES[micNumber];
 		bool arrayCreated = 0;
 
+
+		//this->micMap.insert({ micName, std::map<String, AudioSampleBuffer*>() });
+		this->micMap[micName] = std::map<String, AudioSampleBuffer*>();
+
+		std::map<String, AudioSampleBuffer*> velocityMicMap = micMap[micName];
 		for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
 			String velocityName;
 			//velocityName.append("v", 1);
 			velocityName.append(String(velocityNumber + 1), 1);
 
 			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
-				if (micPointers[micNumber] == 0) {
-					micPointers[micNumber] = (AudioSampleBuffer**)calloc(NUM_OF_SAME_SAMPLE*this->noteProperties->velocityCount, sizeof(AudioSampleBuffer*));
-				}
+
 				String version;
 				version.append(String(versionNumber + 1), 1);
 				// TODO: Adjust for real samples
-				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + " " + MIC_NAMES[micNumber] + " " + velocityName + " " + version + ".wav";
-				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + MIC_NAMES[micNumber] + "_v1_r1" + ".wav";
-				micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)] = fileManager->readBuffer(pathName);
+				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + " " + micName + " " + velocityName + " " + version + ".wav";
+				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v1_r1" + ".wav";
+				auto buffer = fileManager->readBuffer(pathName);
+
+				// If the file exists, make sure that you get the right amount of channels
+				int wantedChannelNum = micChannelMap[micName];
+				int receivedChanelNum = buffer->getNumChannels();
+				if (receivedChanelNum != 0) {
+					jassert(wantedChannelNum == receivedChanelNum);
+				}
+				String indexString = getBufferMapKey(velocityNumber, versionNumber);
+				micMap[micName][indexString] = buffer;
 			}
 		}
 	}
@@ -60,62 +83,29 @@ void NoteSound::triggerSound
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
 	int levelNumber = 128 * noteVelocity*float(noteProperties->velocityCount) / 129;
-	//Vector to hold the read pointers of each sample to be played.
-	std::vector<AudioSampleBuffer*> inVector;
-	//vector to hold how many sample from each read pointer is going to be played.
-	std::vector<int> sampleCountVector;
 
 	//Randomize which version of the same sample it is going to play
 	int version = rand() % NUM_OF_SAME_SAMPLE;
 
-	//Create an iterator to be played for each microphone
-	for (int i = 0; i < micGains.size(); i++) {
-		AudioSampleBuffer** tempMic = micPointers[i];
-		//Find the correct index that holds each sample of each room mic.
-		int index = (version + levelNumber * NUM_OF_SAME_SAMPLE);//Place of the sample in array of buffers
-		AudioSampleBuffer* sample = tempMic[index];
-		if (sample->getNumChannels() > 0) {
-			inVector.push_back(sample);
-			//Add the number of samples to be played to another vector
-			sampleCountVector.push_back(tempMic[index]->getNumSamples());
-		}// Push nulls for empty buffers so that the indices dont get messed up
-		else {
-			inVector.push_back(0);
-			sampleCountVector.push_back(NULL);
-		}
-
-	}
-// TODO: instead of calculating each time, save these values unless changed.
-	std::array<float, 2> monoPanValues = { sin((PI / 2) * (1 - monoPan)) ,sin(monoPan*(PI / 2))};
+	// TODO: instead of calculating each time, save these values unless changed.
+	std::array<float, 2> monoPanValues = { sin((PI / 2) * (1 - monoPan)) ,sin(monoPan*(PI / 2)) };
 	vector<std::array<float, 2>> stereoPanValues;
-	std::array<float, 2> tempArray1 = {  sin((PI / 2) * (1 - stereoPan[0])) ,sin(stereoPan[0] * (PI / 2)) };
+	std::array<float, 2> tempArray1 = { sin((PI / 2) * (1 - stereoPan[0])) ,sin(stereoPan[0] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray1);
 	std::array<float, 2> tempArray2 = { sin((PI / 2) * (1 - stereoPan[1])) ,sin(stereoPan[1] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray2);
 
-
-	for (int j = 0; j < 9; j++) {
-		AudioSampleBuffer* currBuffer = inVector.at(j);
-		if (currBuffer == 0) {
-			continue;
+	jassert(size(micToExtraChannelMap) >= micGains.size());
+	//Create an iterator to be played for each microphone
+	for (int i = 0; i < micGains.size(); i++) {
+		String micName = MicController::getMicNames()[i];
+		String indexString = getBufferMapKey(levelNumber, version);
+		AudioSampleBuffer* currBuffer = micMap[micName][indexString];
+		if (currBuffer->getNumChannels() > 0) {
+			IteratorPack newPack(currBuffer, noteVelocity*micGains.at(i), currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
+			iterators->push_back(newPack);
 		}
-		jassert(currBuffer->getNumChannels() == 1);
-		jassert(size(micToExtraChannelMap) > j);
-		IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j), sampleCountVector.at(j), timeStamp, monoPanValues, stereoPanValues,micToExtraChannelMap[j]);
-		iterators->push_back(newPack);
 	}
-	for (int j = 9; j < inVector.size(); j++) {
-		AudioSampleBuffer* currBuffer = inVector.at(j);
-		if (currBuffer == 0) {
-			continue;
-		}
-		jassert(currBuffer->getNumChannels() == 2);
-		jassert(size(micToExtraChannelMap) > j);
-		IteratorPack newPack(currBuffer, noteVelocity*micGains.at(j), sampleCountVector.at(j), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[j]);
-		iterators->push_back(newPack);
-
-	}
-
 }
 
 void NoteSound::fillFromIterators(AudioSampleBuffer output) {
@@ -144,14 +134,20 @@ void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 }
 
 NoteSound::~NoteSound() {
-	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
-		for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
-			for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
-				delete micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)];
-			}
+	//for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
+	//	for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
+	//		for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
+	//			delete micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)];
+	//		}
+	//	}
+	//	delete micPointers[micNumber];
+	//}
+	//delete micPointers;
+	for (auto const& x : micMap)
+	{
+		for (auto const& y : x.second) {
+			delete y.second;
 		}
-		delete micPointers[micNumber];
 	}
-	delete micPointers;
 	delete iterators;
 }
