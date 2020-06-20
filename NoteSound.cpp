@@ -74,7 +74,7 @@ void NoteSound::createBuffers() {
 }
 
 void NoteSound::triggerSound
-( std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor* processor) {
+( std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor* processor) {
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
@@ -82,6 +82,18 @@ void NoteSound::triggerSound
 
 	//Randomize which version of the same sample it is going to play
 	int version = rand() % NUM_OF_SAME_SAMPLE;
+
+	float stereoPan[2];
+	if (monoPan < 0.5f) {
+		stereoPan[0] = 0;
+		stereoPan[1] = 2 * monoPan;
+	}
+	else {
+		stereoPan[0] = monoPan - (1 - monoPan);
+		stereoPan[1] = 1;
+	}
+
+
 
 	// TODO: instead of calculating each time, save these values unless changed.
 	std::array<float, 2> monoPanValues = { sin((PI / 2) * (1 - monoPan)) ,sin(monoPan*(PI / 2)) };

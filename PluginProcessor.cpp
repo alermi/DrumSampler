@@ -555,13 +555,10 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				//controllerName = controllerName.replaceSection(0, 1, controllerName.substring(0, 1).toUpperCase());
 
 				float monoPan = *treeState.getRawParameterValue(controllerName + " Mono Pan");
-				float stereoPan[2];
-				stereoPan[0]= *treeState.getRawParameterValue(controllerName + " Stereo Pan L");
-				stereoPan[1] = *treeState.getRawParameterValue(controllerName + " Stereo Pan R");
 
 				//{ "kickin", "kickout", "snarebot", "snaretop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo", "roomfar", "oh" };
 
-				tempInst->triggerSound(micController.getMicGains(controllerName), noteVelocity, timeStamp, monoPan, stereoPan, this);
+				tempInst->triggerSound(micController.getMicGains(controllerName), noteVelocity, timeStamp, monoPan, this);
 			}
 		}
 	}
