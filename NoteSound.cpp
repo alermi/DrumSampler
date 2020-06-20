@@ -14,10 +14,7 @@ const int NUM_OF_SAME_SAMPLE = 5;
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
 // TODO: Fix the ride mic extra channel map
-const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2 };
-const int MIC_COUNT = 12;
-const String MIC_NAMES[MIC_COUNT] = { "kickin", "kickout", "snrbot", "snrtop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo",
-			"roomfar", "oh" };
+const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor) {
 	//this->velocityCount = velocityCount;
 	//this->instrumentName = instrumentName;
@@ -40,9 +37,8 @@ void NoteSound::createBuffers() {
 	vector<String> micNames = MicController::getMicNames();
 	std::map<String, int> micChannelMap = MicController::getMicChannelMap();
 
-	for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
+	for (int micNumber = 0; micNumber < micNames.size(); micNumber++) {
 		String micName = micNames[micNumber];
-		//String micName = MIC_NAMES[micNumber];
 		bool arrayCreated = 0;
 
 
@@ -78,7 +74,7 @@ void NoteSound::createBuffers() {
 }
 
 void NoteSound::triggerSound
-( std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor* processor) {
+( std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor* processor) {
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
@@ -94,15 +90,17 @@ void NoteSound::triggerSound
 	stereoPanValues.push_back(tempArray1);
 	std::array<float, 2> tempArray2 = { sin((PI / 2) * (1 - stereoPan[1])) ,sin(stereoPan[1] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray2);
+	// TODO: Add a jassert that checks the size of the new micToExtraChannelMap
+	//jassert(size(micToExtraChannelMap) >= micGains.size());
+	vector<String> micNames = MicController::getMicNames();
 
-	jassert(size(micToExtraChannelMap) >= micGains.size());
 	//Create an iterator to be played for each microphone
-	for (int i = 0; i < micGains.size(); i++) {
-		String micName = MicController::getMicNames()[i];
+	for (int i = 0; i < micNames.size(); i++) {
+		String micName = micNames[i];
 		String indexString = getBufferMapKey(levelNumber, version);
 		AudioSampleBuffer* currBuffer = micMap[micName][indexString];
 		if (currBuffer->getNumChannels() > 0) {
-			IteratorPack newPack(currBuffer, noteVelocity*micGains.at(i), currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
+			IteratorPack newPack(currBuffer, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
 			iterators->push_back(newPack);
 		}
 	}

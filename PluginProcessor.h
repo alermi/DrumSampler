@@ -14,6 +14,7 @@
 #include <iterator>
 #include "NoteSound.h"
 #include "ParameterBuilder.h"
+#include "MicController.h"
 
 using namespace std;
 //==============================================================================
@@ -98,6 +99,7 @@ protected:
 private:
 	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	AudioProcessorValueTreeState treeState;
+	MicController micController{ &treeState };
 	foleys::MagicProcessorState magicState{ *this, treeState };
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DrumSamplerAudioProcessor)

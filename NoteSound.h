@@ -33,7 +33,7 @@ public:
 	//static const int micToExtraChannelMap[7];S
 	String getBufferMapKey(int velocityNum, int versionNum);
 	void createBuffers();
-	void triggerSound(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
+	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);
 	void fillFromIterators(AudioSampleBuffer output);
 	~NoteSound();

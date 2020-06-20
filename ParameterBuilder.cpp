@@ -29,12 +29,14 @@ AudioProcessorValueTreeState::ParameterLayout ParameterBuilder::createParameterL
 void ParameterBuilder::addKickParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
 
 	auto inOut = (std::make_unique<AudioParameterFloat>("Kick In/Out Mix", "Kick In/Out Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto sub = (std::make_unique<AudioParameterFloat>("Kick Sub Mix", "Kick Sub Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto direct = (std::make_unique<AudioParameterFloat>("Kick Direct Mix", "Kick Direct Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto monoPan = (std::make_unique<AudioParameterFloat>("Kick Mono Pan", "Kick Mono Pan", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 
 
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
 		std::move(inOut),
+		std::move(sub),
 		std::move(direct),
 		std::move(monoPan));
 

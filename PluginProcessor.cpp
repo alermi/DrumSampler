@@ -554,37 +554,14 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				// Convert the instrument name to capital so that we can find the parameter value
 				//controllerName = controllerName.replaceSection(0, 1, controllerName.substring(0, 1).toUpperCase());
 
-				roomFader = (*treeState.getRawParameterValue(controllerName + " Room Mix")) * (*treeState.getRawParameterValue("Master Room Mix"));
-				master = (*treeState.getRawParameterValue(controllerName + " Master Mix")) * (*treeState.getRawParameterValue("Master Mix"));
-				overHead = *treeState.getRawParameterValue(controllerName + " Overhead Mix");
 				float monoPan = *treeState.getRawParameterValue(controllerName + " Mono Pan");
 				float stereoPan[2];
 				stereoPan[0]= *treeState.getRawParameterValue(controllerName + " Stereo Pan L");
 				stereoPan[1] = *treeState.getRawParameterValue(controllerName + " Stereo Pan R");
 
-				float kickInOut = *treeState.getRawParameterValue("Kick In/Out Mix");
-				float kickDirect = *treeState.getRawParameterValue("Kick Direct Mix");
-				float snareDirect = *treeState.getRawParameterValue("Snare Direct Mix");
-				float snareBottomTop = *treeState.getRawParameterValue("Snare Bottom Mix");
-				float tom1Direct= *treeState.getRawParameterValue("Tom1 Direct Mix");
-				float tom2Direct = *treeState.getRawParameterValue("Tom2 Direct Mix");
-				float tom3Direct = *treeState.getRawParameterValue("Tom3 Direct Mix");
 				//{ "kickin", "kickout", "snarebot", "snaretop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo", "roomfar", "oh" };
 
-				micVector.push_back(float(0.2*master*kickDirect*kickInOut)); // kick_in 1
-				micVector.push_back(float(0.2*master*kickDirect*(1 - kickInOut))); // kick_out 1
-				micVector.push_back(float(0.2*master*snareDirect*snareBottomTop)); // snare_bottom
-				micVector.push_back(float(0.2*master*snareDirect*(1 - snareBottomTop))); // snare_top
-				micVector.push_back(float(0.5*master*tom1Direct)); // tom1
-				micVector.push_back(float(0.5*master*tom2Direct)); // tom2
-				micVector.push_back(float(0.5*master*tom3Direct)); // tom3
-				//Todo: set ride
-				micVector.push_back(float(0)); // ride
-				micVector.push_back(float(0.2*roomFader*master)); // room_mono
-				micVector.push_back(float(0.2*roomFader*master)); // room_main
-				micVector.push_back(float(0.2*roomFader*master)); // room_wide
-				micVector.push_back(float(0.2*overHead*master)); // overhead
-				tempInst->triggerSound(micVector, noteVelocity, timeStamp, monoPan, stereoPan, this);
+				tempInst->triggerSound(micController.getMicGains(controllerName), noteVelocity, timeStamp, monoPan, stereoPan, this);
 			}
 		}
 	}
