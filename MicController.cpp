@@ -30,75 +30,56 @@ std::map<String, int> MicController::getMicChannelMap()
 	return MIC_CHANNEL_MAP;
 }
 
-std::map<String, float> MicController::getMicGains(String controllerName)
+std::map<String, float> MicController::getMicGains(String generalControllerName, String specificControllerName)
 {
 
-	float roomFader = (*this->treeState->getRawParameterValue(controllerName + " Room Mix")) * (*this->treeState->getRawParameterValue("Master Room Mix"));
-	float master = (*this->treeState->getRawParameterValue(controllerName + " Master Mix")) * (*this->treeState->getRawParameterValue("Master Mix"));
-	float overHead = *this->treeState->getRawParameterValue(controllerName + " Overhead Mix");
+	float roomMono = (*this->treeState->getRawParameterValue(generalControllerName + " Room Mono Mix")) * (*this->treeState->getRawParameterValue("Master Room Mix"));
+	float roomStereo = (*this->treeState->getRawParameterValue(generalControllerName + " Room Stereo Mix")) * (*this->treeState->getRawParameterValue("Master Room Mix"));
+	float roomFar = (*this->treeState->getRawParameterValue(generalControllerName + " Room Far Mix")) * (*this->treeState->getRawParameterValue("Master Room Mix"));
+	float overHead = *this->treeState->getRawParameterValue(generalControllerName + " Overhead Mix");
+	//float master = (*this->treeState->getRawParameterValue(specificControllerName + " Master Mix")) * (*this->treeState->getRawParameterValue("Master Mix"));
+	float master = (*this->treeState->getRawParameterValue("Master Mix"));
 
-	float kickInOut = *this->treeState->getRawParameterValue("Kick In/Out Mix");
+
+	float kickIn = *this->treeState->getRawParameterValue("Kick In Mix");
+	float kickOut = *this->treeState->getRawParameterValue("Kick Out Mix");
 	float kickSub = *this->treeState->getRawParameterValue("Kick Sub Mix");
-	float kickDirect = *this->treeState->getRawParameterValue("Kick Direct Mix");
-	float snareDirect = *this->treeState->getRawParameterValue("Snare Direct Mix");
-	float snareBottomTop = *this->treeState->getRawParameterValue("Snare Bottom Mix");
-	float tom1Direct = *this->treeState->getRawParameterValue("Tom1 Direct Mix");
-	float tom2Direct = *this->treeState->getRawParameterValue("Tom2 Direct Mix");
-	float tom3Direct = *this->treeState->getRawParameterValue("Tom3 Direct Mix");
-	//{ "kickin", "kickout", "snarebot", "snaretop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo", "roomfar", "oh" };
-
-
-	//micGains["kickin"] = float(0.2f*master*kickDirect*kickInOut);
-	//micGains["kickout"] = float(0.2f*master*kickDirect*(1 - kickInOut));
-	//micGains["kicksub"] = float(0.2f* master * kickDirect * kickSub);
-	//micGains["snrbot"] = float(0.2f*master*snareDirect*snareBottomTop);
-	//micGains["snrtop"] = float(0.2f*master*snareDirect*(1 - snareBottomTop));
-	//micGains["tom1"] = float(0.5f*master*tom1Direct);
-	//micGains["tom2"] = float(0.5f*master*tom2Direct);
-	//micGains["tom3"] = float(0.5f*master*tom3Direct);
-	//micGains["ride"] = float(0.0f);
-	//micGains["roommono"] = float(0.2*roomFader*master);
-	//micGains["roomstereo"] = float(0.2*roomFader*master);
-	//micGains["roomfar"] = float(0.2*roomFader*master);
-	//micGains["oh"] = float(0.2*overHead*master);
+	float snareBottom = *this->treeState->getRawParameterValue("Snare Bottom Mix");
+	float snareTop = *this->treeState->getRawParameterValue("Snare Top Mix");
+	float tom1Close = *this->treeState->getRawParameterValue("Tom1 Close");
+	float tom2Close = *this->treeState->getRawParameterValue("Tom2 Close");
+	float tom3Close = *this->treeState->getRawParameterValue("Tom3 Close");
+	float tom4Close = *this->treeState->getRawParameterValue("Tom4 Close");
+	float tom5Close = *this->treeState->getRawParameterValue("Tom5 Close");
+	float hiHatClose = *this->treeState->getRawParameterValue("HiHat Close");
+	float rideClose = *this->treeState->getRawParameterValue("Ride Close");
 
 
 	std::map<String, float> micGains = {
-		{"kickin", float(0.2f*master*kickDirect*kickInOut)},
-		{"kickout", float(0.2f*master*kickDirect*(1 - kickInOut))},
-		{"kicksub", float(0.2f* master * kickDirect * kickSub)},
-		{"snrtop", float(0.2f*master*snareDirect*(1 - snareBottomTop))},
-		{"snrbot", float(0.2f*master*snareDirect*snareBottomTop)},
-		{"tom1", float(0.5f*master*tom1Direct)},
-		{"tom2", float(0.5f*master*tom2Direct)},
-		{"tom3", float(0.5f*master*tom3Direct)},
-		{"tom4", 1},
-		{"tom5", 1},
-		{"hh", 1},
-		{"ride", 1},
-		{"roommono", float(0.2*roomFader*master)},
-		{"roomstereo", float(0.2*roomFader*master)},
-		{"roomfar", float(0.2*roomFader*master)},
-		{"oh", float(0.2*overHead*master)}
+		{"kickin", float(0.2f*master*kickIn)},
+		{"kickout", float(0.2f*master*kickOut)},
+		{"kicksub", float(0.2f* master * kickSub)},
+		{"snrtop", float(0.2f*master*snareTop)},
+		{"snrbot", float(0.2f*master*snareBottom)},
+		{"tom1", float(0.5f*master*tom1Close)},
+		{"tom2", float(0.5f*master*tom2Close)},
+		{"tom3", float(0.5f*master*tom3Close)},
+		{"tom4", float(0.5f*master*tom4Close)},
+		{"tom5", float(0.5f*master*tom5Close)},
+		{"hh", float(0.5f*master*hiHatClose)},
+		{"ride", float(0.5*master*rideClose)},
+		{"roommono", float(0.2*roomMono*master)},
+		{"roomstereo", float(0.2*roomStereo*master)},
+		{"roomfar", float(0.2*roomFar*master)},
+		{"oh", float(0.5*overHead*master)}
 	};
 	// TODO: jassert if all the entries have been filled
+	if (generalControllerName.compare("Cymbal") == 0) {
+		applyCymbalControl(&micGains, specificControllerName);
+	}
 	return micGains;
 }
-//{ "kickin", "kickout", "snrbot", "snrtop", "tom1", "tom2", "tom3", "ride", "roommono", "roomstereo",
-//"roomfar", "oh" };
-//micVector.push_back(float(0.2*master*kickDirect*kickInOut)); // kick_in 1
-//micVector.push_back(float(0.2*master*kickDirect*(1 - kickInOut))); // kick_out 1
-//micVector.push_back(float(0.2*master*snareDirect*snareBottomTop)); // snare_bottom
-//micVector.push_back(float(0.2*master*snareDirect*(1 - snareBottomTop))); // snare_top
-//micVector.push_back(float(0.5*master*tom1Direct)); // tom1
-//micVector.push_back(float(0.5*master*tom2Direct)); // tom2
-//micVector.push_back(float(0.5*master*tom3Direct)); // tom3
-////Todo: set ride
-//micVector.push_back(float(0)); // ride
-//micVector.push_back(float(0.2*roomFader*master)); // room_mono
-//micVector.push_back(float(0.2*roomFader*master)); // room_main
-//micVector.push_back(float(0.2*roomFader*master)); // room_wide
-//micVector.push_back(float(0.2*overHead*master)); // overhead
+
 std::map<String, float> MicController::getEmptyMicGains() {
 	std::map<String, float> micGains;
 	std::vector<String> micNames = getMicNames();
@@ -108,7 +89,15 @@ std::map<String, float> MicController::getEmptyMicGains() {
 	return micGains;
 }
 
-void MicController::applyCommonControls(std::map<String, float> *micGains) {
+void MicController::applyCymbalControl(std::map<String, float> *micGains, String specificInstrumentName) {
 
+	float roomFar = *this->treeState->getRawParameterValue(specificInstrumentName + " Room Far");
+	float roomStereo = *this->treeState->getRawParameterValue(specificInstrumentName + " Room Stereo");
+	float roomMono = *this->treeState->getRawParameterValue(specificInstrumentName + " Room Mono");
+	float overhead = *this->treeState->getRawParameterValue(specificInstrumentName + " Overhead");
 
+	(*micGains)["roomfar"] *= roomFar;
+	(*micGains)["roomstereo"] *= roomStereo;
+	(*micGains)["roommono"] *= roomMono;
+	(*micGains)["oh"] *= overhead;
 }

@@ -37,11 +37,11 @@ public:
 	static std::vector<String> getMicNames();
 	static std::map<String, int> getMicChannelMap();
 	//LEFT OFF: In order to complete this getMicGain, create a constructor with the treeState to get the parameters from
-	std::map<String, float> getMicGains(String controllerName);
+	std::map<String, float> getMicGains(String generalControllerName, String specificControllerName);
 	std::map<String, float> getEmptyMicGains();
 private:
 	AudioProcessorValueTreeState* treeState;
 
-	void applyCommonControls(std::map<String, float> *micGains);
+	void applyCymbalControl(std::map<String, float> *micGains, String specificInstrumentName);
 		//SHOUDL I DO MIC MAPS SEPERATELY
 };

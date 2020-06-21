@@ -17,14 +17,16 @@ public:
 	int robinCount;
 	int isInstrument;
 	String instrumentName;
-	String controllerName;
+	String generalControllerName;
+	String specificControllerName;
 
-	NoteProperties(int noteNum, int velocityCount, int robinCount, int isInstrument, String controllerName, String instrumentName) {
+	NoteProperties(int noteNum, int velocityCount, int robinCount, int isInstrument, String generalControllerName, String specificControllerName, String instrumentName) {
 		this->noteNum = noteNum;
 		this->velocityCount = velocityCount;
 		this->robinCount = robinCount;
 		this->isInstrument = isInstrument;
-		this->controllerName = controllerName;
+		this->generalControllerName = generalControllerName;
+		this->specificControllerName = specificControllerName;
 		this->instrumentName = instrumentName;
 	}
 };

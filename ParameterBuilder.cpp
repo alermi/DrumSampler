@@ -8,37 +8,32 @@ AudioProcessorValueTreeState::ParameterLayout ParameterBuilder::createParameterL
 
 	addKickParameters(layout);
 	addSnareParameters(layout);
+	addTomParameters(layout);
+	addCymbalParameters(layout);
+	addCymbalBalanceParameters(layout);
 
-
-	auto tom1Direct = (std::make_unique<AudioParameterFloat>("Tom1 Direct Mix", "Tom1 Direct Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto tom2Direct = (std::make_unique<AudioParameterFloat>("Tom2 Direct Mix", "Tom2 Direct Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto tom3Direct = (std::make_unique<AudioParameterFloat>("Tom3 Direct Mix", "Tom3 Direct Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto masterRoomMix = (std::make_unique<AudioParameterFloat>("Master Room Mix", "Master Room Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto masterMix = (std::make_unique<AudioParameterFloat>("Master Mix", "Master Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 
-	auto group = std::make_unique<AudioProcessorParameterGroup>("Others", "Others", "|",
+	auto group = std::make_unique<AudioProcessorParameterGroup>("Master", "Master", "|",
 		std::move(masterRoomMix),
-		std::move(masterMix),
-		std::move(tom1Direct),
-		std::move(tom2Direct),
-		std::move(tom3Direct));
+		std::move(masterMix));
 
 	layout.add(std::move(group));
 	return layout;
 }
 void ParameterBuilder::addKickParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
 
-	auto inOut = (std::make_unique<AudioParameterFloat>("Kick In/Out Mix", "Kick In/Out Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto in = (std::make_unique<AudioParameterFloat>("Kick In Mix", "Kick In Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto out = (std::make_unique<AudioParameterFloat>("Kick Out Mix", "Kick Out Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto sub = (std::make_unique<AudioParameterFloat>("Kick Sub Mix", "Kick Sub Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto direct = (std::make_unique<AudioParameterFloat>("Kick Direct Mix", "Kick Direct Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto monoPan = (std::make_unique<AudioParameterFloat>("Kick Mono Pan", "Kick Mono Pan", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 
 
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
-		std::move(inOut),
+		std::move(in),
+		std::move(out),
 		std::move(sub),
-		std::move(direct),
-		std::move(monoPan));
+		std::move((getSpecificInstrumentParameters("Kick", false))));
 
 
 	auto kickGeneral = std::make_unique<AudioProcessorParameterGroup>("Kick", "Kick", "|",
@@ -50,36 +45,133 @@ void ParameterBuilder::addKickParameters(AudioProcessorValueTreeState::Parameter
 }
 
 void ParameterBuilder::addSnareParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
-	auto directSnare = (std::make_unique<AudioParameterFloat>("Snare Direct Mix", "Snare Direct Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto bottom = (std::make_unique<AudioParameterFloat>("Snare Bottom Mix", "Snare Bottom Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto monoPan = (std::make_unique<AudioParameterFloat>("Snare Mono Pan", "Snare Mono Pan", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto top = (std::make_unique<AudioParameterFloat>("Snare Top Mix", "Snare Top Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
-		std::move(directSnare),
 		std::move(bottom),
-		std::move(monoPan));
+		std::move(top),
+		std::move(getSpecificInstrumentParameters("Snare", false)));
 
 
 	auto snareGeneral = std::make_unique<AudioProcessorParameterGroup>("Snare", "Snare", "|",
 		std::move(specificGroup),
-		std::move((getGeneralInstrumentParameters("Snare"))));
+		std::move(getGeneralInstrumentParameters("Snare")));
 
 	layout.add(std::move(snareGeneral));
 
 }
-std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getGeneralInstrumentParameters(String instrumentName)
+
+
+void ParameterBuilder::addTomParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
+
+	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
+		std::move(getSpecificInstrumentParameters("Tom1", true)),
+		std::move(getSpecificInstrumentParameters("Tom2", true)),
+		std::move(getSpecificInstrumentParameters("Tom3", true)),
+		std::move(getSpecificInstrumentParameters("Tom4", true)),
+		std::move(getSpecificInstrumentParameters("Tom5", true)));
+
+
+	auto snareGeneral = std::make_unique<AudioProcessorParameterGroup>("Tom", "Tom", "|",
+		std::move(specificGroup),
+		std::move(getGeneralInstrumentParameters("Tom")));
+
+	layout.add(std::move(snareGeneral));
+
+}
+
+void ParameterBuilder::addCymbalParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
+
+	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
+		std::move(getSpecificInstrumentParameters("HiHat", true)),
+		std::move(getSpecificInstrumentParameters("Ride", true)),
+		std::move(getSpecificInstrumentParameters("Crash1", false)),
+		std::move(getSpecificInstrumentParameters("Crash2", false)),
+		std::move(getSpecificInstrumentParameters("China", false)),
+		std::move(getSpecificInstrumentParameters("Stack1", false)),
+		std::move(getSpecificInstrumentParameters("Stack2", false)),
+		std::move(getSpecificInstrumentParameters("Splash", false)));
+
+
+	auto snareGeneral = std::make_unique<AudioProcessorParameterGroup>("Cymbal", "Cymbal", "|",
+		std::move(specificGroup),
+		std::move(getGeneralInstrumentParameters("Cymbal")));
+
+	layout.add(std::move(snareGeneral));
+
+}
+std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getGeneralInstrumentParameters(String generalInstrumentName)
 {
-	auto oh = (std::make_unique<AudioParameterFloat>(instrumentName + " Overhead Mix", instrumentName + " Overhead Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto room = (std::make_unique<AudioParameterFloat>(instrumentName + " Room Mix", instrumentName + " Room Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto master = (std::make_unique<AudioParameterFloat>(instrumentName + " Master Mix", instrumentName + " Master Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto stereoPanL = (std::make_unique<AudioParameterFloat>(instrumentName + " Stereo Pan L", instrumentName + " Stereo Pan L", NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-	auto stereoPanR = (std::make_unique<AudioParameterFloat>(instrumentName + " Stereo Pan R", instrumentName + " Stereo Pan R", NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+	auto oh = (std::make_unique<AudioParameterFloat>(generalInstrumentName + " Overhead Mix", generalInstrumentName + " Overhead Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto roomFar = (std::make_unique<AudioParameterFloat>(generalInstrumentName + " Room Far Mix", generalInstrumentName + " Room Far Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto roomMono = (std::make_unique<AudioParameterFloat>(generalInstrumentName + " Room Mono Mix", generalInstrumentName + " Room Mono Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto roomStereo = (std::make_unique<AudioParameterFloat>(generalInstrumentName + " Room Stereo Mix", generalInstrumentName + " Room Stereo Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 
 	auto group = std::make_unique<AudioProcessorParameterGroup>("GeneralInstrument", "GeneralInstrument", "|",
 		std::move(oh),
-		std::move(room),
-		std::move(master),
-		std::move(stereoPanL),
-		std::move(stereoPanR));
-	return ((group));
+		std::move(roomMono),
+		std::move(roomStereo),
+		std::move(roomFar));
+	return group;
+}
+
+std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getSpecificInstrumentParameters(String specificInstrumentName, bool hasCloseMic)
+{	
+	std::unique_ptr<AudioProcessorParameterGroup> group;
+
+	//auto master = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Master Mix", specificInstrumentName + " Master Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto pan = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Pan", specificInstrumentName + " Pan", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	if (hasCloseMic) {
+		auto close = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Close", specificInstrumentName + " Close", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+		group = std::make_unique<AudioProcessorParameterGroup>("SpecificInstrument", "SpecificInstrument", "|",
+			std::move(close),
+			//std::move(master),
+			std::move(pan));
+	}
+	else {
+		group = std::make_unique<AudioProcessorParameterGroup>("SpecificInstrument", "SpecificInstrument", "|",
+			//std::move(master),
+			std::move(pan));
+	}
+
+	return group;
+}
+
+
+void ParameterBuilder::addCymbalBalanceParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
+	auto bottom = (std::make_unique<AudioParameterFloat>("Snare Bottom Mix", "Snare Bottom Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+
+	auto balances = std::make_unique<AudioProcessorParameterGroup>("Cymbal Balance", "Cymbal Balance", "|",
+		std::move(getCymbalBalanceParameters("Room Mono")),
+		std::move(getCymbalBalanceParameters("Room Stereo")),
+		std::move(getCymbalBalanceParameters("Room Far")),
+		std::move(getCymbalBalanceParameters("Overhead")));
+
+
+	layout.add(std::move(balances));
+}
+
+
+std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getCymbalBalanceParameters(String micType)
+{
+
+	auto hihat = (std::make_unique<AudioParameterFloat>("HiHat " + micType, "HiHat " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto ride = (std::make_unique<AudioParameterFloat>("Ride " + micType, "Ride " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto crash1 = (std::make_unique<AudioParameterFloat>("Crash1 " + micType, "Crash1 " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto crash2 = (std::make_unique<AudioParameterFloat>("Crash2 " + micType, "Crash2 " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto china = (std::make_unique<AudioParameterFloat>("China " + micType, "China " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto stack1 = (std::make_unique<AudioParameterFloat>("Stack1 " + micType, "Stack1 " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto stack2 = (std::make_unique<AudioParameterFloat>("Stack2 " + micType, "Stack2 " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto splash = (std::make_unique<AudioParameterFloat>("Splash " + micType, "Splash " + micType, NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	auto group = std::make_unique<AudioProcessorParameterGroup>(micType, micType, "|",
+		std::move(hihat),
+		std::move(ride),
+		std::move(crash1),
+		std::move(crash2),
+		std::move(china),
+		std::move(stack1),
+		std::move(stack2),
+		std::move(splash));
+	return group;
 }
