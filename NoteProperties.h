@@ -29,4 +29,5 @@ public:
 		this->specificControllerName = specificControllerName;
 		this->instrumentName = instrumentName;
 	}
+
 };

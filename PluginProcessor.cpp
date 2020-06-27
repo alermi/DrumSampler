@@ -262,14 +262,19 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			std::map<int, NoteSound*>::iterator iter = instrumentMap.find(noteNumber);
 			// Checks if the instrument is a valid one
 			if (iter != instrumentMap.end()) {
-				NoteSound *tempInst = (iter->second);
-				String generalControllerName = tempInst->noteProperties->generalControllerName;
-				String specificControllerName = tempInst->noteProperties->specificControllerName;
+				NoteSound *tempSound = (iter->second);
+				String generalControllerName = tempSound->noteProperties->generalControllerName;
+				String specificControllerName = tempSound->noteProperties->specificControllerName;
 
 
 				float pan = *treeState.getRawParameterValue(specificControllerName + " Pan");
 				auto micGains = micController.getMicGains(generalControllerName, specificControllerName);
-				tempInst->triggerSound(micGains, noteVelocity, timeStamp, pan, this);
+				tempSound->triggerSound(micGains, noteVelocity, timeStamp, pan, this);
+
+				//TODO: DELETE, TESTING PURPOSES
+				if (tempSound->noteProperties->noteNum == 50) {
+					instrumentMap[52]->killSound(timeStamp);
+				}
 			}
 		}
 	}
@@ -277,6 +282,10 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	// Fills the buffer with all already activate instruments
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
+		//TODO: DELETE, TESTING
+		if (it->second->noteProperties->noteNum == 79) {
+			it->second->fillFromIterators(buffer);
+		}
 		it->second->fillFromIterators(buffer);
 	}
 

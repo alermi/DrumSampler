@@ -16,8 +16,6 @@ const double PI = 3.141592653589793238462643383279502884;
 // TODO: Fix the ride mic extra channel map
 const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor) {
-	//this->velocityCount = velocityCount;
-	//this->instrumentName = instrumentName;
 	this->noteProperties = noteProperties;
 	this->fileManager = fileManager;
 	iterators = new list<IteratorPack>();
@@ -118,6 +116,8 @@ void NoteSound::triggerSound
 	}
 }
 
+
+
 void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 	std::list<IteratorPack>::iterator it;
 	std::list<IteratorPack>::iterator end;
@@ -140,6 +140,24 @@ void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 		else {
 			it++;
 		}
+	}
+}
+
+void NoteSound::killSound(int killTimeStamp)
+{
+	std::list<IteratorPack>::iterator it;
+	std::list<IteratorPack>::iterator end;
+	it = iterators->begin();
+	end = iterators->end();
+
+	//Loop through the iterators left from previous blocks and fill the current block
+	while (it != end) {
+		// If this comparison was strictly less, there may be issues when both are 0
+		// This is also checked in the kill function. If this is going to be changed, both must be changed.
+		if (it->timestamp <= killTimeStamp) {
+			it->kill(killTimeStamp);
+		}
+		it++;
 	}
 }
 

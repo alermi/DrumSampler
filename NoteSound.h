@@ -34,7 +34,10 @@ public:
 	String getBufferMapKey(int velocityNum, int versionNum);
 	void createBuffers();
 	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor *processor);
+	void killSound(int killTimeStamp);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);
 	void fillFromIterators(AudioSampleBuffer output);
 	~NoteSound();
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)
 };

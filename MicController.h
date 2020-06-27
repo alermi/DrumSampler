@@ -43,5 +43,6 @@ private:
 	AudioProcessorValueTreeState* treeState;
 
 	void applyCymbalControl(std::map<String, float> *micGains, String specificInstrumentName);
-		//SHOUDL I DO MIC MAPS SEPERATELY
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MicController)
 };

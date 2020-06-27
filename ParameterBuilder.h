@@ -24,4 +24,7 @@ public:
 	static std::unique_ptr<AudioProcessorParameterGroup> getGeneralInstrumentParameters(String instrumentName);
 	static std::unique_ptr<AudioProcessorParameterGroup> getSpecificInstrumentParameters(String specificInstrumentName, bool hasCloseMic);
 	static std::unique_ptr<AudioProcessorParameterGroup> getCymbalBalanceParameters(String micType);
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ParameterBuilder)
+
 };
