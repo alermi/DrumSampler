@@ -10,7 +10,10 @@
 //#include "../JuceLibraryCode/JuceHeader.h"
 #pragma once
 #include "FileManager.h"
-#include "IteratorPack.h"
+//#include "BufferIterator.h"
+#include "MicController.h"
+#include "HitIterator.h"
+
 #include <vector>
 #include <list>
 #include <iterator>
@@ -27,7 +30,7 @@ public:
 
 	std::map<String, std::map<String, AudioSampleBuffer*>> micMap;
 	FileManager* fileManager;
-	list<IteratorPack>* iterators;
+	list<HitIterator>* iterators;
 	AudioProcessor* processor;
 	//AudioSampleBuffer mainBuffer;
 	//static const int micToExtraChannelMap[7];S

@@ -9,16 +9,14 @@
 */
 
 #include "NoteSound.h"
-#include "MicController.h"
+
 const int NUM_OF_SAME_SAMPLE = 5;
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
-// TODO: Fix the ride mic extra channel map
-const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor) {
 	this->noteProperties = noteProperties;
 	this->fileManager = fileManager;
-	iterators = new list<IteratorPack>();
+	iterators = new list<HitIterator>();
 	this->processor = processor;
 
 }
@@ -66,6 +64,7 @@ void NoteSound::createBuffers() {
 				}
 				String indexString = getBufferMapKey(velocityNumber, versionNumber);
 				micMap[micName][indexString] = buffer;
+				//TODO: FREE INDEXSTRING
 			}
 		}
 	}
@@ -100,41 +99,26 @@ void NoteSound::triggerSound
 	stereoPanValues.push_back(tempArray1);
 	std::array<float, 2> tempArray2 = { sin((PI / 2) * (1 - stereoPan[1])) ,sin(stereoPan[1] * (PI / 2)) };
 	stereoPanValues.push_back(tempArray2);
-	// TODO: Add a jassert that checks the size of the new micToExtraChannelMap
-	//jassert(size(micToExtraChannelMap) >= micGains.size());
-	vector<String> micNames = MicController::getMicNames();
 
-	//Create an iterator to be played for each microphone
-	for (int i = 0; i < micNames.size(); i++) {
-		String micName = micNames[i];
-		String indexString = getBufferMapKey(levelNumber, version);
-		AudioSampleBuffer* currBuffer = micMap[micName][indexString];
-		if (currBuffer->getNumChannels() > 0) {
-			IteratorPack newPack(currBuffer, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
-			iterators->push_back(newPack);
-		}
-	}
+	String indexString = getBufferMapKey(levelNumber, version);
+	HitIterator newIterator(this->processor, micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
+	//HitIterator newIterator(micMap, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
+	iterators->push_back(newIterator);
 }
 
 
 
 void NoteSound::fillFromIterators(AudioSampleBuffer output) {
-	std::list<IteratorPack>::iterator it;
-	std::list<IteratorPack>::iterator end;
+	std::list<HitIterator>::iterator it;
+	std::list<HitIterator>::iterator end;
 	it = iterators->begin();
 	end = iterators->end();
 
 	//Loop through the iterators left from previous blocks and fill the current block
 	while (it != end) {
-		IteratorPack currPack = *it;
-		jassert(processor->getBus(false, 0)->isEnabled());
-		//jassert(processor->getBus(false, currPack.extraBusNumber)->isEnabled());
-
-		AudioSampleBuffer mainBuffer = processor->getBusBuffer(output, false, 0);
-		AudioSampleBuffer extraBuffer = processor->getBusBuffer(output, false, currPack.extraBusNumber);
-		std::array<AudioSampleBuffer*, 2> outputs = { &mainBuffer ,&extraBuffer };
-		it->iterate(outputs);
-		if (it->hasEnded) {
+		HitIterator currPack = *it;
+		it->iterate(output);
+		if (it->hasEnded()) {
 			it = iterators->erase(it);
 		}
 		else {
@@ -145,8 +129,8 @@ void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 
 void NoteSound::killSound(int killTimeStamp)
 {
-	std::list<IteratorPack>::iterator it;
-	std::list<IteratorPack>::iterator end;
+	std::list<HitIterator>::iterator it;
+	std::list<HitIterator>::iterator end;
 	it = iterators->begin();
 	end = iterators->end();
 
@@ -159,6 +143,7 @@ void NoteSound::killSound(int killTimeStamp)
 		}
 		it++;
 	}
+
 }
 
 NoteSound::~NoteSound() {
