@@ -23,6 +23,7 @@
 using namespace std;
 
 class NoteSound {
+
 public:
 	//String instrumentName;
 	//int velocityCount;
@@ -42,5 +43,9 @@ public:
 	void fillFromIterators(AudioSampleBuffer output);
 	~NoteSound();
 
+private:
+	HitIterator *hitIterator;
+
+public:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)
 };

@@ -13,10 +13,14 @@
 // TODO: Fix the ride mic extra channel map
 const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 
-HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<String, AudioSampleBuffer*>> micMap, std::map<String, float> micGains, String indexString, float noteVelocity, int timeStamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues) {
+HitIterator::HitIterator(AudioProcessor* processor) {
 	this->processor = processor;
-	this->timestamp = timeStamp;
 	this->bufferIterators = new std::list<BufferIterator>();
+}
+
+void HitIterator::trigger(std::map<String, std::map<String, AudioSampleBuffer*>> micMap, std::map<String, float> micGains, String indexString, float noteVelocity, int timeStamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues) {
+	//Kill the previous playing sounds
+	kill(timeStamp);
 	//Create an iterator to be played for each microphone
 	for (int i = 0; i < micNames.size(); i++) {
 		String micName = micNames[i];
@@ -66,7 +70,7 @@ void HitIterator::iterate(AudioSampleBuffer output)
 	//Loop through the iterators left from previous blocks and fill the current block
 	while (it != end) {
 		BufferIterator currPack = *it;
-		//jassert(processor->getBus(false, 0)->isEnabled());
+		jassert(processor->getBus(false, 0)->isEnabled());
 		//jassert(processor->getBus(false, currPack.extraBusNumber)->isEnabled());
 
 		AudioSampleBuffer mainBuffer = processor->getBusBuffer(output, false, 0);

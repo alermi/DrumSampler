@@ -18,7 +18,7 @@ NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, A
 	this->fileManager = fileManager;
 	iterators = new list<HitIterator>();
 	this->processor = processor;
-
+	this->hitIterator = new HitIterator(processor);
 }
 
 String NoteSound::getBufferMapKey(int velocityNum, int versionNum)
@@ -64,7 +64,6 @@ void NoteSound::createBuffers() {
 				}
 				String indexString = getBufferMapKey(velocityNumber, versionNumber);
 				micMap[micName][indexString] = buffer;
-				//TODO: FREE INDEXSTRING
 			}
 		}
 	}
@@ -101,48 +100,50 @@ void NoteSound::triggerSound
 	stereoPanValues.push_back(tempArray2);
 
 	String indexString = getBufferMapKey(levelNumber, version);
-	HitIterator newIterator(this->processor, micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
+	//HitIterator newIterator(this->processor, micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
 	//HitIterator newIterator(micMap, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
-	iterators->push_back(newIterator);
+	//iterators->push_back(newIterator);
+	hitIterator->trigger(micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
 }
 
 
 
 void NoteSound::fillFromIterators(AudioSampleBuffer output) {
-	std::list<HitIterator>::iterator it;
-	std::list<HitIterator>::iterator end;
-	it = iterators->begin();
-	end = iterators->end();
+	//std::list<HitIterator>::iterator it;
+	//std::list<HitIterator>::iterator end;
+	//it = iterators->begin();
+	//end = iterators->end();
 
-	//Loop through the iterators left from previous blocks and fill the current block
-	while (it != end) {
-		HitIterator currPack = *it;
-		it->iterate(output);
-		if (it->hasEnded()) {
-			it = iterators->erase(it);
-		}
-		else {
-			it++;
-		}
-	}
+	////Loop through the iterators left from previous blocks and fill the current block
+	//while (it != end) {
+	//	HitIterator currPack = *it;
+	//	it->iterate(output);
+	//	if (it->hasEnded()) {
+	//		it = iterators->erase(it);
+	//	}
+	//	else {
+	//		it++;
+	//	}
+	//}
+	hitIterator->iterate(output);
 }
 
 void NoteSound::killSound(int killTimeStamp)
 {
-	std::list<HitIterator>::iterator it;
-	std::list<HitIterator>::iterator end;
-	it = iterators->begin();
-	end = iterators->end();
+	//std::list<HitIterator>::iterator it;
+	//std::list<HitIterator>::iterator end;
+	//it = iterators->begin();
+	//end = iterators->end();
 
-	//Loop through the iterators left from previous blocks and fill the current block
-	while (it != end) {
-		// If this comparison was strictly less, there may be issues when both are 0
-		// This is also checked in the kill function. If this is going to be changed, both must be changed.
-		if (it->timestamp <= killTimeStamp) {
-			it->kill(killTimeStamp);
-		}
-		it++;
-	}
+	////Loop through the iterators left from previous blocks and fill the current block
+	//while (it != end) {
+	//	// If this comparison was strictly less, there may be issues when both are 0
+	//	// This is also checked in the kill function. If this is going to be changed, both must be changed.
+	//	it->kill(killTimeStamp);
+	//	
+	//	it++;
+	//}
+	hitIterator->kill(killTimeStamp);
 
 }
 
