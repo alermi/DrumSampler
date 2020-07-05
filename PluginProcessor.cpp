@@ -61,10 +61,6 @@ AudioProcessorValueTreeState::ParameterLayout DrumSamplerAudioProcessor::createP
 	return ParameterBuilder::createParameterLayout();
 }
 
-
-
-
-
 DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
 {
 	for (map<int, NoteSound*>::iterator it = instrumentMap.begin(); it != instrumentMap.end(); it++)
@@ -277,6 +273,9 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				}
 			}
 		}
+
+		////TODO: DELETE, TESTING
+		//buffer.getWritePointer(0)[0] = -1.0f;
 	}
 
 	// Fills the buffer with all already activate instruments

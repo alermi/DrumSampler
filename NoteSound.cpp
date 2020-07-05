@@ -18,7 +18,8 @@ NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, A
 	this->fileManager = fileManager;
 	iterators = new list<HitIterator>();
 	this->processor = processor;
-	this->hitIterator = new HitIterator(processor);
+	this->hitIterator1 = new HitIterator(processor);
+	this->hitIterator2 = new HitIterator(processor);
 }
 
 String NoteSound::getBufferMapKey(int velocityNum, int versionNum)
@@ -75,7 +76,10 @@ void NoteSound::triggerSound
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
 	int levelNumber = 128 * noteVelocity*float(noteProperties->velocityCount) / 129;
-
+	//TODO: DELETE, TESTING
+	if (timeStamp != 0) {
+		DBG("Hi");
+	}
 	//Randomize which version of the same sample it is going to play
 	int version = rand() % NUM_OF_SAME_SAMPLE;
 
@@ -103,7 +107,15 @@ void NoteSound::triggerSound
 	//HitIterator newIterator(this->processor, micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
 	//HitIterator newIterator(micMap, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
 	//iterators->push_back(newIterator);
-	hitIterator->trigger(micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
+	if (hitIterator1->hasEnded()) {
+		hitIterator2->kill(timeStamp);
+		hitIterator1->trigger(micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
+	}
+	else {
+		hitIterator1->kill(timeStamp);
+		jassert(hitIterator2->hasEnded());
+		hitIterator2->trigger(micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
+	}
 }
 
 
@@ -125,7 +137,8 @@ void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 	//		it++;
 	//	}
 	//}
-	hitIterator->iterate(output);
+	hitIterator1->iterate(output, false);
+	hitIterator2->iterate(output, false);
 }
 
 void NoteSound::killSound(int killTimeStamp)
@@ -143,7 +156,8 @@ void NoteSound::killSound(int killTimeStamp)
 	//	
 	//	it++;
 	//}
-	hitIterator->kill(killTimeStamp);
+	hitIterator1->kill(killTimeStamp);
+	hitIterator2->kill(killTimeStamp);
 
 }
 

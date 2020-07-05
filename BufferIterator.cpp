@@ -10,58 +10,98 @@
 
 #include "BufferIterator.h"
 
-BufferIterator::BufferIterator(AudioSampleBuffer* address, float velocity, int samplesLeft, int timestamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber) {
-	this->address = address;
+BufferIterator::BufferIterator() {
+	this->sample = nullptr;
+	this->extraBusNumber = -1;
+	this->velocity = -1;
+	// Samples left at the origin buffer to copy
+	this->samplesLeft = -1;
+	// Sample that we last left at in the origin buffer
+	this->sampleLeftAt = -1;
+	//this->monoPanValues = std::vector<>;
+	//this->stereoPanValues = NULL;
+	// The sample in current block that it will start ramping down.
+	// Has to be less than timestamp + samplesLeft.
+	this->killTimeStamp = -1;
+	this->hasEnded = true;
+}
+
+void BufferIterator::trigger(AudioSampleBuffer* sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber) {
+	this->sample = sample;
+	this->extraBusNumber = extraBusNumber;
+	jassert(hasEnded == true);
 	this->velocity = velocity;
 	// Samples left at the origin buffer to copy
-	this->samplesLeft = samplesLeft;
+	this->samplesLeft = sample->getNumSamples();
 	// Sample that we last left at in the origin buffer
 	this->sampleLeftAt = 0;
 	this->hasEnded = false;
 	this->monoPanValues = monoPanValues;
 	this->stereoPanValues = stereoPanValues;
-	this->extraBusNumber = extraBusNumber;
-	// Sample in current block that we it start writing.
-	this->timestamp = timestamp;
+
 	// The sample in current block that it will start ramping down.
 	// Has to be less than timestamp + samplesLeft.
 	this->killTimeStamp = -1;
-
 }
 
-void BufferIterator::iterate(std::array<AudioSampleBuffer*,2> outputs) {
+void BufferIterator::reset() {
+	this->sample = nullptr;
+	this->extraBusNumber = -1;
+	this->velocity = -1;
+	// Samples left at the origin buffer to copy
+	this->samplesLeft = -1;
+	// Sample that we last left at in the origin buffer
+	this->sampleLeftAt = -1;
+	jassert(hasEnded == true);
+	//this->monoPanValues = std::vector<>;
+	//this->stereoPanValues = NULL;
+
+	// The sample in current block that it will start ramping down.
+	// Has to be less than timestamp + samplesLeft.
+	this->killTimeStamp = -1;
+}
+void BufferIterator::iterate(std::array<AudioSampleBuffer*,2> outputs, int startSample, int endSample, bool fadeOut) {
+	jassert(extraBusNumber != -1);
+	jassert(velocity != -1);
+	jassert(sampleLeftAt != -1);
+	jassert(samplesLeft != -1);
 	jassert(hasEnded == false);
 	//AudioSampleBuffer* output = mainOutput;
-	int samplesToCopy = getSamplesToCopy(outputs);
+	int samplesToCopy = getSamplesToCopy(startSample, endSample);
 	for (AudioSampleBuffer* output : outputs) {
 		if (output == NULL) continue;
-		for (int sourceChannel = 0; sourceChannel < address->getNumChannels(); sourceChannel++) {
+		for (int sourceChannel = 0; sourceChannel < sample->getNumChannels(); sourceChannel++) {
 			for (int destChannel = 0; destChannel < output->getNumChannels(); ++destChannel) {
 				float panValue;
 				if (output->getNumChannels() == 1) {
 					panValue = 1;
 				}
-				else if (address->getNumChannels() == 1) {
+				else if (sample->getNumChannels() == 1) {
 					panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
 						+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
 				}
 				else {
-					jassert(address->getNumChannels() == 2);
+					jassert(sample->getNumChannels() == 2);
 					panValue = stereoPanValues[sourceChannel][destChannel];
 				}
 
-				if (this->killTimeStamp != -1) {
-					// TODO: This assertion that the kill time stamp is greater than timestamp will have to change when we are 
-					// reusing iteratorpacks.
-					jassert(this->killTimeStamp >= timestamp);
-					jassert(this->killTimeStamp < timestamp + samplesToCopy);
-					output->addFrom(destChannel, timestamp, *address, sourceChannel, sampleLeftAt, this->killTimeStamp - timestamp, velocity*panValue);
-					//output->addFromWithRamp(destChannel, killTimeStamp, address->getReadPointer(sourceChannel), SAMPLES_TO_KILL, 1.0f, 0.0f);
+				//if (this->killTimeStamp != -1) {
+				//	// TODO: This assertion that the kill time stamp is greater than timestamp will have to change when we are 
+				//	// reusing iteratorpacks.
+				//	jassert(this->killTimeStamp >= timestamp);
+				//	jassert(this->killTimeStamp < timestamp + samplesToCopy);
+				//	output->addFrom(destChannel, startSample, *sample, sourceChannel, sampleLeftAt, this->killTimeStamp - startSample, velocity*panValue);
+				//	//output->addFromWithRamp(destChannel, killTimeStamp, sample->getReadPointer(sourceChannel), SAMPLES_TO_KILL, 1.0f, 0.0f);
 
+				//}
+				//else {
+				if (fadeOut) {
+					output->addFromWithRamp(destChannel, startSample, sample->getReadPointer(sourceChannel) + sampleLeftAt, samplesToCopy, velocity*panValue, 0.0f);
 				}
 				else {
-					output->addFrom(destChannel, timestamp, *address, sourceChannel, sampleLeftAt, samplesToCopy, velocity*panValue);
+					output->addFrom(destChannel, startSample, *sample, sourceChannel, sampleLeftAt, samplesToCopy, velocity*panValue);
 				}
+				//}
 
 			}
 		}
@@ -75,25 +115,25 @@ void BufferIterator::iterate(std::array<AudioSampleBuffer*,2> outputs) {
 	else {
 		sampleLeftAt += samplesToCopy;
 		samplesLeft -= samplesToCopy;
-		timestamp = 0;
 		//if(killTimeStamp < 0){
 		//	killTimeStamp
 		//}
 	}
 }
 
-int BufferIterator::getSamplesToCopy(std::array<AudioSampleBuffer*, 2> outputs) {
+int BufferIterator::getSamplesToCopy(int startSample, int endSample) {
 	//TODO: jassert if mainbus numsamples == extrabus numsamples
-	int samplesToCopy = std::min(samplesLeft, outputs[0]->getNumSamples() - timestamp);
-	jassert(samplesToCopy == std::min(samplesLeft, outputs[1]->getNumSamples() - timestamp));
+	jassert(endSample > startSample);
+	int samplesToCopy = std::min(samplesLeft, endSample - startSample);
+	//jassert(samplesToCopy == std::min(samplesLeft, outputs[1]->getNumSamples() - startSample));
 	return samplesToCopy;
 }
 void BufferIterator::kill(int killTimeStamp)
 {
-	//TODO: killTimeStamp < timestamp will not work when we are reusing iteratorPacks.
-	if (samplesLeft + timestamp <= killTimeStamp || killTimeStamp < timestamp) {
-		return;
-	}
-	this->killTimeStamp = killTimeStamp;
+	////TODO: killTimeStamp < timestamp will not work when we are reusing iteratorPacks.
+	//if (samplesLeft + timestamp <= killTimeStamp || killTimeStamp < timestamp) {
+	//	return;
+	//}
+	//this->killTimeStamp = killTimeStamp;
 }
 
