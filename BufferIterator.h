@@ -25,7 +25,6 @@ public:
 	int channelNum;
 	bool hasEnded;
 	int extraBusNumber;
-	int killTimeStamp;
 	//AudioSampleBuffer *mainBuffer;
 	std::array<float, 2> monoPanValues;
 	std::vector<std::array<float, 2>> stereoPanValues;
@@ -34,7 +33,6 @@ public:
 	//void iterate(AudioSampleBuffer output);
 	void iterate(std::array<AudioSampleBuffer*, 2> outputs, int startSample, int endSample, bool fadeOut);
 	void trigger(AudioSampleBuffer *sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber);
-	void kill(int killTimeStamp);
 	void reset();
 private:
 	int getSamplesToCopy(int startSample, int endSample);

@@ -49,10 +49,15 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 			//TODO: Handle the isInstrument cases
 			//TODO: add robin count parameter
 			NoteSound* newInstrument=new NoteSound(&iter->second, fileManager, this);
-			newInstrument->createBuffers();
+			//newInstrument->createBuffers();
 			instrumentMap.insert(pair<int, NoteSound*>(iter->first, newInstrument));
 		}
 
+	}
+
+	for (std::map<String, AudioSampleBuffer>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
+		//TODO: Reconsider the initial number of samples.
+		iter->second = AudioSampleBuffer(2, 0);
 	}
 }
 
@@ -137,6 +142,9 @@ void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 {
 	reset();
 	srand(time(0));
+	for (std::map<String, AudioSampleBuffer>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
+		iter->second.setSize(2, samplesPerBlock + FADE_OUT_SAMPLES);
+	}
 }
 
 void DrumSamplerAudioProcessor::releaseResources()
@@ -288,6 +296,8 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 		it->second->fillFromIterators(buffer);
 	}
 
+	midiMessages.clear();
+	//buffer.getWritePointer(0)[0] = -1.0f;
 }
 
 //==============================================================================

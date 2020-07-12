@@ -12,19 +12,22 @@
 
 #include "BufferIterator.h"
 #include "MicController.h"
+#include "TriggerInformation.h"
 class HitIterator {
 public:
-	HitIterator::HitIterator(AudioProcessor* processor);
-	void kill(int killTimeStamp);
+	HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap);
 	bool hasEnded();
-	void trigger(std::map<String, std::map<String, AudioSampleBuffer*>> micMap, std::map<String, float> micGains, String indexString, float noteVelocity, int timeStamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues);
-	void iterate(AudioSampleBuffer output, bool fadeOut);
+	void trigger(TriggerInformation triggerInfo);
+	void iterate(AudioSampleBuffer output, int startSample, int endSample, bool fadeOut);
 	int timeStamp;
+	void reset();
 
+	static const int NUM_OF_SAME_SAMPLE = 5;
 
 private:
 	std::list<BufferIterator>* bufferIterators;
-
+	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;
 	AudioProcessor* processor;
 	const std::vector<String> micNames = MicController::getMicNames();
+
 };

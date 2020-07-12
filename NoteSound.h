@@ -13,6 +13,7 @@
 //#include "BufferIterator.h"
 #include "MicController.h"
 #include "HitIterator.h"
+#include "VelocityLevelPlayer.h"
 
 #include <vector>
 #include <list>
@@ -35,8 +36,7 @@ public:
 	AudioProcessor* processor;
 	//AudioSampleBuffer mainBuffer;
 	//static const int micToExtraChannelMap[7];S
-	String getBufferMapKey(int velocityNum, int versionNum);
-	void createBuffers();
+	//void createBuffers();
 	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor *processor);
 	void killSound(int killTimeStamp);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);
@@ -44,8 +44,9 @@ public:
 	~NoteSound();
 
 private:
-	HitIterator *hitIterator1;
-	HitIterator *hitIterator2;
+	//HitIterator *hitIterator1;
+	//HitIterator *hitIterator2;
+	VelocityLevelPlayer velocityLevelPlayer;
 
 public:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)

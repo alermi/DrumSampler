@@ -81,6 +81,8 @@ private:
 	MicController micController{ &treeState };
 	foleys::MagicProcessorState magicState{ *this, treeState };
 
+	std::map<String, AudioSampleBuffer> micOutputs;
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DrumSamplerAudioProcessor)
 };
 
