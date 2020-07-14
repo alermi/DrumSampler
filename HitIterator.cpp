@@ -16,10 +16,12 @@ const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap, std::map<String, AudioSampleBuffer*>* micOutputs) {
 	this->processor = processor;
 	this->micMap = micMap;
-	this->bufferIterators = new std::list<BufferIterator>();
+	this->bufferIterators = std::map<String, BufferIterator>();
 	for (int i = 0; i < micNames.size(); i++) {
 		BufferIterator newPack;
-		bufferIterators->push_back(newPack);
+		String micName = micNames[i];
+		bufferIterators.insert(std::make_pair(micName, newPack));
+		//bufferIterators->push_back(newPack);
 	}
 	timeStamp = -1;
 	this->micOutputs = micOutputs;
@@ -31,45 +33,49 @@ void HitIterator::trigger(TriggerInformation triggerInfo) {
 	//Create an iterator to be played for each microphone
 	this->timeStamp = triggerInfo.timeStamp;
 
-	std::list<BufferIterator>::iterator it;
-	std::list<BufferIterator>::iterator end;
-	it = bufferIterators->begin();
-	end = bufferIterators->end();
+	//std::list<BufferIterator>::iterator it;
+	//std::list<BufferIterator>::iterator end;
+	//it = bufferIterators->begin();
+	//end = bufferIterators->end();
 
 	int version = rand() % NUM_OF_SAME_SAMPLE;
 
 	for (int i = 0; i < micNames.size(); i++) {
-		jassert(it != end);
+		//jassert(it != end);
 		String micName = micNames[i];
 		AudioSampleBuffer* currBuffer = micMap[micName][version];
 		if (currBuffer->getNumChannels() > 0) {
 			//BufferIterator currPack = bufferIterators[i];
-
-			it->trigger(currBuffer, triggerInfo.noteVelocity*triggerInfo.micGains[micName], triggerInfo.monoPanValues, triggerInfo.stereoPanValues, micToExtraChannelMap[i]);
+			
+			//it->trigger(currBuffer, triggerInfo.noteVelocity*triggerInfo.micGains[micName], triggerInfo.monoPanValues, triggerInfo.stereoPanValues, micToExtraChannelMap[i]);
+			bufferIterators.at(micName).trigger(currBuffer, triggerInfo.noteVelocity*triggerInfo.micGains[micName], triggerInfo.monoPanValues, triggerInfo.stereoPanValues, micToExtraChannelMap[i]);
 			//bufferIterators->push_back(newPack);
 		}
-		it++;
+		//it++;
 	}
 }
 
 bool HitIterator::hasEnded()
 {
 	bool ended = true;
-	for (BufferIterator iterator : *bufferIterators) {
-		ended = ended && iterator.hasEnded;
+	//for (BufferIterator iterator : *bufferIterators) {
+		//ended = ended && iterator.hasEnded;
+	//}
+	for (auto const& iterator : bufferIterators) {
+		ended = ended && iterator.second.hasEnded;
 	}
 	return ended;
 }
 void HitIterator::reset()
 {
-	std::list<BufferIterator>::iterator it;
-	std::list<BufferIterator>::iterator end;
-	it = bufferIterators->begin();
-	end = bufferIterators->end();
+	std::map<String, BufferIterator>::iterator it;
+	std::map<String, BufferIterator>::iterator end;
+	it = bufferIterators.begin();
+	end = bufferIterators.end();
 
 	while (it != end) {
-		BufferIterator currPack = *it;
-		it->reset();
+		BufferIterator currPack = it->second;
+		it->second.reset();
 		it++;
 	}
 	timeStamp = -1;
@@ -81,19 +87,19 @@ void HitIterator::reset()
 void HitIterator::iterate(int startSample, int endSample, bool fadeOut)
 {
 
-	std::list<BufferIterator>::iterator it;
-	std::list<BufferIterator>::iterator end;
-	it = bufferIterators->begin();
-	end = bufferIterators->end();
+	std::map<String, BufferIterator>::iterator it;
+	std::map<String, BufferIterator>::iterator end;
+	it = bufferIterators.begin();
+	end = bufferIterators.end();
 
 	//Loop through the iterators left from previous blocks and fill the current block
 	while (it != end) {
-		BufferIterator currPack = *it;
+		BufferIterator currPack = it->second;
 
 
-		if (it->hasEnded) {
+		if (it->second.hasEnded) {
 			//TODO: This reset can be moved right after iterate probably?
-			it->reset();
+			it->second.reset();
 			it++;
 			//it = bufferIterators->erase(it);
 		}
@@ -106,9 +112,9 @@ void HitIterator::iterate(int startSample, int endSample, bool fadeOut)
 			// TODO: Remove unnecessary null passing
 			//std::array<AudioSampleBuffer*, 2> outputs = { &mainBuffer , NULL };
 			jassert(timeStamp != -1);
-			AudioSampleBuffer* someBuffer = micOutputs->at("hh");
+			AudioSampleBuffer* someBuffer = micOutputs->at(it->first);
 			//it->iterate(mainBuffer, startSample, endSample, fadeOut);
-			it->iterate(someBuffer, startSample, endSample, fadeOut);
+			it->second.iterate(someBuffer, startSample, endSample, fadeOut);
 			it++;
 		}
 	}

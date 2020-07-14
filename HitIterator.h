@@ -25,7 +25,7 @@ public:
 	static const int NUM_OF_SAME_SAMPLE = 5;
 
 private:
-	std::list<BufferIterator>* bufferIterators;
+	std::map<String, BufferIterator> bufferIterators;
 	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;
 	AudioProcessor* processor;
 	const std::vector<String> micNames = MicController::getMicNames();
