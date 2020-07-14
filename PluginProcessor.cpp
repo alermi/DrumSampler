@@ -42,22 +42,22 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	fileManager=new FileManager();
 	instrumentMap = std::map<int, NoteSound*>();
 	if (!LOADSAMPLES) return;
+
+	for (String micName : MicController::getMicNames()) {		
+		//TODO: Reconsider the initial number of samples.
+		micOutputs[micName] = new AudioSampleBuffer(2, 0);
+	}
 	// Gets the instrument names from the MidiMap file.
 	for (std::map<int, NoteProperties>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
 		if (iter->second.generalControllerName.compare("")) {
 			//TODO: Handle the isInstrument cases
 			//TODO: add robin count parameter
-			NoteSound* newInstrument=new NoteSound(&iter->second, fileManager, this);
+			NoteSound* newInstrument=new NoteSound(&iter->second, fileManager, this, &micOutputs);
 			//newInstrument->createBuffers();
 			instrumentMap.insert(pair<int, NoteSound*>(iter->first, newInstrument));
 		}
 
-	}
-
-	for (std::map<String, AudioSampleBuffer>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
-		//TODO: Reconsider the initial number of samples.
-		iter->second = AudioSampleBuffer(2, 0);
 	}
 }
 
@@ -142,8 +142,8 @@ void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 {
 	reset();
 	srand(time(0));
-	for (std::map<String, AudioSampleBuffer>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
-		iter->second.setSize(2, samplesPerBlock + FADE_OUT_SAMPLES);
+	for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
+		iter->second->setSize(2, samplesPerBlock);
 	}
 }
 
@@ -223,7 +223,9 @@ bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 
 void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-
+	for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
+		iter->second->clear();
+	}
 	
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -250,7 +252,6 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	MidiBuffer::Iterator iterator(midiMessages);
 	int midiPosition = -1;
 	
-	map<int, NoteSound*>::iterator it;
 
 	while (iterator.getNextEvent(currMessage, midiPosition)) {
 
@@ -286,15 +287,30 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 		//buffer.getWritePointer(0)[0] = -1.0f;
 	}
 
+	//AudioSampleBuffer tempBuffer = AudioSampleBuffer(2, buffer.getNumSamples());
+
+	//micOutputs["temp"] = &tempBuffer;
+	//tempBuffer.clear();
+	//micOutputs["main"] = &buffer;
+
+	map<int, NoteSound*>::iterator it;
 	// Fills the buffer with all already activate instruments
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
-		//TODO: DELETE, TESTING
-		if (it->second->noteProperties->noteNum == 79) {
-			it->second->fillFromIterators(buffer);
-		}
-		it->second->fillFromIterators(buffer);
+		//TODO: REMOVE THE BUFFER ARGUMENT
+		it->second->fillFromIterators(buffer.getNumSamples());
 	}
+
+	for (auto const& mic : micOutputs) {
+		buffer.addFrom(0, 0, *mic.second, 0, 0, buffer.getNumSamples());
+		buffer.addFrom(1, 0, *mic.second, 1, 0, buffer.getNumSamples());
+	}
+
+
+	//for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
+	//	AudioSampleBuffer* currBuffer = iter->second;
+	//	buffer.addFrom(0, 0, *iter->second, 0, 0, buffer.getNumSamples());
+	//}
 
 	midiMessages.clear();
 	//buffer.getWritePointer(0)[0] = -1.0f;

@@ -13,7 +13,7 @@
 // TODO: Fix the ride mic extra channel map
 const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 
-HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap) {
+HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap, std::map<String, AudioSampleBuffer*>* micOutputs) {
 	this->processor = processor;
 	this->micMap = micMap;
 	this->bufferIterators = new std::list<BufferIterator>();
@@ -22,6 +22,7 @@ HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<in
 		bufferIterators->push_back(newPack);
 	}
 	timeStamp = -1;
+	this->micOutputs = micOutputs;
 }
 
 void HitIterator::trigger(TriggerInformation triggerInfo) {
@@ -77,7 +78,7 @@ void HitIterator::reset()
 
 
 
-void HitIterator::iterate(AudioSampleBuffer output, int startSample, int endSample, bool fadeOut)
+void HitIterator::iterate(int startSample, int endSample, bool fadeOut)
 {
 
 	std::list<BufferIterator>::iterator it;
@@ -100,12 +101,14 @@ void HitIterator::iterate(AudioSampleBuffer output, int startSample, int endSamp
 			jassert(processor->getBus(false, 0)->isEnabled());
 			//jassert(processor->getBus(false, currPack.extraBusNumber)->isEnabled());
 
-			AudioSampleBuffer mainBuffer = processor->getBusBuffer(output, false, 0);
-			AudioSampleBuffer extraBuffer = processor->getBusBuffer(output, false, currPack.extraBusNumber);
-			std::array<AudioSampleBuffer*, 2> outputs = { &mainBuffer ,&extraBuffer };
+			//AudioSampleBuffer mainBuffer = processor->getBusBuffer(output, false, 0);
+			//AudioSampleBuffer extraBuffer = processor->getBusBuffer(output, false, currPack.extraBusNumber);
+			// TODO: Remove unnecessary null passing
+			//std::array<AudioSampleBuffer*, 2> outputs = { &mainBuffer , NULL };
 			jassert(timeStamp != -1);
-
-			it->iterate(outputs, startSample, endSample, fadeOut);
+			AudioSampleBuffer* someBuffer = micOutputs->at("hh");
+			//it->iterate(mainBuffer, startSample, endSample, fadeOut);
+			it->iterate(someBuffer, startSample, endSample, fadeOut);
 			it++;
 		}
 	}

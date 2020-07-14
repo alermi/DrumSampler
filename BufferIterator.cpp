@@ -47,7 +47,7 @@ void BufferIterator::reset() {
 	//this->monoPanValues = std::vector<>;
 	//this->stereoPanValues = NULL;
 }
-void BufferIterator::iterate(std::array<AudioSampleBuffer*,2> outputs, int startSample, int endSample, bool fadeOut) {
+void BufferIterator::iterate(AudioSampleBuffer* output, int startSample, int endSample, bool fadeOut) {
 	jassert(extraBusNumber != -1);
 	jassert(velocity != -1);
 	jassert(sampleLeftAt != -1);
@@ -55,8 +55,8 @@ void BufferIterator::iterate(std::array<AudioSampleBuffer*,2> outputs, int start
 	jassert(hasEnded == false);
 
 	int samplesToCopy = getSamplesToCopy(startSample, endSample);
-	for (AudioSampleBuffer* output : outputs) {
-		if (output == NULL) continue;
+	//for (AudioSampleBuffer* output : outputs) {
+		//if (output == NULL) continue;
 		for (int sourceChannel = 0; sourceChannel < sample->getNumChannels(); sourceChannel++) {
 			for (int destChannel = 0; destChannel < output->getNumChannels(); ++destChannel) {
 				float panValue;
@@ -82,7 +82,7 @@ void BufferIterator::iterate(std::array<AudioSampleBuffer*,2> outputs, int start
 
 			}
 		}
-	}
+	//}
 	// TODO: The killTimeStamp condition will not hold when we add the ramp down.
 	// we will have to check if it is spilling to the next buffer.
 	if (samplesToCopy == samplesLeft) {

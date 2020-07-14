@@ -12,7 +12,7 @@
 
 const int HI_HAT_SAMPLE_OFFSET = 32;
 const double PI = 3.141592653589793238462643383279502884;
-NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor) : velocityLevelPlayer(processor, fileManager, noteProperties, 2, 0) {
+NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs) : velocityLevelPlayer(processor, fileManager, noteProperties, 2, 0, micOutputs) {
 	this->noteProperties = noteProperties;
 	this->fileManager = fileManager;
 	iterators = new list<HitIterator>();
@@ -118,7 +118,7 @@ void NoteSound::triggerSound
 
 
 
-void NoteSound::fillFromIterators(AudioSampleBuffer output) {
+void NoteSound::fillFromIterators(int blockSize) {
 	//std::list<HitIterator>::iterator it;
 	//std::list<HitIterator>::iterator end;
 	//it = iterators->begin();
@@ -136,7 +136,7 @@ void NoteSound::fillFromIterators(AudioSampleBuffer output) {
 	//	}
 	//}
 
-	this->velocityLevelPlayer.processBlock(output);
+	this->velocityLevelPlayer.processBlock(blockSize);
 	//hitIterator1->iterate(output, false);
 	//hitIterator2->iterate(output, false);
 }

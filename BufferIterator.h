@@ -31,7 +31,7 @@ public:
 
 	BufferIterator();
 	//void iterate(AudioSampleBuffer output);
-	void iterate(std::array<AudioSampleBuffer*, 2> outputs, int startSample, int endSample, bool fadeOut);
+	void iterate(AudioSampleBuffer* output, int startSample, int endSample, bool fadeOut);
 	void trigger(AudioSampleBuffer *sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber);
 	void reset();
 private:

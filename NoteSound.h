@@ -39,8 +39,8 @@ public:
 	//void createBuffers();
 	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor *processor);
 	void killSound(int killTimeStamp);
-	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);
-	void fillFromIterators(AudioSampleBuffer output);
+	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs);
+	void fillFromIterators(int blockSize);
 	~NoteSound();
 
 private:
