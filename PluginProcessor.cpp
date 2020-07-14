@@ -142,8 +142,11 @@ void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 {
 	reset();
 	srand(time(0));
+	for (auto const& instrument : instrumentMap) {
+		instrument.second->setBlockSize(samplesPerBlock);
+	}
 	for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
-		iter->second->setSize(2, samplesPerBlock);
+		iter->second->setSize(2, samplesPerBlock + FADE_OUT_SAMPLES);
 	}
 }
 
@@ -298,7 +301,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
 		//TODO: REMOVE THE BUFFER ARGUMENT
-		it->second->fillFromIterators(buffer.getNumSamples());
+		it->second->fillFromIterators();
 	}
 
 	for (auto const& mic : micOutputs) {

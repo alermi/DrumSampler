@@ -27,12 +27,14 @@ private:
 	std::vector<int> newKills;
 	std::vector<int> stopPoints;
 	HitIterator* findAvailableHitIterator();
+	int blockSize;
 
 public:	
 	VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int numHitIterators, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs);
 	void trigger(TriggerInformation triggerInfo);
 	void kill(int timeStamp);
-	void processBlock(int blockSize);
+	void processBlock();
+	void setBlockSize(int blockSize);
 	void createBuffers(FileManager* fileManager, NoteProperties* noteProperties);
 	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;
 };

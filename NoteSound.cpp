@@ -118,7 +118,7 @@ void NoteSound::triggerSound
 
 
 
-void NoteSound::fillFromIterators(int blockSize) {
+void NoteSound::fillFromIterators() {
 	//std::list<HitIterator>::iterator it;
 	//std::list<HitIterator>::iterator end;
 	//it = iterators->begin();
@@ -136,9 +136,17 @@ void NoteSound::fillFromIterators(int blockSize) {
 	//	}
 	//}
 
-	this->velocityLevelPlayer.processBlock(blockSize);
+	this->velocityLevelPlayer.processBlock();
 	//hitIterator1->iterate(output, false);
 	//hitIterator2->iterate(output, false);
+}
+
+void NoteSound::setBlockSize(int blockSize)
+{
+	this->blockSize = blockSize;
+
+	//TODO: Loop through all velocityLevelPlayers in the future.
+	velocityLevelPlayer.setBlockSize(blockSize);
 }
 
 void NoteSound::killSound(int killTimeStamp)

@@ -13,6 +13,7 @@
 VelocityLevelPlayer::VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int numHitIterators, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs)
   {
 	this->processor = processor;
+	this->blockSize = blockSize;
 	//this->micMap = micMap;
 	this->levelNum = levelNum;
 	this->newTriggers.reserve(MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL);
@@ -54,7 +55,7 @@ void VelocityLevelPlayer::kill(int timeStamp)
 		jassertfalse;
 	}
 }
-void VelocityLevelPlayer::processBlock(int blockSize)
+void VelocityLevelPlayer::processBlock()
 {
 	for (TriggerInformation newTriggerInfo : newTriggers) {
 		if (stopPoints.size() < MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL + MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL) {
@@ -103,7 +104,7 @@ void VelocityLevelPlayer::processBlock(int blockSize)
 		while (it != end) {
 			// Iterate wether or not it has ended.
 			// TODO: Check if this actually does not cause problems
-			it->iterate(0, blockSize, false);
+			it->iterate(0, this->blockSize, false);
 			it++;
 		}
 	//}
@@ -112,7 +113,7 @@ void VelocityLevelPlayer::processBlock(int blockSize)
 		HitIterator* newHitIterator = findAvailableHitIterator();
 		if (newHitIterator != nullptr) {
 			newHitIterator->trigger(newTriggers.at(0));
-			newHitIterator->iterate(newTriggers.at(0).timeStamp, blockSize, false);
+			newHitIterator->iterate(newTriggers.at(0).timeStamp, this->blockSize, false);
 
 			newTriggers.erase(newTriggers.begin());
 		}
@@ -132,6 +133,12 @@ void VelocityLevelPlayer::processBlock(int blockSize)
 	//hitIterators.at(1).iterate(output, false);
 
 }
+
+void VelocityLevelPlayer::setBlockSize(int blockSize)
+{
+	this->blockSize = blockSize;
+}
+
 HitIterator* VelocityLevelPlayer::findAvailableHitIterator() {
 
 	std::vector<HitIterator>::iterator it;
@@ -151,6 +158,7 @@ HitIterator* VelocityLevelPlayer::findAvailableHitIterator() {
 	//TODO: Change this into a more error friendly option
 	return nullptr;
 }
+
 
 void VelocityLevelPlayer::createBuffers(FileManager* fileManager, NoteProperties* noteProperties) {
 
