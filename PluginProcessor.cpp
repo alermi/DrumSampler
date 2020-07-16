@@ -11,6 +11,10 @@
 #include "PluginProcessor.h"
 #include <ctime>
 
+#include "BlockEventsTest.cpp"
+
+#define TESTING 1
+
 #define LOADSAMPLES 1
 const int NUM_OF_SAME_SAMPLE = 5;
 
@@ -38,6 +42,10 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 #endif
 {
 	
+#ifdef TESTING
+	UnitTestRunner testRunner;
+	testRunner.runAllTests();
+#endif
 	
 	fileManager=new FileManager();
 	instrumentMap = std::map<int, NoteSound*>();
