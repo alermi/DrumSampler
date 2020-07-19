@@ -28,6 +28,7 @@ private:
 	std::map<String, BufferIterator> bufferIterators;
 	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;
 	AudioProcessor* processor;
-	const std::vector<String> micNames = MicController::getMicNames();
+	std::vector<String> micNames = MicController::getMicNames();
 	std::map<String, AudioSampleBuffer*>* micOutputs;
+
 };

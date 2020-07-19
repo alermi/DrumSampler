@@ -13,21 +13,23 @@
 #include "HitIterator.h"
 #include "MicController.h"
 #include "FileManager.h"
+#include "BlockEvents.h"
 
 #define MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL 4
 #define MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL 4
-#define FADE_OUT_SAMPLES 10
+#define FADE_OUT_SAMPLES 1000
 
 class VelocityLevelPlayer {
 private:
 	AudioProcessor* processor;
-	std::vector<HitIterator> hitIterators;
 	int levelNum;
 	std::vector<TriggerInformation> newTriggers;
 	std::vector<int> newKills;
 	std::vector<int> stopPoints;
-	HitIterator* findAvailableHitIterator();
+	//HitIterator* findAvailableHitIterator();
 	int blockSize;
+	HitIterator* hitIterator;
+	BlockEvents blockEvents;
 
 public:	
 	VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int numHitIterators, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs);
@@ -37,4 +39,7 @@ public:
 	void setBlockSize(int blockSize);
 	void createBuffers(FileManager* fileManager, NoteProperties* noteProperties);
 	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;
+	~VelocityLevelPlayer();
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VelocityLevelPlayer)
 };

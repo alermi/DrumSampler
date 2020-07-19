@@ -10,20 +10,17 @@
 
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "EventInformation.h"
 
-class TriggerInformation {
+class TriggerInformation : public EventInformation {
 public:
 
-	std::map<String, float> micGains;
-	float noteVelocity;
-	int timeStamp;
-	std::array<float, 2> monoPanValues;
-	std::vector<std::array<float, 2>> stereoPanValues;
 
-	TriggerInformation(std::map<String, float> micGains, float noteVelocity, int timeStamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues) {
+
+	TriggerInformation(std::map<String, float> micGains, float noteVelocity, int timeStamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues) 
+				: EventInformation(timeStamp, true) {
 		this->micGains = micGains;
 		this->noteVelocity = noteVelocity;
-		this->timeStamp = timeStamp;
 		this->monoPanValues = monoPanValues;
 		this->stereoPanValues = stereoPanValues;
 	}
@@ -40,4 +37,6 @@ public:
 			return false;
 		}
 	}
+
+	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TriggerInformation)
 };

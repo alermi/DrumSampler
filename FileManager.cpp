@@ -69,8 +69,7 @@ void FileManager::fillMidiMap() {
 		UINT robinNumber = GetPrivateProfileInt(_T("robinNumbers"), (instrumentString.c_str()), NULL, path);
 		UINT isInstrument = GetPrivateProfileInt(_T("isInstrument"), (instrumentString.c_str()), NULL, path);
 
-		NoteProperties note(i, velocityCount, robinNumber, isInstrument, generalControlString, specificControlString, instrumentString);
-		MidiMap.insert(std::pair<int, NoteProperties>(i, note));
+		MidiMap.insert({ i, NoteProperties(i, velocityCount, robinNumber, isInstrument, generalControlString, specificControlString, instrumentString) });
 
 		//MidiMap.insert(std::pair<int, std::pair<String, int>>(i, std::pair<String,int>(instrumentString, velocityCount)));
 	}

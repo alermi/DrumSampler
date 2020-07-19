@@ -21,142 +21,72 @@ VelocityLevelPlayer::VelocityLevelPlayer(AudioProcessor * processor, FileManager
 	this->stopPoints.reserve(MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL + MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL);
 
 	createBuffers(fileManager, noteProperties);
-	for (int i = 0; i < numHitIterators; i++) {
-		this->hitIterators.push_back(HitIterator(processor, micMap, micOutputs));
-	}
-  }
+	//for (int i = 0; i < numHitIterators; i++) {
+	//	this->hitIterators.push_back(HitIterator(processor, micMap, micOutputs));
+	//}
+	blockEvents.clear();
+
+	hitIterator = new HitIterator(processor, micMap, micOutputs);
+}
 
 void VelocityLevelPlayer::trigger(TriggerInformation triggerInfo) {
 
-
-	//TODO: Make sure there isnt already a trigger for the same timestamp value
-
-	if (newTriggers.size() < MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL) {
-		newTriggers.push_back(triggerInfo);
-	}
-	else {
-		jassertfalse;
-	}
-	//if (hitIterators.at(0).hasEnded()) {
-	//	hitIterators.at(0).trigger(triggerInfo);
-	//}
-	//else {
-	//	jassert(hitIterators.at(1).hasEnded());
-	//	hitIterators.at(1).trigger(triggerInfo);
-	//}
-
+	blockEvents.processEvent(triggerInfo);
 }
 void VelocityLevelPlayer::kill(int timeStamp)
 {
-	if (newKills.size() < MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL) {
-		newKills.push_back(timeStamp);
-	}
-	else {
-		jassertfalse;
-	}
+	blockEvents.processEvent(KillInformation(timeStamp));
 }
 void VelocityLevelPlayer::processBlock()
 {
-	for (TriggerInformation newTriggerInfo : newTriggers) {
-		if (stopPoints.size() < MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL + MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL) {
-			if (std::find(stopPoints.begin(), stopPoints.end(), newTriggerInfo.timeStamp) == stopPoints.end())
-			{
-				stopPoints.push_back(newTriggerInfo.timeStamp);
-			}
-			else {
-				// The stop point is already in the vector.
-				jassertfalse;
-			}
+
+	blockEvents.finishReceivingHits();
+
+	int copyUntil= 0;
+	int sampleAt = 0;
+
+	while (copyUntil < blockSize) {
+		if (blockEvents.hasMoreEvents()) {
+			copyUntil = blockEvents.peekAtNextEventTimeStamp();
+			jassert(copyUntil < blockSize);
 		}
 		else {
-			// The stopPoints vector has reached maximum size
-			jassertfalse;
+			copyUntil = blockSize;
 		}
-	}
-	for (int newKill : newKills) {
-		if (stopPoints.size() < MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL + MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL) {
-			if (std::find(stopPoints.begin(), stopPoints.end(), newKill) == stopPoints.end())
-			{
-				stopPoints.push_back(newKill);
+  		bool hasEnded = hitIterator->hasEnded();
+		if (!hasEnded) {
+			if (sampleAt < copyUntil) {
+				hitIterator->iterate(sampleAt, copyUntil, false);
 			}
-			else {
-				// The stop point is already in the vector.
-				jassertfalse;
+			sampleAt = copyUntil;
+		}
+		if (blockEvents.hasMoreEvents()) {
+			EventInformation nextEvent = blockEvents.getNextEvent();
+
+			//currSample = nextEvent.timeStamp;
+			if (!hitIterator->hasEnded()) {
+				hitIterator->iterate(nextEvent.timeStamp, nextEvent.timeStamp + FADE_OUT_SAMPLES, true);
+				jassert(hitIterator->hasEnded());
+				hitIterator->reset();
+			}
+
+			if (nextEvent.isNoteOn) {
+				TriggerInformation *triggerInfo = (TriggerInformation*)&nextEvent;
+				hitIterator->trigger(*triggerInfo);
 			}
 		}
-		else {
-			// The stopPoints vector has reached maximum size
-			jassertfalse;
-		}
-	}
-	std::sort(newKills.begin(), newKills.end());
-	std::sort(stopPoints.begin(), stopPoints.end());
-	std::sort(newTriggers.begin(), newTriggers.end(), TriggerInformation::compare);
-
-	// No new triggers or kills
-	//if (stopPoints.size() == 0) {
-		std::vector<HitIterator>::iterator it;
-		std::vector<HitIterator>::iterator end;
-		it = hitIterators.begin();
-		end = hitIterators.end();
-
-		//Loop through the iterators left from previous blocks and fill the current block
-		while (it != end) {
-			// Iterate wether or not it has ended.
-			// TODO: Check if this actually does not cause problems
-			it->iterate(0, this->blockSize, false);
-			it++;
-		}
-	//}
-	if (newTriggers.size() == 1) {
-		//TODO: Mute earlier active iterators
-		HitIterator* newHitIterator = findAvailableHitIterator();
-		if (newHitIterator != nullptr) {
-			newHitIterator->trigger(newTriggers.at(0));
-			newHitIterator->iterate(newTriggers.at(0).timeStamp, this->blockSize, false);
-
-			newTriggers.erase(newTriggers.begin());
-		}
 	}
 
-
-	//TODO: REMOVE, DEVELOPING
-	newKills.clear();
-	newTriggers.clear();
-	stopPoints.clear();
-
-	jassert(newKills.size() == 0);
-	jassert(newTriggers.size() == 0);
-	jassert(stopPoints.size() == 0);
-
-	//hitIterators.at(0).iterate(output, false);
-	//hitIterators.at(1).iterate(output, false);
+	blockEvents.startReceivingHits();
 
 }
 
 void VelocityLevelPlayer::setBlockSize(int blockSize)
 {
 	this->blockSize = blockSize;
-}
-
-HitIterator* VelocityLevelPlayer::findAvailableHitIterator() {
-
-	std::vector<HitIterator>::iterator it;
-	std::vector<HitIterator>::iterator end;
-	it = hitIterators.begin();
-	end = hitIterators.end();
-
-	//Loop through the iterators left from previous blocks and fill the current block
-	while (it != end) {
-		if (it->hasEnded()) {
-			jassert(it->timeStamp == -1);
-			return &*it;
-		}
-		it++;
-	}
-	jassertfalse;
-	//TODO: Change this into a more error friendly option
-	return nullptr;
+	blockEvents.clear();
+	this->blockEvents.setBlockSize(blockSize);
+	//this->blockEvents.startReceivingHits();
 }
 
 
@@ -198,6 +128,27 @@ void VelocityLevelPlayer::createBuffers(FileManager* fileManager, NoteProperties
 				}
 				micMap[micName][versionNumber] = buffer;
 			}
+		//}
+	}
+}
+
+VelocityLevelPlayer::~VelocityLevelPlayer()
+{
+
+	//TODO: Figure out why the free works well here but not when freeing the samples of BufferIterators.
+	delete hitIterator;
+	std::vector<String> micNames = MicController::getMicNames();
+	auto it = micMap.begin();
+	auto end = micMap.end();
+
+	while (it != end) {
+
+		for (int versionNumber = 0; versionNumber < HitIterator::NUM_OF_SAME_SAMPLE; versionNumber++) {
+
+			delete it->second[versionNumber];
+
+		}
+		it++;
 		//}
 	}
 }

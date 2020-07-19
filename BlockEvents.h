@@ -11,34 +11,38 @@
 #pragma once
 #include <vector>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "TriggerInformation.h"
+#include "KillInformation.h"
 
 class BlockEvents {
 
 public:
-	class Event {
-	public:
-		Event();
-		Event(int timeStamp, bool isNoteOn);
-		int timeStamp;
-		bool isNoteOn;
-	};
+	//class Event {
+	//public:
+	//	Event();
+	//	Event(int timeStamp, bool isNoteOn);
+	//	int timeStamp;
+	//	bool isNoteOn;
+	//};
 
 	BlockEvents();
 	void setBlockSize(int blockSize);
-	void processEvent(int timeStamp, bool isNoteOn);
-	void startProcessingHits();
-	void finishProcessingHits();
+	void processEvent(EventInformation eventInfo);
+	void startReceivingHits();
+	void finishReceivingHits();
 	bool isFull();
 	bool isEmpty();
 
-	Event getNextEvent();
+	EventInformation getNextEvent();
+	int peekAtNextEventTimeStamp();
 	bool hasMoreEvents();
 	void clear();
 private:
 	int blockSize;
-	bool isProcessingHits;
-	std::vector<Event>::iterator it;
-	std::vector<Event>::iterator end;
-	std::vector<Event> events;
+	bool isReceivingEvents;
+	std::vector<EventInformation>::iterator it;
+	std::vector<EventInformation>::iterator end;
+	std::vector<EventInformation> events;
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlockEvents)
 
 };

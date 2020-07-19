@@ -16,11 +16,12 @@ const int micToExtraChannelMap[] = { 3,3,4,4,5,6,7,1,1,1,1,2,3,1,1,1,1 };
 HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap, std::map<String, AudioSampleBuffer*>* micOutputs) {
 	this->processor = processor;
 	this->micMap = micMap;
-	this->bufferIterators = std::map<String, BufferIterator>();
+	//this->bufferIterators = std::map<String, BufferIterator>();
 	for (int i = 0; i < micNames.size(); i++) {
-		BufferIterator newPack;
 		String micName = micNames[i];
-		bufferIterators.insert(std::make_pair(micName, newPack));
+		bufferIterators[micName];
+		//bufferIterators.insert({ micName, BufferIterator() });
+		//bufferIterators.insert(std::make_pair(micName, BufferIterator()));
 		//bufferIterators->push_back(newPack);
 	}
 	timeStamp = -1;
@@ -74,7 +75,7 @@ void HitIterator::reset()
 	end = bufferIterators.end();
 
 	while (it != end) {
-		BufferIterator currPack = it->second;
+		//BufferIterator currPack = it->second;
 		it->second.reset();
 		it++;
 	}
@@ -94,7 +95,6 @@ void HitIterator::iterate(int startSample, int endSample, bool fadeOut)
 
 	//Loop through the iterators left from previous blocks and fill the current block
 	while (it != end) {
-		BufferIterator currPack = it->second;
 
 
 		if (it->second.hasEnded) {

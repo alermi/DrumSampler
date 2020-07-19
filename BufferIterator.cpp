@@ -21,6 +21,12 @@ BufferIterator::BufferIterator() {
 	this->hasEnded = true;
 }
 
+BufferIterator::~BufferIterator()
+{
+	//return;
+	//delete sample;
+}
+
 void BufferIterator::trigger(AudioSampleBuffer* sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber) {
 	this->sample = sample;
 	this->extraBusNumber = extraBusNumber;
@@ -43,7 +49,8 @@ void BufferIterator::reset() {
 	this->samplesLeft = -1;
 	// Sample that we last left at in the origin buffer
 	this->sampleLeftAt = -1;
-	jassert(hasEnded == true);
+	hasEnded = true;
+	//jassert(hasEnded == true);
 	//this->monoPanValues = std::vector<>;
 	//this->stereoPanValues = NULL;
 }

@@ -80,7 +80,14 @@ DrumSamplerAudioProcessor::~DrumSamplerAudioProcessor()
 	{
 		delete it->second;
 	}
+	for (auto const& x : micOutputs)
+	{
+		delete x.second;
+	}
+
+
 	delete fileManager;
+
 
 }
 
@@ -146,10 +153,10 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 {
 }
 //==============================================================================
-void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+ void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	reset();
-	srand(time(0));
+   	srand(time(0));
 	for (auto const& instrument : instrumentMap) {
 		instrument.second->setBlockSize(samplesPerBlock);
 	}
@@ -290,6 +297,9 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				//TODO: DELETE, TESTING PURPOSES
 				if (tempSound->noteProperties->noteNum == 50) {
 					instrumentMap[52]->killSound(timeStamp);
+				}
+				if (tempSound->noteProperties->noteNum == 80) {
+					instrumentMap[79]->killSound(timeStamp);
 				}
 			}
 		}

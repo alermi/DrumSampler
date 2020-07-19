@@ -29,13 +29,8 @@ public:
 	//String instrumentName;
 	//int velocityCount;
 	NoteProperties *noteProperties;
-	std::map<String, std::map<String, AudioSampleBuffer*>> micMap;
 	FileManager* fileManager;
-	list<HitIterator>* iterators;
 	AudioProcessor* processor;
-	//AudioSampleBuffer mainBuffer;
-	//static const int micToExtraChannelMap[7];S
-	//void createBuffers();
 	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor *processor);
 	void killSound(int killTimeStamp);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs);
@@ -50,5 +45,5 @@ private:
 	int blockSize;
 
 public:
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)
+	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)
 };

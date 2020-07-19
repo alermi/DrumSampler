@@ -15,7 +15,6 @@ const double PI = 3.141592653589793238462643383279502884;
 NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs) : velocityLevelPlayer(processor, fileManager, noteProperties, 2, 0, micOutputs) {
 	this->noteProperties = noteProperties;
 	this->fileManager = fileManager;
-	iterators = new list<HitIterator>();
 	this->processor = processor;
 	//createBuffers();
 	//TODO: This duplicate can be removed when the createBuffers is moved within the velocityLevelPlayer;
@@ -103,8 +102,7 @@ void NoteSound::triggerSound
 	//HitIterator newIterator(micMap, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
 	//iterators->push_back(newIterator);
 
-	TriggerInformation triggerInfo(micGains, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
-	velocityLevelPlayer.trigger(triggerInfo);
+	velocityLevelPlayer.trigger(TriggerInformation(micGains, noteVelocity, timeStamp, monoPanValues, stereoPanValues));
 	//if (hitIterator1->hasEnded()) {
 	//	hitIterator2->kill(timeStamp);
 	//	hitIterator1->trigger(micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
@@ -180,11 +178,10 @@ NoteSound::~NoteSound() {
 	//	delete micPointers[micNumber];
 	//}
 	//delete micPointers;
-	for (auto const& x : micMap)
-	{
-		for (auto const& y : x.second) {
-			delete y.second;
-		}
-	}
-	delete iterators;
+	//for (auto const& x : micMap)
+	//{
+	//	for (auto const& y : x.second) {
+	//		delete y.second;
+	//	}
+	//}
 }

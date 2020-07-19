@@ -10,28 +10,28 @@
 
 #include "BlockEvents.h"
 
-BlockEvents::Event::Event()
-{
-	this->timeStamp = -1;
-	this->isNoteOn = false;
-}
-
-BlockEvents::Event::Event(int timeStamp, bool isNoteOn)
-  {
-	this->timeStamp = timeStamp;
-	this->isNoteOn = isNoteOn;
-  }
+//BlockEvents::Event::Event()
+//{
+//	this->timeStamp = -1;
+//	this->isNoteOn = false;
+//}
+//
+//BlockEvents::Event::Event(int timeStamp, bool isNoteOn)
+//  {
+//	this->timeStamp = timeStamp;
+//	this->isNoteOn = isNoteOn;
+//  }
 
 
 BlockEvents::BlockEvents()
 {
-	this->isProcessingHits = true;
+	this->isReceivingEvents = true;
 	this->blockSize = 0;
 }
 
 void BlockEvents::setBlockSize(int blockSize)
 {
-	this->isProcessingHits = true;
+	this->isReceivingEvents = true;
 	this->events.clear();
 	this->blockSize = blockSize;
 	// TODO: reconsider the events size
@@ -39,30 +39,30 @@ void BlockEvents::setBlockSize(int blockSize)
 
 }
 
-void BlockEvents::processEvent(int timeStamp, bool isNoteOn)
+void BlockEvents::processEvent(EventInformation eventInfo)
 {
-	jassert(this->isProcessingHits);
+	jassert(this->isReceivingEvents);
 	
-	if (isFull() || timeStamp >= blockSize || timeStamp < 0) {
+	if (isFull() || eventInfo.timeStamp >= blockSize || eventInfo.timeStamp < 0) {
 		jassertfalse;
 		return;
 	}
-	
-	events.push_back(Event(timeStamp, isNoteOn));
+
+	events.push_back(eventInfo);
 }
 
 
 
-void BlockEvents::startProcessingHits()
+void BlockEvents::startReceivingHits()
 {
-	jassert(!this->isProcessingHits);
+	jassert(!this->isReceivingEvents);
 	jassert(this->isEmpty());
 	events.clear();
-	jassert(events.capacity() == (blockSize / 2));
-	this->isProcessingHits = true;
+ 	jassert(events.capacity() >= (blockSize / 2));
+	this->isReceivingEvents = true;
 }
 
-bool compareKillGreater(const BlockEvents::Event& first, const BlockEvents::Event& second)
+bool compareKillGreater(const EventInformation& first, const EventInformation& second)
 {
 	if (first.timeStamp == second.timeStamp) {
 		if (first.isNoteOn && !second.isNoteOn) {
@@ -82,10 +82,10 @@ bool compareKillGreater(const BlockEvents::Event& first, const BlockEvents::Even
 //}
 
 
-void BlockEvents::finishProcessingHits()
+void BlockEvents::finishReceivingHits()
 {
-	jassert(this->isProcessingHits);
-	this->isProcessingHits = false;
+	jassert(this->isReceivingEvents);
+	this->isReceivingEvents = false;
 	//this->events.sort(compareKillGreater);
 	//this->events.unique(compareTimeStamp);
 
@@ -100,6 +100,14 @@ void BlockEvents::finishProcessingHits()
 			next = it + 1;
 			end = events.end();
 		}
+		//TODO: CHeck if this works properly
+		if (!it->isNoteOn) {
+			while ((next != end) && (!next->isNoteOn)) {
+				events.erase(next);
+				next = it + 1;
+				end = events.end();
+			}
+		}
 		it++;
 	}
 	this->it = events.begin();
@@ -107,17 +115,25 @@ void BlockEvents::finishProcessingHits()
 }
 
 // Has to be checked before if the BlockEevents is not empty.
-BlockEvents::Event BlockEvents::getNextEvent()
+EventInformation BlockEvents::getNextEvent()
 {
-	jassert(isProcessingHits == false);
+	jassert(isReceivingEvents == false);
 	jassert(hasMoreEvents());
 
-	Event nextEvent = Event(it->timeStamp, it->isNoteOn);
+	//Event nextEvent = Event(it->timeStamp, it->isNoteOn);
 	//if (it != end) {
 	//	events.erase(it);
 	//}
+	EventInformation nextEvent = *it;
 	it++;
 	return nextEvent;
+}
+
+int BlockEvents::peekAtNextEventTimeStamp()
+{
+	jassert(isReceivingEvents == false);
+	jassert(hasMoreEvents());
+	return it->timeStamp;
 }
 
 bool BlockEvents::hasMoreEvents()
@@ -126,17 +142,17 @@ bool BlockEvents::hasMoreEvents()
 }
 
 bool BlockEvents::isFull() {
-	jassert(events.capacity() == (blockSize / 2));
+ 	jassert(events.capacity() >= (blockSize / 2));
 	return (events.size() >= (blockSize / 2));
 }
 
 bool BlockEvents::isEmpty() {
-	jassert(!isProcessingHits);
+	jassert(!isReceivingEvents);
 	return it == end;
 }
 
 void BlockEvents::clear() {
-	isProcessingHits = true;
+	isReceivingEvents = true;
 	blockSize = 0;
 	events.clear();
 }
