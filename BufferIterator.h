@@ -38,4 +38,5 @@ public:
 private:
 	int getSamplesToCopy(int startSample, int endSample);
 	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BufferIterator)
+	JUCE_LEAK_DETECTOR(BufferIterator)
 };

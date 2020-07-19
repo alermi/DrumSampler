@@ -308,33 +308,20 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 		//buffer.getWritePointer(0)[0] = -1.0f;
 	}
 
-	//AudioSampleBuffer tempBuffer = AudioSampleBuffer(2, buffer.getNumSamples());
-
-	//micOutputs["temp"] = &tempBuffer;
-	//tempBuffer.clear();
-	//micOutputs["main"] = &buffer;
 
 	map<int, NoteSound*>::iterator it;
 	// Fills the buffer with all already activate instruments
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
-		//TODO: REMOVE THE BUFFER ARGUMENT
 		it->second->fillFromIterators();
 	}
 
-	for (auto const& mic : micOutputs) {
-		buffer.addFrom(0, 0, *mic.second, 0, 0, buffer.getNumSamples());
-		buffer.addFrom(1, 0, *mic.second, 1, 0, buffer.getNumSamples());
-	}
-
-
-	//for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
-	//	AudioSampleBuffer* currBuffer = iter->second;
-	//	buffer.addFrom(0, 0, *iter->second, 0, 0, buffer.getNumSamples());
+	//for (auto const& mic : micOutputs) {
+	//	buffer.addFrom(0, 0, *mic.second, 0, 0, buffer.getNumSamples());
+	//	buffer.addFrom(1, 0, *mic.second, 1, 0, buffer.getNumSamples());
 	//}
-
+	outputManager.processBlock(this, &buffer, &micOutputs);
 	midiMessages.clear();
-	//buffer.getWritePointer(0)[0] = -1.0f;
 }
 
 //==============================================================================

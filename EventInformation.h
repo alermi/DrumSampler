@@ -22,4 +22,6 @@ public:
 		this->isNoteOn = isNoteOn;
 	}
 	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventInformation)
+
+	JUCE_LEAK_DETECTOR(EventInformation)
 };

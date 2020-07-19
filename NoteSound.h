@@ -46,4 +46,5 @@ private:
 
 public:
 	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)
+	JUCE_LEAK_DETECTOR(NoteSound)
 };

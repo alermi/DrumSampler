@@ -30,5 +30,5 @@ public:
 		this->instrumentName = instrumentName;
 	}
 	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteProperties)
-
+	JUCE_LEAK_DETECTOR(NoteProperties)
 };
