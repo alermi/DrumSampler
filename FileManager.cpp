@@ -48,9 +48,11 @@ void FileManager::fillMidiMap() {
 
 	for (i = 0; i < 256; i++) {
 		LPSTR instrumentCharArray[50];
-		LPSTR controlCharArray[50];
+		LPSTR generalControlCharArray[50];
+		LPSTR specificControlCharArray[50];
 		std::string instrumentString;
-		std::string controlString;
+		std::string generalControlString;
+		std::string specificControlString;
 		std::string tempStr = std::to_string(i);
 		LPCSTR key_ptr = tempStr.c_str();
 
@@ -59,14 +61,15 @@ void FileManager::fillMidiMap() {
 		if (instrumentString.compare("") == 0) {
 			continue;
 		}
-		GetPrivateProfileString(_T("controllerMap"), (instrumentString.c_str()), NULL, (LPSTR)controlCharArray, sizeof(controlCharArray), path);
-		controlString = (LPSTR)controlCharArray;
+		GetPrivateProfileString(_T("generalControllerMap"), (instrumentString.c_str()), NULL, (LPSTR)generalControlCharArray, sizeof(generalControlCharArray), path);
+		GetPrivateProfileString(_T("specificControllerMap"), (instrumentString.c_str()), NULL, (LPSTR)specificControlCharArray, sizeof(specificControlCharArray), path);
+		generalControlString = (LPSTR)generalControlCharArray;
+		specificControlString = (LPSTR)specificControlCharArray;
 		UINT velocityCount = GetPrivateProfileInt(_T("velocities"), (instrumentString.c_str()), NULL, path);
 		UINT robinNumber = GetPrivateProfileInt(_T("robinNumbers"), (instrumentString.c_str()), NULL, path);
 		UINT isInstrument = GetPrivateProfileInt(_T("isInstrument"), (instrumentString.c_str()), NULL, path);
 
-		NoteProperties note(i, velocityCount, robinNumber, isInstrument, controlString, instrumentString);
-		MidiMap.insert(std::pair<int, NoteProperties>(i, note));
+		MidiMap.insert({ i, NoteProperties(i, velocityCount, robinNumber, isInstrument, generalControlString, specificControlString, instrumentString) });
 
 		//MidiMap.insert(std::pair<int, std::pair<String, int>>(i, std::pair<String,int>(instrumentString, velocityCount)));
 	}

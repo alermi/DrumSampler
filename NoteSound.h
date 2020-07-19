@@ -10,7 +10,11 @@
 //#include "../JuceLibraryCode/JuceHeader.h"
 #pragma once
 #include "FileManager.h"
-#include "IteratorPack.h"
+//#include "BufferIterator.h"
+#include "MicController.h"
+#include "HitIterator.h"
+#include "VelocityLevelPlayer.h"
+
 #include <vector>
 #include <list>
 #include <iterator>
@@ -20,19 +24,27 @@
 using namespace std;
 
 class NoteSound {
+
 public:
 	//String instrumentName;
 	//int velocityCount;
 	NoteProperties *noteProperties;
-	AudioSampleBuffer*** micPointers;
 	FileManager* fileManager;
-	list<IteratorPack>* iterators;
 	AudioProcessor* processor;
-	//AudioSampleBuffer mainBuffer;
-	//static const int micToExtraChannelMap[7];
-	void createBuffers();
-	void triggerSound(std::vector<float> micGains, float noteVelocity, int timeStamp, float monoPan, float stereoPan[2], AudioProcessor *processor);
-	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor);
-	void fillFromIterators(AudioSampleBuffer output);
+	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor *processor);
+	void killSound(int killTimeStamp);
+	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs);
+	void fillFromIterators();
+	void setBlockSize(int blockSize);
 	~NoteSound();
+
+private:
+	//HitIterator *hitIterator1;
+	//HitIterator *hitIterator2;
+	VelocityLevelPlayer velocityLevelPlayer;
+	int blockSize;
+
+public:
+	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)
+	JUCE_LEAK_DETECTOR(NoteSound)
 };

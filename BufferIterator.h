@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    IteratorPack.h
+    BufferIterator.h
     Created: 16 Aug 2019 9:59:19pm
     Author:  Ani
 
@@ -14,11 +14,12 @@
 #include <array>
 #include <iterator>
 
-class IteratorPack {
+#define SAMPLES_TO_KILL 100
+
+class BufferIterator {
 public:
-	AudioSampleBuffer *address;
+	AudioSampleBuffer *sample;
 	int sampleLeftAt;
-	int timestamp;
 	float velocity;
 	int samplesLeft;
 	int channelNum;
@@ -28,7 +29,14 @@ public:
 	std::array<float, 2> monoPanValues;
 	std::vector<std::array<float, 2>> stereoPanValues;
 
-	IteratorPack(AudioSampleBuffer *address, float velocity, int samplesLeft, int timestamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber);
+	BufferIterator();
+	~BufferIterator();
 	//void iterate(AudioSampleBuffer output);
-	void iterate(std::array<AudioSampleBuffer*, 2> outputs);
+	void iterate(AudioSampleBuffer* output, int startSample, int endSample, bool fadeOut);
+	void trigger(AudioSampleBuffer *sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber);
+	void reset();
+private:
+	int getSamplesToCopy(int startSample, int endSample);
+	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BufferIterator)
+	JUCE_LEAK_DETECTOR(BufferIterator)
 };
