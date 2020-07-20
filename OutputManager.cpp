@@ -15,7 +15,17 @@ OutputManager::OutputManager(int fadeOutSamples) {
 		this->overflowBuffers[micName].setSize(2, fadeOutSamples);
 		this->overflowBuffers[micName].clear();
 	}
+	for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
+		this->outputBuffers[i] = AudioSampleBuffer(2, 0);
+	}
 	this->fadeOutSamples = fadeOutSamples;
+}
+
+void OutputManager::prepareToPlay(int blockSize) {
+	for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
+		this->outputBuffers[i].setSize(2, blockSize);
+	}
+	//ResamplingAudioSource resampling = ResamplingAudioSource(outputBuffers[0], false, 2);
 }
 
 void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *outputBuffer, std::map<String, AudioSampleBuffer*> *micOutputs) {

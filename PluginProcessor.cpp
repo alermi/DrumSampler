@@ -155,6 +155,7 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 //==============================================================================
  void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	 //int adjustedBlockSize = 
 	reset();
    	srand(time(0));
 	for (auto const& instrument : instrumentMap) {
@@ -163,6 +164,7 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 	for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
 		iter->second->setSize(2, samplesPerBlock + FADE_OUT_SAMPLES);
 	}
+	outputManager.prepareToPlay(samplesPerBlock);
 }
 
 void DrumSamplerAudioProcessor::releaseResources()

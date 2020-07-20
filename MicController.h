@@ -30,22 +30,22 @@ static const std::map<String, int> MIC_CHANNEL_COUNT_MAP = {
 	{"oh", 2}
 };
 static const std::map<String, int> MIC_EXTRA_CHANNEL_MAP = {
-	{"kickin", 1},
-	{"kickout", 1},
-	{"kicksub", 1},
-	{"snrtop", 2},
-	{"snrbot", 2},
-	{"tom1", 3},
-	{"tom2", 3},
-	{"tom3", 3},
-	{"tom4", 3},
-	{"tom5", 3},
-	{"hh", 4},
-	{"ride", 5},
-	{"roommono", 6},
-	{"roomstereo", 6},
-	{"roomfar", 6},
-	{"oh", 7}
+	{"kickin", 0},
+	{"kickout", 0},
+	{"kicksub", 0},
+	{"snrtop", 1},
+	{"snrbot", 1},
+	{"tom1", 2},
+	{"tom2", 2},
+	{"tom3", 2},
+	{"tom4", 2},
+	{"tom5", 2},
+	{"hh", 3},
+	{"ride", 4},
+	{"roommono", 5},
+	{"roomstereo", 5},
+	{"roomfar", 5},
+	{"oh", 6}
 };
 class MicController {
 public:

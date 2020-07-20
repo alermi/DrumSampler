@@ -23,50 +23,6 @@ NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, A
 	//this->hitIterator2 = new HitIterator(processor, micMap);
 }
 
-
-////TODO: Move this into VelocityLevelPlayer?
-//void NoteSound::createBuffers() {
-//	this->micMap = std::map<String, std::map<String, AudioSampleBuffer*>>();
-//
-//	vector<String> micNames = MicController::getMicNames();
-//	std::map<String, int> micChannelMap = MicController::getMicChannelMap();
-//
-//	for (int micNumber = 0; micNumber < micNames.size(); micNumber++) {
-//		String micName = micNames[micNumber];
-//		bool arrayCreated = 0;
-//
-//
-//		//this->micMap.insert({ micName, std::map<String, AudioSampleBuffer*>() });
-//		this->micMap[micName] = std::map<String, AudioSampleBuffer*>();
-//
-//		std::map<String, AudioSampleBuffer*> velocityMicMap = micMap[micName];
-//		for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
-//			String velocityName;
-//			//velocityName.append("v", 1);
-//			velocityName.append(String(velocityNumber + 1), 1);
-//
-//			for (int versionNumber = 0; versionNumber < VelocityLevelPlayer::NUM_OF_SAME_SAMPLE; versionNumber++) {
-//
-//				String version;
-//				version.append(String(versionNumber + 1), 1);
-//				// TODO: Adjust for real samples
-//				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + " " + micName + " " + velocityName + " " + version + ".wav";
-//				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v1_r1" + ".wav";
-//				auto buffer = fileManager->readBuffer(pathName);
-//
-//				// If the file exists, make sure that you get the right amount of channels
-//				int wantedChannelNum = micChannelMap[micName];
-//				int receivedChanelNum = buffer->getNumChannels();
-//				if (receivedChanelNum != 0) {
-//					jassert(wantedChannelNum == receivedChanelNum);
-//				}
-//				String indexString = VelocityLevelPlayer::getBufferMapKey(velocityNumber, versionNumber);
-//				micMap[micName][indexString] = buffer;
-//			}
-//		}
-//	}
-//}
-
 void NoteSound::triggerSound
 ( std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor* processor) {
 
@@ -117,26 +73,9 @@ void NoteSound::triggerSound
 
 
 void NoteSound::fillFromIterators() {
-	//std::list<HitIterator>::iterator it;
-	//std::list<HitIterator>::iterator end;
-	//it = iterators->begin();
-	//end = iterators->end();
 
-	////Loop through the iterators left from previous blocks and fill the current block
-	//while (it != end) {
-	//	HitIterator currPack = *it;
-	//	it->iterate(output);
-	//	if (it->hasEnded()) {
-	//		it = iterators->erase(it);
-	//	}
-	//	else {
-	//		it++;
-	//	}
-	//}
-
+	//TODO: Loop through all velocityLevelPlayers in the future.
 	this->velocityLevelPlayer.processBlock();
-	//hitIterator1->iterate(output, false);
-	//hitIterator2->iterate(output, false);
 }
 
 void NoteSound::setBlockSize(int blockSize)
@@ -149,39 +88,12 @@ void NoteSound::setBlockSize(int blockSize)
 
 void NoteSound::killSound(int killTimeStamp)
 {
-	//std::list<HitIterator>::iterator it;
-	//std::list<HitIterator>::iterator end;
-	//it = iterators->begin();
-	//end = iterators->end();
 
-	////Loop through the iterators left from previous blocks and fill the current block
-	//while (it != end) {
-	//	// If this comparison was strictly less, there may be issues when both are 0
-	//	// This is also checked in the kill function. If this is going to be changed, both must be changed.
-	//	it->kill(killTimeStamp);
-	//	
-	//	it++;
-	//}
+	//TODO: Loop through all velocityLevelPlayers in the future.
 	this->velocityLevelPlayer.kill(killTimeStamp);
-	//hitIterator1->kill(killTimeStamp);
-	//hitIterator2->kill(killTimeStamp);
 
 }
 
 NoteSound::~NoteSound() {
-	//for (int micNumber = 0; micNumber < MIC_COUNT; micNumber++) {
-	//	for (int velocityNumber = 0; velocityNumber < this->noteProperties->velocityCount; velocityNumber++) {
-	//		for (int versionNumber = 0; versionNumber < NUM_OF_SAME_SAMPLE; versionNumber++) {
-	//			delete micPointers[micNumber][(velocityNumber*NUM_OF_SAME_SAMPLE) + (versionNumber)];
-	//		}
-	//	}
-	//	delete micPointers[micNumber];
-	//}
-	//delete micPointers;
-	//for (auto const& x : micMap)
-	//{
-	//	for (auto const& y : x.second) {
-	//		delete y.second;
-	//	}
-	//}
+
 }

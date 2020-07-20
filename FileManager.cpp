@@ -84,17 +84,17 @@ AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 		AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
 		reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
 
-		Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
-		float max1 = (std::max)(abs(range1.getStart()), abs(range1.getEnd()));
-		newBuffer->applyGain(0, 0, newBuffer->getNumSamples(), 1 / max1);
-		newBuffer->applyGainRamp(0, 0, 10, 0, 1);
+		//Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
+		//float max1 = (std::max)(abs(range1.getStart()), abs(range1.getEnd()));
+		//newBuffer->applyGain(0, 0, newBuffer->getNumSamples(), 1 / max1);
+		//newBuffer->applyGainRamp(0, 0, 10, 0, 1);
 
-		if (newBuffer->getNumChannels() == 2) {
-			Range<float> range2 = newBuffer->findMinMax(1, 0, reader->lengthInSamples);
-			float max2 = (std::max)(abs(range2.getStart()), abs(range2.getEnd()));
-			newBuffer->applyGain(1, 0, newBuffer->getNumSamples(), 1 / max2);
-			newBuffer->applyGainRamp(1, 0, 10, 0, 1);
-		}
+		//if (newBuffer->getNumChannels() == 2) {
+		//	Range<float> range2 = newBuffer->findMinMax(1, 0, reader->lengthInSamples);
+		//	float max2 = (std::max)(abs(range2.getStart()), abs(range2.getEnd()));
+		//	newBuffer->applyGain(1, 0, newBuffer->getNumSamples(), 1 / max2);
+		//	newBuffer->applyGainRamp(1, 0, 10, 0, 1);
+		//}
 
 		return newBuffer;
 	}
