@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    OutputManager.cpp
-    Created: 13 Jul 2020 10:27:39pm
-    Author:  Ani
+	OutputManager.cpp
+	Created: 13 Jul 2020 10:27:39pm
+	Author:  Ani
 
   ==============================================================================
 */
@@ -34,11 +34,28 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 		int samplesLeftInOverflow = fadeOutSamples - numSamplesToCopy;
 		jassert(samplesLeftInOverflow >= 0);
 
+		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
+		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
+		for (auto currOutputBuffer : { mainBuffer, extraBuffer }) {
+			int currBufferChannelCount = currOutputBuffer.getNumChannels();
+			jassert(currBufferChannelCount == 0 || currBufferChannelCount == 2);
+			// If the output channel is available, do all the rest of the stuff
+			if (currOutputBuffer.getNumChannels() == 0) {
+				continue;
+			}
+			else {
+				for (int i = 0; i < 2; i++) {
+					// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
+					currOutputBuffer.addFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
+					currOutputBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
+				}
+			}
+		}
 		// Loop for each channel
 		for (int i = 0; i < 2; i++) {
 			// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
-			mainBuffer.addFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
-			mainBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
+			//mainBuffer.addFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
+			//mainBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
 			// Preparing the overflow buffer for the next block
 			// If the overflowBuffer is bigger than the output buffer, have to shift data
 			if (samplesLeftInOverflow > 0) {

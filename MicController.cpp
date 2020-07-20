@@ -18,18 +18,21 @@ MicController::MicController(AudioProcessorValueTreeState* treeState)
 std::vector<String> MicController::getMicNames()
 {
 	std::vector<String> micNames;
-	micNames.reserve(MIC_CHANNEL_MAP.size());
-	for (auto const& imap : MIC_CHANNEL_MAP)
+	micNames.reserve(MIC_CHANNEL_COUNT_MAP.size());
+	for (auto const& imap : MIC_CHANNEL_COUNT_MAP)
 		micNames.push_back(imap.first);
 
 	return std::vector<String>(micNames);
 }
 
-std::map<String, int> MicController::getMicChannelMap()
+std::map<String, int> MicController::getMicChannelCountMap()
 {
-	return MIC_CHANNEL_MAP;
+	return MIC_CHANNEL_COUNT_MAP;
 }
-
+std::map<String, int> MicController::getMicExtraChannelMap()
+{
+	return MIC_EXTRA_CHANNEL_MAP;
+}
 std::map<String, float> MicController::getMicGains(String generalControllerName, String specificControllerName)
 {
 

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-static const std::map<String, int> MIC_CHANNEL_MAP = {
+static const std::map<String, int> MIC_CHANNEL_COUNT_MAP = {
 	{"kickin", 1},
 	{"kickout", 1},
 	{"kicksub", 1},
@@ -29,13 +29,31 @@ static const std::map<String, int> MIC_CHANNEL_MAP = {
 	{"roomfar", 2},
 	{"oh", 2}
 };
-
+static const std::map<String, int> MIC_EXTRA_CHANNEL_MAP = {
+	{"kickin", 1},
+	{"kickout", 1},
+	{"kicksub", 1},
+	{"snrtop", 2},
+	{"snrbot", 2},
+	{"tom1", 3},
+	{"tom2", 3},
+	{"tom3", 3},
+	{"tom4", 3},
+	{"tom5", 3},
+	{"hh", 4},
+	{"ride", 5},
+	{"roommono", 6},
+	{"roomstereo", 6},
+	{"roomfar", 6},
+	{"oh", 7}
+};
 class MicController {
 public:
 	MicController(AudioProcessorValueTreeState *treeState);
 
 	static std::vector<String> getMicNames();
-	static std::map<String, int> getMicChannelMap();
+	static std::map<String, int> getMicChannelCountMap();
+	static std::map<String, int> getMicExtraChannelMap();
 	//LEFT OFF: In order to complete this getMicGain, create a constructor with the treeState to get the parameters from
 	std::map<String, float> getMicGains(String generalControllerName, String specificControllerName);
 	std::map<String, float> getEmptyMicGains();

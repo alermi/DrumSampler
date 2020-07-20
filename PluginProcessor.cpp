@@ -28,13 +28,13 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
      , AudioProcessor (BusesProperties()
                      //#if ! JucePlugin_IsMidiEffect
                         .withOutput ("Master", AudioChannelSet::stereo(), true)
-						.withOutput("Room Stereo", AudioChannelSet::stereo(), true)
-						.withOutput("Overhead Stereo", AudioChannelSet::stereo(), true)
-						.withOutput("Kick", AudioChannelSet::mono(), true)
-						.withOutput("Snare", AudioChannelSet::mono(), true)
-						.withOutput("Tom1", AudioChannelSet::mono(), true)
-						.withOutput("Tom2", AudioChannelSet::mono(), true)
-						.withOutput("Tom3", AudioChannelSet::mono(), true)
+						.withOutput("Kick", AudioChannelSet::stereo(), true)
+						.withOutput("Snare", AudioChannelSet::stereo(), true)
+						.withOutput("Toms", AudioChannelSet::stereo(), true)
+						.withOutput("HiHat", AudioChannelSet::stereo(), true)
+						.withOutput("Ride", AudioChannelSet::stereo(), true)
+						.withOutput("Room", AudioChannelSet::stereo(), true)
+						.withOutput("OH", AudioChannelSet::stereo(), true)
 
 
                      //#endif
@@ -200,19 +200,19 @@ bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 	if (layouts.getChannelSet(false, 2) != AudioChannelSet::stereo()) {
 		return false;
 	}
-	if (layouts.getChannelSet(false, 3) != AudioChannelSet::mono()) {
+	if (layouts.getChannelSet(false, 3) != AudioChannelSet::stereo()) {
 		return false;
 	}
-	if (layouts.getChannelSet(false, 4) != AudioChannelSet::mono()) {
+	if (layouts.getChannelSet(false, 4) != AudioChannelSet::stereo()) {
 		return false;
 	}
-	if (layouts.getChannelSet(false, 5) != AudioChannelSet::mono()) {
+	if (layouts.getChannelSet(false, 5) != AudioChannelSet::stereo()) {
 		return false;
 	}
-	if (layouts.getChannelSet(false, 6) != AudioChannelSet::mono()) {
+	if (layouts.getChannelSet(false, 6) != AudioChannelSet::stereo()) {
 		return false;
 	}
-	if (layouts.getChannelSet(false, 7) != AudioChannelSet::mono()) {
+	if (layouts.getChannelSet(false, 7) != AudioChannelSet::stereo()) {
 		return false;
 	}
 

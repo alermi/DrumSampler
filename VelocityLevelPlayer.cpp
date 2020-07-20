@@ -95,7 +95,7 @@ void VelocityLevelPlayer::createBuffers(FileManager* fileManager, NoteProperties
 	this->micMap = std::map<String, std::map<int, AudioSampleBuffer*>>();
 
 	std::vector<String> micNames = MicController::getMicNames();
-	std::map<String, int> micChannelMap = MicController::getMicChannelMap();
+	std::map<String, int> micChannelMap = MicController::getMicChannelCountMap();
 
 	for (int micNumber = 0; micNumber < micNames.size(); micNumber++) {
 		String micName = micNames[micNumber];
