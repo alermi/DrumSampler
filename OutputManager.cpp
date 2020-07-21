@@ -15,16 +15,17 @@ OutputManager::OutputManager(int fadeOutSamples) {
 		this->overflowBuffers[micName].setSize(2, fadeOutSamples);
 		this->overflowBuffers[micName].clear();
 	}
-	for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
-		this->outputBuffers[i] = AudioSampleBuffer(2, 0);
-	}
+	//for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
+	//	this->outputBuffers[i] = AudioSampleBuffer(2, 0);
+	//}
 	this->fadeOutSamples = fadeOutSamples;
 }
 
 void OutputManager::prepareToPlay(int blockSize) {
-	for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
-		this->outputBuffers[i].setSize(2, blockSize);
-	}
+	//for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
+	//	this->outputBuffers[i].setSize(2, blockSize);
+	//}
+	resamplingBuffer.setSize(2, blockSize);
 	//ResamplingAudioSource resampling = ResamplingAudioSource(outputBuffers[0], false, 2);
 }
 
@@ -46,19 +47,24 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 
 		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
 		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
+		resamplingBuffer.clear();
+		for (int i = 0; i < 2; i++) {
+			// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
+			resamplingBuffer.addFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
+			resamplingBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
+		}
+		//resample(currOverflowBuffer, 0, numSamplesToCopy, resamplingBuffer, 0, numSamplesToCopy);
+		//resample(currMicOutput, 0, outputBlockSize, resamplingBuffer, 0, outputBlockSize);
 		for (auto currOutputBuffer : { mainBuffer, extraBuffer }) {
 			int currBufferChannelCount = currOutputBuffer.getNumChannels();
 			jassert(currBufferChannelCount == 0 || currBufferChannelCount == 2);
 			// If the output channel is available, do all the rest of the stuff
-			if (currOutputBuffer.getNumChannels() == 0) {
-				continue;
+			if (currBufferChannelCount == 2) {
+				currOutputBuffer.addFrom(0, 0, resamplingBuffer, 0, 0, resamplingBuffer.getNumSamples());
+				currOutputBuffer.addFrom(1, 0, resamplingBuffer, 1, 0, resamplingBuffer.getNumSamples());
 			}
 			else {
-				for (int i = 0; i < 2; i++) {
-					// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
-					currOutputBuffer.addFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
-					currOutputBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
-				}
+				continue;
 			}
 		}
 		// Loop for each channel
@@ -81,4 +87,11 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 
 		//TODO: Add extra routings for each mic
 	}
+}
+
+void OutputManager::resample(AudioSampleBuffer& source, int sourceStartSample, int sourceNumSamples, AudioSampleBuffer& output, int destStartSample, int destNumSamples) {
+	this->interpolator.reset();
+	double speedRatio = ((double)sourceNumSamples) / ((double) destNumSamples);
+	interpolator.processAdding(speedRatio, source.getReadPointer(0), output.getWritePointer(0), destNumSamples, 1.0f);
+	interpolator.processAdding(speedRatio, source.getReadPointer(1), output.getWritePointer(1), destNumSamples, 1.0f);
 }
