@@ -18,11 +18,13 @@ public:
 	void processBlock(AudioProcessor * processor, AudioSampleBuffer *outputBuffer, std::map<String, AudioSampleBuffer*> *micOutputs);
 	void prepareToPlay(int blockSize);
 private:
-	void resample(AudioSampleBuffer& source, int sourceStartSample, int sourceNumSamples, AudioSampleBuffer& output, int destStartSample, int destNumSamples);
-	LinearInterpolator interpolator;
+	void resample(AudioSampleBuffer& source, int sourceStartSample, int sourceNumSamples, AudioSampleBuffer& output, int destStartSample, int destNumSamples, LinearInterpolator* interpolator, int channelNum);
+	//LinearInterpolator interpolator;
 	AudioSampleBuffer resamplingBuffer;
+	AudioSampleBuffer summingBuffer;
 	AudioSampleBuffer outputBuffers[NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN];
 	std::map<String, AudioSampleBuffer> overflowBuffers;
+	std::map<String, std::pair<LinearInterpolator, LinearInterpolator>> interpolators;
 	int fadeOutSamples;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OutputManager)
 };

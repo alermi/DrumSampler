@@ -18,6 +18,12 @@ OutputManager::OutputManager(int fadeOutSamples) {
 	//for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
 	//	this->outputBuffers[i] = AudioSampleBuffer(2, 0);
 	//}
+	for (String micName : MicController::getMicNames()) {
+		//TODO: Reconsider the initial number of samples.
+		interpolators[micName].first.reset();
+		interpolators[micName].second.reset();
+	}
+
 	this->fadeOutSamples = fadeOutSamples;
 }
 
@@ -26,6 +32,7 @@ void OutputManager::prepareToPlay(int blockSize) {
 	//	this->outputBuffers[i].setSize(2, blockSize);
 	//}
 	resamplingBuffer.setSize(2, blockSize);
+	summingBuffer.setSize(2, blockSize);
 	//ResamplingAudioSource resampling = ResamplingAudioSource(outputBuffers[0], false, 2);
 }
 
@@ -47,14 +54,15 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 
 		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
 		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
-		resamplingBuffer.clear();
+		//resamplingBuffer.clear();
 		for (int i = 0; i < 2; i++) {
 			// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
-			resamplingBuffer.addFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
-			resamplingBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
+			summingBuffer.copyFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
+			summingBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
 		}
 		//resample(currOverflowBuffer, 0, numSamplesToCopy, resamplingBuffer, 0, numSamplesToCopy);
-		//resample(currMicOutput, 0, outputBlockSize, resamplingBuffer, 0, outputBlockSize);
+		resample(summingBuffer, 0, outputBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].first, 0);
+		resample(summingBuffer, 0, outputBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].second, 1);
 		for (auto currOutputBuffer : { mainBuffer, extraBuffer }) {
 			int currBufferChannelCount = currOutputBuffer.getNumChannels();
 			jassert(currBufferChannelCount == 0 || currBufferChannelCount == 2);
@@ -89,9 +97,11 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 	}
 }
 
-void OutputManager::resample(AudioSampleBuffer& source, int sourceStartSample, int sourceNumSamples, AudioSampleBuffer& output, int destStartSample, int destNumSamples) {
-	this->interpolator.reset();
+void OutputManager::resample(AudioSampleBuffer& source, int sourceStartSample, int sourceNumSamples, AudioSampleBuffer& output, int destStartSample, int destNumSamples, LinearInterpolator* interpolator, int channelNum) {
+	//this->interpolator.reset();
 	double speedRatio = ((double)sourceNumSamples) / ((double) destNumSamples);
-	interpolator.processAdding(speedRatio, source.getReadPointer(0), output.getWritePointer(0), destNumSamples, 1.0f);
-	interpolator.processAdding(speedRatio, source.getReadPointer(1), output.getWritePointer(1), destNumSamples, 1.0f);
+	interpolator->process(speedRatio, source.getReadPointer(channelNum), output.getWritePointer(channelNum), destNumSamples);
+	//this->interpolator.reset();
+	//int b = interpolator.processAdding(speedRatio, source.getReadPointer(1), output.getWritePointer(1), destNumSamples, 1.0f);
+	return;
 }
