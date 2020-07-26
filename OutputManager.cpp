@@ -25,30 +25,34 @@ OutputManager::OutputManager(int fadeOutSamples) {
 	}
 
 	this->fadeOutSamples = fadeOutSamples;
+	this->outputBlockSize = 0;
+	this->samplingBlockSize = 0;
 }
 
-void OutputManager::prepareToPlay(int blockSize) {
+void OutputManager::prepareToPlay(int samplingBlockSize, int outputBlockSize) {
 	//for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
 	//	this->outputBuffers[i].setSize(2, blockSize);
 	//}
-	resamplingBuffer.setSize(2, blockSize);
-	summingBuffer.setSize(2, blockSize);
+	this->outputBlockSize = outputBlockSize;
+	this->samplingBlockSize = samplingBlockSize;
+	resamplingBuffer.setSize(2, outputBlockSize);
+	summingBuffer.setSize(2, samplingBlockSize);
 	//ResamplingAudioSource resampling = ResamplingAudioSource(outputBuffers[0], false, 2);
 }
 
 void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *outputBuffer, std::map<String, AudioSampleBuffer*> *micOutputs) {
 	AudioSampleBuffer &mainBuffer = processor->getBusBuffer(*outputBuffer, false, 0);
 	//mainBuffer.getWritePointer(0)[0] = 1.0f;
-	int outputBlockSize = mainBuffer.getNumSamples();
+	jassert(outputBlockSize == mainBuffer.getNumSamples());
 	for (auto const& micOutput : *micOutputs) {
 		String currMicName = micOutput.first;
 		AudioSampleBuffer &currMicOutput = *micOutput.second;
 		AudioSampleBuffer &currOverflowBuffer = overflowBuffers[currMicName];
 		jassert(currMicOutput.getNumChannels() == 2);
 		jassert(currOverflowBuffer.getNumChannels() == 2);
-		jassert(currMicOutput.getNumSamples() == outputBlockSize + fadeOutSamples);
+		jassert(currMicOutput.getNumSamples() == samplingBlockSize + fadeOutSamples);
 
-		int numSamplesToCopy = std::min(outputBlockSize, fadeOutSamples);
+		int numSamplesToCopy = std::min(samplingBlockSize, fadeOutSamples);
 		int samplesLeftInOverflow = fadeOutSamples - numSamplesToCopy;
 		jassert(samplesLeftInOverflow >= 0);
 
@@ -58,11 +62,11 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 		for (int i = 0; i < 2; i++) {
 			// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
 			summingBuffer.copyFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
-			summingBuffer.addFrom(i, 0, currMicOutput, i, 0, outputBlockSize);
+			summingBuffer.addFrom(i, 0, currMicOutput, i, 0, samplingBlockSize);
 		}
 		//resample(currOverflowBuffer, 0, numSamplesToCopy, resamplingBuffer, 0, numSamplesToCopy);
-		resample(summingBuffer, 0, outputBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].first, 0);
-		resample(summingBuffer, 0, outputBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].second, 1);
+		resample(summingBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].first, 0);
+		resample(summingBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].second, 1);
 		for (auto currOutputBuffer : { mainBuffer, extraBuffer }) {
 			int currBufferChannelCount = currOutputBuffer.getNumChannels();
 			jassert(currBufferChannelCount == 0 || currBufferChannelCount == 2);
@@ -84,13 +88,13 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 			// If the overflowBuffer is bigger than the output buffer, have to shift data
 			if (samplesLeftInOverflow > 0) {
 				// Shift the non copied data into the micOutput's necessary places
-				jassert(currOverflowBuffer.getNumSamples() == outputBlockSize + samplesLeftInOverflow);
-				currMicOutput.addFrom(i, outputBlockSize, currOverflowBuffer, i, outputBlockSize, samplesLeftInOverflow);
+				jassert(currOverflowBuffer.getNumSamples() == samplingBlockSize + samplesLeftInOverflow);
+				currMicOutput.addFrom(i, samplingBlockSize, currOverflowBuffer, i, samplingBlockSize, samplesLeftInOverflow);
 
 				//currOverflowBuffer.copyFrom(0, 0, currOverflowBuffer, 0, numSamplesToCopy, samplesLeftInOverflow);
 			}
 			// Copy from micOutput with all the non-used data into the overflow buffer
-			currOverflowBuffer.copyFrom(i, 0, currMicOutput, i, outputBlockSize, fadeOutSamples);
+			currOverflowBuffer.copyFrom(i, 0, currMicOutput, i, samplingBlockSize, fadeOutSamples);
 		}
 
 		//TODO: Add extra routings for each mic

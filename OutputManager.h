@@ -16,7 +16,7 @@ class OutputManager {
 public:
 	OutputManager(int fadeOutSamples);
 	void processBlock(AudioProcessor * processor, AudioSampleBuffer *outputBuffer, std::map<String, AudioSampleBuffer*> *micOutputs);
-	void prepareToPlay(int blockSize);
+	void prepareToPlay(int samplingBlockSize, int outputBlockSize);
 private:
 	void resample(AudioSampleBuffer& source, int sourceStartSample, int sourceNumSamples, AudioSampleBuffer& output, int destStartSample, int destNumSamples, LinearInterpolator* interpolator, int channelNum);
 	//LinearInterpolator interpolator;
@@ -26,5 +26,7 @@ private:
 	std::map<String, AudioSampleBuffer> overflowBuffers;
 	std::map<String, std::pair<LinearInterpolator, LinearInterpolator>> interpolators;
 	int fadeOutSamples;
+	int outputBlockSize;
+	int samplingBlockSize;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OutputManager)
 };

@@ -14,7 +14,7 @@
 #include "BlockEventsTest.cpp"
 
 #define TESTING 1
-
+#define ORIGINAL_SAMPLERATE 44100
 #define LOADSAMPLES 1
 const int NUM_OF_SAME_SAMPLE = 5;
 
@@ -155,16 +155,19 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 //==============================================================================
  void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	//int samplingBlockSize = (int) ((((double)ORIGINAL_SAMPLERATE) * samplesPerBlock) / sampleRate);
+	 int samplingBlockSize = samplesPerBlock;
+	 int outputBlockSize = samplesPerBlock;
 	 //int adjustedBlockSize = 
 	reset();
    	srand(time(0));
 	for (auto const& instrument : instrumentMap) {
-		instrument.second->setBlockSize(samplesPerBlock);
+		instrument.second->setBlockSize(samplingBlockSize);
 	}
 	for (std::map<String, AudioSampleBuffer*>::iterator iter = micOutputs.begin(); iter != micOutputs.end(); ++iter) {
-		iter->second->setSize(2, samplesPerBlock + FADE_OUT_SAMPLES);
+		iter->second->setSize(2, samplingBlockSize + FADE_OUT_SAMPLES);
 	}
-	outputManager.prepareToPlay(samplesPerBlock);
+	outputManager.prepareToPlay(samplingBlockSize, outputBlockSize);
 }
 
 void DrumSamplerAudioProcessor::releaseResources()
