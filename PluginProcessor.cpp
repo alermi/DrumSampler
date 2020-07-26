@@ -46,7 +46,7 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 	UnitTestRunner testRunner;
 	testRunner.runAllTests();
 #endif
-	
+	samplingToOutputBlockSizeRatio = -1;
 	fileManager=new FileManager();
 	instrumentMap = std::map<int, NoteSound*>();
 	if (!LOADSAMPLES) return;
@@ -155,12 +155,13 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 //==============================================================================
  void DrumSamplerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	//int samplingBlockSize = (int) ((((double)ORIGINAL_SAMPLERATE) * samplesPerBlock) / sampleRate);
-	 int samplingBlockSize = samplesPerBlock;
-	 int outputBlockSize = samplesPerBlock;
-	 //int adjustedBlockSize = 
+	samplingToOutputBlockSizeRatio = (((double)ORIGINAL_SAMPLERATE) / sampleRate);
+	int samplingBlockSize = (int) (samplingToOutputBlockSizeRatio * samplesPerBlock);
+	//int samplingBlockSize = samplesPerBlock;
+	int outputBlockSize = samplesPerBlock;
+	//int adjustedBlockSize = 
 	reset();
-   	srand(time(0));
+	srand(time(0));
 	for (auto const& instrument : instrumentMap) {
 		instrument.second->setBlockSize(samplingBlockSize);
 	}
@@ -282,7 +283,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			//Get the midi note information
 			const int noteNumber = currMessage.getNoteNumber();
 			const float noteVelocity = currMessage.getFloatVelocity();
-			const int timeStamp=currMessage.getTimeStamp();
+			const int timeStamp= currMessage.getTimeStamp() * samplingToOutputBlockSizeRatio;
 			//Get the master parameters.
 			//masterFader = *treeState.getRawParameterValue("Master Mix");
 			//roomFader= *treeState.getRawParameterValue("Master Room Mix");

@@ -56,6 +56,8 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 		int samplesLeftInOverflow = fadeOutSamples - numSamplesToCopy;
 		jassert(samplesLeftInOverflow >= 0);
 
+		resamplingBuffer.clear();
+		summingBuffer.clear();
 		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
 		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
 		//resamplingBuffer.clear();

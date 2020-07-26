@@ -76,6 +76,7 @@ protected:
 	AudioFormatManager* formatManager;
 	std::map<int, NoteSound*> instrumentMap;
 private:
+	double samplingToOutputBlockSizeRatio;
 	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	AudioProcessorValueTreeState treeState;
 	MicController micController{ &treeState };
