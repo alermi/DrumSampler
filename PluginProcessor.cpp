@@ -283,7 +283,8 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			//Get the midi note information
 			const int noteNumber = currMessage.getNoteNumber();
 			const float noteVelocity = currMessage.getFloatVelocity();
-			const int timeStamp= currMessage.getTimeStamp() * samplingToOutputBlockSizeRatio;
+			//TODO: Uncomment samplingtooutput...
+			const int timeStamp = currMessage.getTimeStamp() * samplingToOutputBlockSizeRatio;
 			//Get the master parameters.
 			//masterFader = *treeState.getRawParameterValue("Master Mix");
 			//roomFader= *treeState.getRawParameterValue("Master Room Mix");

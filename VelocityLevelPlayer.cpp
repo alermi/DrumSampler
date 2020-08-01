@@ -54,12 +54,12 @@ void VelocityLevelPlayer::processBlock()
 			copyUntil = blockSize;
 		}
   		bool hasEnded = hitIterator->hasEnded();
-		if (!hasEnded) {
-			if (sampleAt < copyUntil) {
-				hitIterator->iterate(sampleAt, copyUntil, false);
-			}
-			sampleAt = copyUntil;
+
+		if (!hasEnded && (sampleAt < copyUntil)) {
+			hitIterator->iterate(sampleAt, copyUntil, false);
 		}
+		sampleAt = copyUntil;
+		
 		if (blockEvents.hasMoreEvents()) {
 			EventInformation nextEvent = blockEvents.getNextEvent();
 
