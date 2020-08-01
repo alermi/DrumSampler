@@ -44,6 +44,7 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 	AudioSampleBuffer &mainBuffer = processor->getBusBuffer(*outputBuffer, false, 0);
 	//mainBuffer.getWritePointer(0)[0] = 1.0f;
 	jassert(outputBlockSize == mainBuffer.getNumSamples());
+	// Loop for each mic
 	for (auto const& micOutput : *micOutputs) {
 		String currMicName = micOutput.first;
 		AudioSampleBuffer &currMicOutput = *micOutput.second;
@@ -60,20 +61,22 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 		summingBuffer.clear();
 		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
 		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
-		//resamplingBuffer.clear();
+		// Sum the necessary samples from both micOutputs and overflowBuffers into the summingBuffer
 		for (int i = 0; i < 2; i++) {
-			// Copy the necessary samples from both micOutputs and overflowBuffers into the mainBuffer
 			summingBuffer.copyFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
 			summingBuffer.addFrom(i, 0, currMicOutput, i, 0, samplingBlockSize);
 		}
-		//resample(currOverflowBuffer, 0, numSamplesToCopy, resamplingBuffer, 0, numSamplesToCopy);
+		// Resample (into resamplingBuffer) the samples we got from audio files into the size of the 
+		//output buffer in case they have different sample rates
 		resample(summingBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].first, 0);
 		resample(summingBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].second, 1);
+		
 		for (auto currOutputBuffer : { mainBuffer, extraBuffer }) {
 			int currBufferChannelCount = currOutputBuffer.getNumChannels();
 			jassert(currBufferChannelCount == 0 || currBufferChannelCount == 2);
-			// If the output channel is available, do all the rest of the stuff
+			// If the output channel is available, add the sounds into the output channel.
 			if (currBufferChannelCount == 2) {
+				//TODO: Get the pan values from panManager and multiply these
 				currOutputBuffer.addFrom(0, 0, resamplingBuffer, 0, 0, resamplingBuffer.getNumSamples());
 				currOutputBuffer.addFrom(1, 0, resamplingBuffer, 1, 0, resamplingBuffer.getNumSamples());
 			}
