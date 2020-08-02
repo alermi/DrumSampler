@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<magic>
+  <Styles>
+    <Style name="default">
+      <Nodes/>
+      <Classes>
+        <plot-view border="2" background-color="black" border-color="silver" display="contents"/>
+        <nomargin margin="0" padding="0" border="0"/>
+        <group margin="5" padding="5" border="2" flex-direction="column"/>
+      </Classes>
+      <Types>
+        <Slider border="0" slider-textbox="textbox-below"/>
+        <ToggleButton border="0" max-height="50" caption-size="0" text="Active"/>
+        <TextButton border="0" max-height="50" caption-size="0"/>
+        <ComboBox border="0" max-height="50" caption-size="0"/>
+        <Plot border="0" margin="0" padding="0" background-color="00000000"
+              radius="0"/>
+        <XYDragComponent border="0" margin="0" padding="0" background-color="00000000"
+                         radius="0"/>
+      </Types>
+    </Style>
+  </Styles>
+  <View id="root" flex-direction="row" lookAndFeel="LookAndFeel_V4" resizable="0"
+        resize-corner="0" width="1000" height="700">
+    <KeyboardComponent orientation="vertical-right" key-width="10" max-width="100"/>
+    <View display="tabbed">
+      <View caption="Kick" class="group">
+        <View caption="Specific" class="group" flex-direction="row">
+          <Slider caption="Kick In Mix" parameter="Kick In Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Kick Out Mix" parameter="Kick Out Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Kick Sub Mix" parameter="Kick Sub Mix" slider-textbox="no-textbox"/>
+        </View>
+        <View caption="GeneralInstrument" class="group" flex-direction="row">
+          <Slider caption="Kick Overhead Mix" parameter="Kick Overhead Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Kick Room Mono Mix" parameter="Kick Room Mono Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Kick Room Stereo Mix" parameter="Kick Room Stereo Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Kick Room Far Mix" parameter="Kick Room Far Mix" slider-textbox="no-textbox"/>
+        </View>
+      </View>
+      <View caption="Snare" class="group">
+        <View caption="Specific" class="group" flex-direction="row">
+          <Slider caption="Snare Bottom Mix" parameter="Snare Bottom Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Snare Top Mix" parameter="Snare Top Mix" slider-textbox="no-textbox"/>
+        </View>
+        <View caption="GeneralInstrument" class="group" flex-direction="row">
+          <Slider caption="Snare Overhead Mix" parameter="Snare Overhead Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Snare Room Mono Mix" parameter="Snare Room Mono Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Snare Room Stereo Mix" parameter="Snare Room Stereo Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Snare Room Far Mix" parameter="Snare Room Far Mix" slider-textbox="no-textbox"/>
+        </View>
+      </View>
+      <View caption="Tom" class="group">
+        <View caption="Specific" class="group" flex-direction="row">
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="Tom1 Close" parameter="Tom1 Close" slider-textbox="no-textbox"/>
+          </View>
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="Tom2 Close" parameter="Tom2 Close" slider-textbox="no-textbox"/>
+          </View>
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="Tom3 Close" parameter="Tom3 Close" slider-textbox="no-textbox"/>
+          </View>
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="Tom4 Close" parameter="Tom4 Close" slider-textbox="no-textbox"/>
+          </View>
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="Tom5 Close" parameter="Tom5 Close" slider-textbox="no-textbox"/>
+          </View>
+        </View>
+        <View caption="GeneralInstrument" class="group" flex-direction="row">
+          <Slider caption="Tom Overhead Mix" parameter="Tom Overhead Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Tom Room Mono Mix" parameter="Tom Room Mono Mix" slider-textbox="no-textbox"/>
+          <Slider caption="Tom Room Stereo Mix" parameter="Tom Room Stereo Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Tom Room Far Mix" parameter="Tom Room Far Mix" slider-textbox="no-textbox"/>
+        </View>
+      </View>
+      <View caption="Cymbal" class="group">
+        <View caption="Specific" class="group" flex-direction="">
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="HiHat Close" parameter="HiHat Close" slider-textbox="no-textbox"/>
+          </View>
+          <View caption="SpecificInstrument" class="group">
+            <Slider caption="Ride Close" parameter="Ride Close" slider-textbox="no-textbox"/>
+          </View>
+        </View>
+        <View caption="GeneralInstrument" class="group" flex-direction="row">
+          <Slider caption="Cymbal Overhead Mix" parameter="Cymbal Overhead Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Cymbal Room Mono Mix" parameter="Cymbal Room Mono Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Cymbal Room Stereo Mix" parameter="Cymbal Room Stereo Mix"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Cymbal Room Far Mix" parameter="Cymbal Room Far Mix"
+                  slider-textbox="no-textbox"/>
+        </View>
+      </View>
+      <View caption="Cymbal Balance" class="group">
+        <View caption="Room Mono" class="group" flex-direction="row">
+          <Slider caption="HiHat" parameter="HiHat Room Mono" slider-type="auto"
+                  slider-textbox="no-textbox"/>
+          <Slider caption="Ride" parameter="Ride Room Mono" slider-textbox="no-textbox"/>
+          <Slider caption="Crash1" parameter="Crash1 Room Mono" slider-textbox="no-textbox"/>
+          <Slider caption="Crash2" parameter="Crash2 Room Mono" slider-textbox="no-textbox"/>
+          <Slider caption="China" parameter="China Room Mono" slider-textbox="no-textbox"/>
+          <Slider caption="Stack1" parameter="Stack1 Room Mono" slider-textbox="no-textbox"/>
+          <Slider caption="Stack2" parameter="Stack2 Room Mono" slider-textbox="no-textbox"/>
+          <Slider caption="Splash" parameter="Splash Room Mono" slider-textbox="no-textbox"/>
+        </View>
+        <View caption="Room Stereo" class="group" flex-direction="row">
+          <Slider caption="HiHat Room Stereo" parameter="HiHat Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="Ride Room Stereo" parameter="Ride Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="Crash1 Room Stereo" parameter="Crash1 Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="Crash2 Room Stereo" parameter="Crash2 Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="China Room Stereo" parameter="China Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="Stack1 Room Stereo" parameter="Stack1 Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="Stack2 Room Stereo" parameter="Stack2 Room Stereo" slider-textbox="no-textbox"/>
+          <Slider caption="Splash Room Stereo" parameter="Splash Room Stereo" slider-textbox="no-textbox"/>
+        </View>
+        <View caption="Room Far" class="group" flex-direction="row">
+          <Slider caption="HiHat Room Far" parameter="HiHat Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="Ride Room Far" parameter="Ride Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="Crash1 Room Far" parameter="Crash1 Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="Crash2 Room Far" parameter="Crash2 Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="China Room Far" parameter="China Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="Stack1 Room Far" parameter="Stack1 Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="Stack2 Room Far" parameter="Stack2 Room Far" slider-textbox="no-textbox"/>
+          <Slider caption="Splash Room Far" parameter="Splash Room Far" slider-textbox="no-textbox"/>
+        </View>
+        <View caption="Overhead" class="group" flex-direction="row">
+          <Slider caption="HiHat Overhead" parameter="HiHat Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="Ride Overhead" parameter="Ride Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="Crash1 Overhead" parameter="Crash1 Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="Crash2 Overhead" parameter="Crash2 Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="China Overhead" parameter="China Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="Stack1 Overhead" parameter="Stack1 Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="Stack2 Overhead" parameter="Stack2 Overhead" slider-textbox="no-textbox"/>
+          <Slider caption="Splash Overhead" parameter="Splash Overhead" slider-textbox="no-textbox"/>
+        </View>
+      </View>
+      <View caption="Master" class="group" flex-direction="row">
+        <Slider caption="Master Room Mix" parameter="Master Room Mix" slider-type="linear-vertical"
+                slider-textbox="no-textbox"/>
+        <Slider caption="Master Mix" parameter="Master Mix" slider-type="linear-vertical"
+                slider-textbox="no-textbox"/>
+      </View>
+      <View class="group" caption="Mic Pans" flex-direction="row" flex-wrap="nowrap"
+            display="flexbox" flex-justify-content="start" flex-align-items="stretch">
+        <View flex-direction="column">
+          <View caption="Kick In Pan" class="group" flex-direction="column">
+            <Slider parameter="kickin Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="kickin Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Kick Out Pan" class="group" flex-direction="column">
+            <Slider parameter="kickout Left Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+            <Slider parameter="kickout Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Kick Sub Pan" class="group" flex-direction="column">
+            <Slider parameter="kicksub Left Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+            <Slider parameter="kicksub Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Snare Top Pan" class="group" flex-direction="column">
+            <Slider parameter="snrtop Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="snrtop Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Snare Bottom Pan" class="group" flex-direction="column">
+            <Slider parameter="snrbot Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="snrbot Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Hi-Hat Pan" class="group" flex-direction="column">
+            <Slider parameter="hh Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="hh Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+        </View>
+        <View flex-direction="column">
+          <View caption="Tom 1 Pan" class="group" flex-direction="column">
+            <Slider parameter="tom1 Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="tom1 Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+          <View caption="Tom 2 Pan" class="group" flex-direction="column">
+            <Slider parameter="tom2 Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="tom2 Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+          <View caption="Tom 3 Pan" class="group" flex-direction="column">
+            <Slider parameter="tom3 Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="tom3 Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+          <View caption="Tom 4 Pan" class="group" flex-direction="column">
+            <Slider parameter="tom4 Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="tom4 Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+          <View caption="Tom 5 Pan" class="group" flex-direction="column">
+            <Slider parameter="tom5 Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="tom5 Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+          <View caption="Ride Pan" class="group" flex-direction="column">
+            <Slider parameter="ride Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="ride Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+        </View>
+        <View flex-direction="column">
+          <View caption="Room Mono Pan" class="group" flex-direction="column">
+            <Slider parameter="roommono Left Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+            <Slider parameter="roommono Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Room Stereo Pan" class="group" flex-direction="column">
+            <Slider parameter="roomstereo Left Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+            <Slider parameter="roomstereo Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Room Far Pan" class="group" flex-direction="column">
+            <Slider parameter="roomfar Left Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+            <Slider parameter="roomfar Right Pan" slider-type="linear-horizontal"
+                    slider-textbox="no-textbox" caption=""/>
+          </View>
+          <View caption="Overhead Pan" class="group" flex-direction="column">
+            <Slider parameter="oh Left Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+            <Slider parameter="oh Right Pan" slider-type="linear-horizontal" slider-textbox="no-textbox"
+                    caption=""/>
+          </View>
+        </View>
+      </View>
+    </View>
+  </View>
+</magic>
+ 

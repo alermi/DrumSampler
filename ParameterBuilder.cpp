@@ -15,11 +15,20 @@ AudioProcessorValueTreeState::ParameterLayout ParameterBuilder::createParameterL
 	auto masterRoomMix = (std::make_unique<AudioParameterFloat>("Master Room Mix", "Master Room Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 	auto masterMix = (std::make_unique<AudioParameterFloat>("Master Mix", "Master Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
 
-	auto group = std::make_unique<AudioProcessorParameterGroup>("Master", "Master", "|",
+	for (String micName : MicController::getMicNames()) {
+
+	}
+	auto panGroup = std::make_unique<AudioProcessorParameterGroup>("Pans", "Pans", "|");
+	for (String micName : MicController::getMicNames()) {
+		panGroup.get()->addChild(getPanParameters(micName));
+	}
+	layout.add(std::move(panGroup));
+
+	auto masterGroup = std::make_unique<AudioProcessorParameterGroup>("Master", "Master", "|",
 		std::move(masterRoomMix),
 		std::move(masterMix));
 
-	layout.add(std::move(group));
+	layout.add(std::move(masterGroup));
 	return layout;
 }
 void ParameterBuilder::addKickParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
@@ -32,8 +41,8 @@ void ParameterBuilder::addKickParameters(AudioProcessorValueTreeState::Parameter
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
 		std::move(in),
 		std::move(out),
-		std::move(sub),
-		std::move((getSpecificInstrumentParameters("Kick", false))));
+		std::move(sub));
+		//std::move((getSpecificInstrumentParameters("Kick", false))));
 
 
 	auto kickGeneral = std::make_unique<AudioProcessorParameterGroup>("Kick", "Kick", "|",
@@ -50,8 +59,8 @@ void ParameterBuilder::addSnareParameters(AudioProcessorValueTreeState::Paramete
 
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
 		std::move(bottom),
-		std::move(top),
-		std::move(getSpecificInstrumentParameters("Snare", false)));
+		std::move(top));
+		//std::move(getSpecificInstrumentParameters("Snare", false)));
 
 
 	auto snareGeneral = std::make_unique<AudioProcessorParameterGroup>("Snare", "Snare", "|",
@@ -66,11 +75,11 @@ void ParameterBuilder::addSnareParameters(AudioProcessorValueTreeState::Paramete
 void ParameterBuilder::addTomParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
 
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
-		std::move(getSpecificInstrumentParameters("Tom1", true)),
-		std::move(getSpecificInstrumentParameters("Tom2", true)),
-		std::move(getSpecificInstrumentParameters("Tom3", true)),
-		std::move(getSpecificInstrumentParameters("Tom4", true)),
-		std::move(getSpecificInstrumentParameters("Tom5", true)));
+		std::move(getCloseMicParameter("Tom1")),
+		std::move(getCloseMicParameter("Tom2")),
+		std::move(getCloseMicParameter("Tom3")),
+		std::move(getCloseMicParameter("Tom4")),
+		std::move(getCloseMicParameter("Tom5")));
 
 
 	auto snareGeneral = std::make_unique<AudioProcessorParameterGroup>("Tom", "Tom", "|",
@@ -84,14 +93,14 @@ void ParameterBuilder::addTomParameters(AudioProcessorValueTreeState::ParameterL
 void ParameterBuilder::addCymbalParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {
 
 	auto specificGroup = std::make_unique<AudioProcessorParameterGroup>("Specific", "Specific", "|",
-		std::move(getSpecificInstrumentParameters("HiHat", true)),
-		std::move(getSpecificInstrumentParameters("Ride", true)),
-		std::move(getSpecificInstrumentParameters("Crash1", false)),
-		std::move(getSpecificInstrumentParameters("Crash2", false)),
-		std::move(getSpecificInstrumentParameters("China", false)),
-		std::move(getSpecificInstrumentParameters("Stack1", false)),
-		std::move(getSpecificInstrumentParameters("Stack2", false)),
-		std::move(getSpecificInstrumentParameters("Splash", false)));
+		std::move(getCloseMicParameter("HiHat")),
+		std::move(getCloseMicParameter("Ride")));
+		//std::move(getSpecificInstrumentParameters("Crash1", false)),
+		//std::move(getSpecificInstrumentParameters("Crash2", false)),
+		//std::move(getSpecificInstrumentParameters("China", false)),
+		//std::move(getSpecificInstrumentParameters("Stack1", false)),
+		//std::move(getSpecificInstrumentParameters("Stack2", false)),
+		//std::move(getSpecificInstrumentParameters("Splash", false)));
 
 
 	auto snareGeneral = std::make_unique<AudioProcessorParameterGroup>("Cymbal", "Cymbal", "|",
@@ -116,26 +125,29 @@ std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getGeneralInstru
 	return group;
 }
 
-std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getSpecificInstrumentParameters(String specificInstrumentName, bool hasCloseMic)
+std::unique_ptr<AudioProcessorParameter> ParameterBuilder::getCloseMicParameter(String specificInstrumentName)
 {	
 	std::unique_ptr<AudioProcessorParameterGroup> group;
 
 	//auto master = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Master Mix", specificInstrumentName + " Master Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	auto pan = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Pan", specificInstrumentName + " Pan", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-	if (hasCloseMic) {
-		auto close = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Close", specificInstrumentName + " Close", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-		group = std::make_unique<AudioProcessorParameterGroup>("SpecificInstrument", "SpecificInstrument", "|",
-			std::move(close),
+	//auto pan = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Pan", specificInstrumentName + " Pan", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	//if (hasCloseMic) {
+	auto close = (std::make_unique<AudioParameterFloat>(specificInstrumentName + " Close", specificInstrumentName + " Close", NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+	return close;
+		//group = std::make_unique<AudioProcessorParameterGroup>("SpecificInstrument", "SpecificInstrument", "|",
+			//std::move(close);
 			//std::move(master),
-			std::move(pan));
-	}
-	else {
-		group = std::make_unique<AudioProcessorParameterGroup>("SpecificInstrument", "SpecificInstrument", "|",
-			//std::move(master),
-			std::move(pan));
-	}
+			//std::move(pan));
+	//}
+	//else {
+	//	//group = std::make_unique<AudioProcessorParameterGroup>("SpecificInstrument", "SpecificInstrument", "|",
+	//		//std::move(master),
+	//		//std::move(pan));
+	//	return NULL;
 
-	return group;
+	//}
+
+	//return group;
 }
 
 
@@ -174,4 +186,15 @@ std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getCymbalBalance
 		std::move(stack2),
 		std::move(splash));
 	return group;
+}
+
+
+std::unique_ptr<AudioProcessorParameterGroup> ParameterBuilder::getPanParameters(String micName) {
+
+	auto leftPan = (std::make_unique<AudioParameterFloat>(micName + " Left Pan", micName + " Left Pan", NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+	auto rightPan = (std::make_unique<AudioParameterFloat>(micName + " Right Pan", micName + " Right Pan", NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+
+	return std::make_unique<AudioProcessorParameterGroup>(micName + " Pans", micName + " Pans", "|",
+		std::move(leftPan),
+		std::move(rightPan));
 }

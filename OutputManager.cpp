@@ -10,7 +10,7 @@
 
 #include "OutputManager.h"
 #include "MicController.h"
-OutputManager::OutputManager(int fadeOutSamples) {
+OutputManager::OutputManager(int fadeOutSamples, AudioProcessorValueTreeState* treeState) {
 	for (String micName : MicController::getMicNames()) {
 		this->overflowBuffers[micName].setSize(2, fadeOutSamples);
 		this->overflowBuffers[micName].clear();
@@ -23,7 +23,7 @@ OutputManager::OutputManager(int fadeOutSamples) {
 		interpolators[micName].first.reset();
 		interpolators[micName].second.reset();
 	}
-
+	this->treeState = treeState;
 	this->fadeOutSamples = fadeOutSamples;
 	this->outputBlockSize = 0;
 	this->samplingBlockSize = 0;
@@ -37,6 +37,7 @@ void OutputManager::prepareToPlay(int samplingBlockSize, int outputBlockSize) {
 	this->samplingBlockSize = samplingBlockSize;
 	resamplingBuffer.setSize(2, outputBlockSize);
 	summingBuffer.setSize(2, samplingBlockSize);
+	panningBuffer.setSize(2, samplingBlockSize);
 	//ResamplingAudioSource resampling = ResamplingAudioSource(outputBuffers[0], false, 2);
 }
 
@@ -59,6 +60,7 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 
 		resamplingBuffer.clear();
 		summingBuffer.clear();
+		panningBuffer.clear();
 		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
 		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
 		// Sum the necessary samples from both micOutputs and overflowBuffers into the summingBuffer
@@ -66,10 +68,20 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 			summingBuffer.copyFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
 			summingBuffer.addFrom(i, 0, currMicOutput, i, 0, samplingBlockSize);
 		}
+		// Pan the left and right channel into panningBuffer's channels
+		for (int i = 0; i < 2; i++) {
+			float panValue = getPanValue(currMicName, i);
+			float leftOutGain = sin((juce::float_Pi * 0.5f) * (1 - panValue)) ;
+			float rightOutGain = sin((juce::float_Pi * 0.5f) * (panValue));
+
+			panningBuffer.addFrom(0, 0, summingBuffer, i, 0, samplingBlockSize, leftOutGain);
+			panningBuffer.addFrom(1, 0, summingBuffer, i, 0, samplingBlockSize, rightOutGain);
+		}
+
 		// Resample (into resamplingBuffer) the samples we got from audio files into the size of the 
 		//output buffer in case they have different sample rates
-		resample(summingBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].first, 0);
-		resample(summingBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].second, 1);
+		resample(panningBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].first, 0);
+		resample(panningBuffer, 0, samplingBlockSize, resamplingBuffer, 0, outputBlockSize, &interpolators[currMicName].second, 1);
 		
 		for (auto currOutputBuffer : { mainBuffer, extraBuffer }) {
 			int currBufferChannelCount = currOutputBuffer.getNumChannels();
@@ -113,4 +125,19 @@ void OutputManager::resample(AudioSampleBuffer& source, int sourceStartSample, i
 	//this->interpolator.reset();
 	//int b = interpolator.processAdding(speedRatio, source.getReadPointer(1), output.getWritePointer(1), destNumSamples, 1.0f);
 	return;
+}
+
+
+
+float OutputManager::getPanValue(String micName, int channelNum)
+{
+	if (channelNum == 0) {
+		return *this->treeState->getRawParameterValue(micName + " Left Pan");
+	}
+	else if (channelNum == 1){
+		return *this->treeState->getRawParameterValue(micName + " Right Pan");
+	}
+	else {
+		jassertfalse;
+	}
 }

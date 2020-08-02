@@ -377,7 +377,7 @@ AudioProcessorEditor* DrumSamplerAudioProcessor::createEditor()
 {
     //return new DrumSamplerAudioProcessorEditor (*this);
 
-	return new foleys::MagicPluginEditor(magicState, BinaryData::interface_xml, BinaryData::interface_xmlSize);
+	return new foleys::MagicPluginEditor(magicState, BinaryData::layout_pans_added_xml, BinaryData::layout_pans_added_xmlSize);
 	//return new foleys::MagicPluginEditor(magicState);
 }
 
