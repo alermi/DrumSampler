@@ -31,7 +31,7 @@ public:
 	NoteProperties *noteProperties;
 	FileManager* fileManager;
 	AudioProcessor* processor;
-	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor *processor);
+	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, AudioProcessor *processor);
 	void killSound(int killTimeStamp);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs);
 	void fillFromIterators();

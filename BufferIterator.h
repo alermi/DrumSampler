@@ -26,14 +26,14 @@ public:
 	bool hasEnded;
 	int extraBusNumber;
 	//AudioSampleBuffer *mainBuffer;
-	std::array<float, 2> monoPanValues;
-	std::vector<std::array<float, 2>> stereoPanValues;
+	//std::array<float, 2> monoPanValues;
+	//std::vector<std::array<float, 2>> stereoPanValues;
 
 	BufferIterator();
 	~BufferIterator();
 	//void iterate(AudioSampleBuffer output);
 	void iterate(AudioSampleBuffer* output, int startSample, int endSample, bool fadeOut);
-	void trigger(AudioSampleBuffer *sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber);
+	void trigger(AudioSampleBuffer *sample, float velocity, int extraBusNumber);
 	void reset();
 private:
 	int getSamplesToCopy(int startSample, int endSample);

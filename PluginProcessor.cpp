@@ -28,12 +28,21 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
      , AudioProcessor (BusesProperties()
                      //#if ! JucePlugin_IsMidiEffect
                         .withOutput ("Master", AudioChannelSet::stereo(), true)
-						.withOutput("Kick", AudioChannelSet::stereo(), true)
-						.withOutput("Snare", AudioChannelSet::stereo(), true)
-						.withOutput("Toms", AudioChannelSet::stereo(), true)
+						.withOutput("Kick In", AudioChannelSet::stereo(), true)
+						.withOutput("Kick Out", AudioChannelSet::stereo(), true)
+						.withOutput("Kick Sub", AudioChannelSet::stereo(), true)
+						.withOutput("Snare Top", AudioChannelSet::stereo(), true)
+						.withOutput("Snare Bottom", AudioChannelSet::stereo(), true)
+						.withOutput("Toms 1", AudioChannelSet::stereo(), true)
+						.withOutput("Toms 2", AudioChannelSet::stereo(), true)
+						.withOutput("Toms 3", AudioChannelSet::stereo(), true)
+						.withOutput("Toms 4", AudioChannelSet::stereo(), true)
+						.withOutput("Toms 5", AudioChannelSet::stereo(), true)
 						.withOutput("HiHat", AudioChannelSet::stereo(), true)
 						.withOutput("Ride", AudioChannelSet::stereo(), true)
-						.withOutput("Room", AudioChannelSet::stereo(), true)
+						.withOutput("Room Mono", AudioChannelSet::stereo(), true)
+						.withOutput("Room Stereo", AudioChannelSet::stereo(), true)
+						.withOutput("Room Far", AudioChannelSet::stereo(), true)
 						.withOutput("OH", AudioChannelSet::stereo(), true)
 
 
@@ -194,7 +203,7 @@ bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 	//TODO: Fix if we add a ride bus too
 	//layouts.getChannelSet(false,0)
 
-	if (layouts.outputBuses.size() != 8) { 
+	if (layouts.outputBuses.size() != 17) { 
 		return false;
 	}
 	if (layouts.getChannelSet(false,0) != AudioChannelSet::stereo()) {
@@ -221,7 +230,34 @@ bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 	if (layouts.getChannelSet(false, 7) != AudioChannelSet::stereo()) {
 		return false;
 	}
+	if (layouts.getChannelSet(false, 8) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 9) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 10) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 11) != AudioChannelSet::stereo()) {
+		return false;
+	}
 
+	if (layouts.getChannelSet(false, 12) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 13) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 14) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 15) != AudioChannelSet::stereo()) {
+		return false;
+	}
+	if (layouts.getChannelSet(false, 16) != AudioChannelSet::stereo()) {
+		return false;
+	}
 	return true;
 	//layouts.
  // #if JucePlugin_IsMidiEffect
@@ -297,9 +333,9 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				String specificControllerName = tempSound->noteProperties->specificControllerName;
 
 
-				float pan = *treeState.getRawParameterValue(specificControllerName + " Pan");
+				//float pan = *treeState.getRawParameterValue(specificControllerName + " Pan");
 				auto micGains = micController.getMicGains(generalControllerName, specificControllerName);
-				tempSound->triggerSound(micGains, noteVelocity, timeStamp, pan, this);
+				tempSound->triggerSound(micGains, noteVelocity, timeStamp, this);
 
 				//TODO: DELETE, TESTING PURPOSES
 				if (tempSound->noteProperties->noteNum == 50) {

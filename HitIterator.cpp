@@ -49,7 +49,7 @@ void HitIterator::trigger(TriggerInformation triggerInfo) {
 			//BufferIterator currPack = bufferIterators[i];
 			
 			//it->trigger(currBuffer, triggerInfo.noteVelocity*triggerInfo.micGains[micName], triggerInfo.monoPanValues, triggerInfo.stereoPanValues, micToExtraChannelMap[i]);
-			bufferIterators.at(micName).trigger(currBuffer, triggerInfo.noteVelocity*triggerInfo.micGains[micName], triggerInfo.monoPanValues, triggerInfo.stereoPanValues, micToExtraChannelMap[i]);
+			bufferIterators.at(micName).trigger(currBuffer, triggerInfo.noteVelocity*triggerInfo.micGains[micName], micToExtraChannelMap[i]);
 			//bufferIterators->push_back(newPack);
 		}
 		//it++;

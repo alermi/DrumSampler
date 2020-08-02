@@ -17,12 +17,10 @@ public:
 
 
 
-	TriggerInformation(std::map<String, float> micGains, float noteVelocity, int timeStamp, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues) 
+	TriggerInformation(std::map<String, float> micGains, float noteVelocity, int timeStamp) 
 				: EventInformation(timeStamp, true) {
 		this->micGains = micGains;
 		this->noteVelocity = noteVelocity;
-		this->monoPanValues = monoPanValues;
-		this->stereoPanValues = stereoPanValues;
 	}
 
 	static bool compare(TriggerInformation t1, TriggerInformation t2) {

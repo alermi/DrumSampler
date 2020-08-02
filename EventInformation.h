@@ -15,8 +15,6 @@ public:
 	bool isNoteOn;
 	std::map<String, float> micGains;
 	float noteVelocity;
-	std::array<float, 2> monoPanValues;
-	std::vector<std::array<float, 2>> stereoPanValues;
 	EventInformation(int timeStamp, bool isNoteOn) {
 		this->timeStamp = timeStamp;
 		this->isNoteOn = isNoteOn;

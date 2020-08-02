@@ -27,7 +27,7 @@ BufferIterator::~BufferIterator()
 	//delete sample;
 }
 
-void BufferIterator::trigger(AudioSampleBuffer* sample, float velocity, std::array<float, 2> monoPanValues, std::vector<std::array<float, 2>> stereoPanValues, int extraBusNumber) {
+void BufferIterator::trigger(AudioSampleBuffer* sample, float velocity, int extraBusNumber) {
 	this->sample = sample;
 	this->extraBusNumber = extraBusNumber;
 	jassert(hasEnded == true);
@@ -37,8 +37,8 @@ void BufferIterator::trigger(AudioSampleBuffer* sample, float velocity, std::arr
 	// Sample that we last left at in the origin buffer
 	this->sampleLeftAt = 0;
 	this->hasEnded = false;
-	this->monoPanValues = monoPanValues;
-	this->stereoPanValues = stereoPanValues;
+	//this->monoPanValues = monoPanValues;
+	//this->stereoPanValues = stereoPanValues;
 }
 
 void BufferIterator::reset() {
@@ -64,31 +64,32 @@ void BufferIterator::iterate(AudioSampleBuffer* output, int startSample, int end
 	int samplesToCopy = getSamplesToCopy(startSample, endSample);
 	//for (AudioSampleBuffer* output : outputs) {
 		//if (output == NULL) continue;
-		for (int sourceChannel = 0; sourceChannel < sample->getNumChannels(); sourceChannel++) {
-			for (int destChannel = 0; destChannel < output->getNumChannels(); ++destChannel) {
-				float panValue;
-				if (output->getNumChannels() == 1) {
-					panValue = 1;
-				}
-				else if (sample->getNumChannels() == 1) {
-					panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
-						+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
-				}
-				else {
-					jassert(sample->getNumChannels() == 2);
-					panValue = stereoPanValues[sourceChannel][destChannel];
-				}
+	jassert(output->getNumChannels() == 2);
+	for (int sourceChannel = 0; sourceChannel < sample->getNumChannels(); sourceChannel++) {
+		for (int destChannel = 0; destChannel < output->getNumChannels(); ++destChannel) {
+			//float panValue;
+			//if (output->getNumChannels() == 1) {
+			//	panValue = 1;
+			//}
+			//else if (sample->getNumChannels() == 1) {
+			//	panValue = monoPanValues[0 + destChannel] * stereoPanValues[0 + destChannel][0 + destChannel]
+			//		+ monoPanValues[1 - destChannel] * stereoPanValues[1 - destChannel][0 + destChannel];
+			//}
+			//else {
+				//jassert(sample->getNumChannels() == 2);
+				//panValue = stereoPanValues[sourceChannel][destChannel];
+			//}
 
-				if (fadeOut) {
-					output->addFromWithRamp(destChannel, startSample, sample->getReadPointer(sourceChannel) + sampleLeftAt, samplesToCopy, velocity*panValue, 0.0f);
-				}
-				else {
-					output->addFrom(destChannel, startSample, *sample, sourceChannel, sampleLeftAt, samplesToCopy, velocity*panValue);
-				}
-				//}
-
+			if (fadeOut) {
+				output->addFromWithRamp(destChannel, startSample, sample->getReadPointer(sourceChannel) + sampleLeftAt, samplesToCopy, velocity, 0.0f);
 			}
+			else {
+				output->addFrom(destChannel, startSample, *sample, sourceChannel, sampleLeftAt, samplesToCopy, velocity);
+			}
+			//}
+
 		}
+	}
 	//}
 	// TODO: The killTimeStamp condition will not hold when we add the ramp down.
 	// we will have to check if it is spilling to the next buffer.

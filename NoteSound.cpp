@@ -24,7 +24,7 @@ NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, A
 }
 
 void NoteSound::triggerSound
-( std::map<String, float> micGains, float noteVelocity, int timeStamp, float monoPan, AudioProcessor* processor) {
+(std::map<String, float> micGains, float noteVelocity, int timeStamp, AudioProcessor* processor) {
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
@@ -34,31 +34,13 @@ void NoteSound::triggerSound
 		DBG("Hi");
 	}
 
-	float stereoPan[2];
-	if (monoPan < 0.5f) {
-		stereoPan[0] = 0;
-		stereoPan[1] = 2 * monoPan;
-	}
-	else {
-		stereoPan[0] = monoPan - (1 - monoPan);
-		stereoPan[1] = 1;
-	}
 
-
-
-	// TODO: instead of calculating each time, save these values unless changed.
-	std::array<float, 2> monoPanValues = { sin((PI / 2) * (1 - monoPan)) ,sin(monoPan*(PI / 2)) };
-	vector<std::array<float, 2>> stereoPanValues;
-	std::array<float, 2> tempArray1 = { sin((PI / 2) * (1 - stereoPan[0])) ,sin(stereoPan[0] * (PI / 2)) };
-	stereoPanValues.push_back(tempArray1);
-	std::array<float, 2> tempArray2 = { sin((PI / 2) * (1 - stereoPan[1])) ,sin(stereoPan[1] * (PI / 2)) };
-	stereoPanValues.push_back(tempArray2);
 
 	//HitIterator newIterator(this->processor, micMap, micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
 	//HitIterator newIterator(micMap, noteVelocity*micGains[micName], currBuffer->getNumSamples(), timeStamp, monoPanValues, stereoPanValues, micToExtraChannelMap[i]);
 	//iterators->push_back(newIterator);
 
-	velocityLevelPlayer.trigger(TriggerInformation(micGains, noteVelocity, timeStamp, monoPanValues, stereoPanValues));
+	velocityLevelPlayer.trigger(TriggerInformation(micGains, noteVelocity, timeStamp));
 	//if (hitIterator1->hasEnded()) {
 	//	hitIterator2->kill(timeStamp);
 	//	hitIterator1->trigger(micGains, indexString, noteVelocity, timeStamp, monoPanValues, stereoPanValues);
