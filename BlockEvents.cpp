@@ -10,19 +10,6 @@
 
 #include "BlockEvents.h"
 
-//BlockEvents::Event::Event()
-//{
-//	this->timeStamp = -1;
-//	this->isNoteOn = false;
-//}
-//
-//BlockEvents::Event::Event(int timeStamp, bool isNoteOn)
-//  {
-//	this->timeStamp = timeStamp;
-//	this->isNoteOn = isNoteOn;
-//  }
-
-
 BlockEvents::BlockEvents()
 {
 	this->isReceivingEvents = true;
@@ -76,18 +63,11 @@ bool compareKillGreater(const EventInformation& first, const EventInformation& s
 		return first.timeStamp < second.timeStamp;
 	}
 }
-//bool compareTimeStamp(const BlockEvents::Event& first, const BlockEvents::Event& second)
-//{
-//	return first.timeStamp < second.timeStamp;
-//}
-
 
 void BlockEvents::finishReceivingHits()
 {
 	jassert(this->isReceivingEvents);
 	this->isReceivingEvents = false;
-	//this->events.sort(compareKillGreater);
-	//this->events.unique(compareTimeStamp);
 
 	this->it = events.begin();
 	this->end = events.end();
@@ -120,10 +100,6 @@ EventInformation BlockEvents::getNextEvent()
 	jassert(isReceivingEvents == false);
 	jassert(hasMoreEvents());
 
-	//Event nextEvent = Event(it->timeStamp, it->isNoteOn);
-	//if (it != end) {
-	//	events.erase(it);
-	//}
 	EventInformation nextEvent = *it;
 	it++;
 	return nextEvent;

@@ -17,13 +17,6 @@
 class BlockEvents {
 
 public:
-	//class Event {
-	//public:
-	//	Event();
-	//	Event(int timeStamp, bool isNoteOn);
-	//	int timeStamp;
-	//	bool isNoteOn;
-	//};
 
 	BlockEvents();
 	void setBlockSize(int blockSize);
