@@ -64,13 +64,15 @@ DrumSamplerAudioProcessor::DrumSamplerAudioProcessor()
 		//TODO: Reconsider the initial number of samples.
 		micOutputs[micName] = new AudioSampleBuffer(2, 0);
 	}
+	std::map<String, std::map<String, bool>> bleedFlags = Constants::getAllInstrumentsBleedFlags();
+
 	// Gets the instrument names from the MidiMap file.
 	for (std::map<int, NoteProperties>::iterator iter = fileManager->MidiMap.begin(); iter != fileManager->MidiMap.end(); ++iter)
 	{
-		if (iter->second.generalControllerName.compare("")) {
+		if (iter->second.generalControllerName.compare("") != 0) {
 			//TODO: Handle the isInstrument cases
 			//TODO: add robin count parameter
-			NoteSound* newInstrument=new NoteSound(&iter->second, fileManager, this, &micOutputs);
+			NoteSound* newInstrument=new NoteSound(&iter->second, fileManager, this, &micOutputs, bleedFlags[iter->second.specificControllerName], iter->second.velocityCount, iter->second.robinCount);
 			//newInstrument->createBuffers();
 			instrumentMap.insert(pair<int, NoteSound*>(iter->first, newInstrument));
 		}
@@ -242,7 +244,6 @@ bool DrumSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 	if (layouts.getChannelSet(false, 11) != AudioChannelSet::stereo()) {
 		return false;
 	}
-
 	if (layouts.getChannelSet(false, 12) != AudioChannelSet::stereo()) {
 		return false;
 	}

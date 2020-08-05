@@ -10,10 +10,17 @@
 
 #include "NoteSound.h"
 
-NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs) : velocityLevelPlayer(processor, fileManager, noteProperties, 2, 0, micOutputs) {
+NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int velocityCount, int roundRobinCount) {
 	this->noteProperties = noteProperties;
 	this->fileManager = fileManager;
 	this->processor = processor;
+	this->roundRobinCount = roundRobinCount;
+
+	for (int i = 0; i < velocityCount; i++) {
+		//velocityLevelPlayers.insert({ processor, fileManager, noteProperties, i, micOutputs, bleedMap });
+		//VelocityLevelPlayer newPlayer{ processor, fileManager, noteProperties, i, micOutputs, bleedMap };
+		velocityLevelPlayers.push_back(new VelocityLevelPlayer(processor, fileManager, noteProperties, i, micOutputs, bleedMap, roundRobinCount));
+	}
 }
 
 void NoteSound::triggerSound
@@ -22,8 +29,8 @@ void NoteSound::triggerSound
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
 	int levelNumber = 128 * noteVelocity*float(noteProperties->velocityCount) / 129;
-
-	velocityLevelPlayer.trigger(TriggerInformation(micGains, noteVelocity, timeStamp));
+	jassert(levelNumber < velocityLevelPlayers.size());
+	velocityLevelPlayers.at(levelNumber)->trigger(TriggerInformation(micGains, noteVelocity, timeStamp));
 
 }
 
@@ -31,8 +38,9 @@ void NoteSound::triggerSound
 
 void NoteSound::fillFromIterators() {
 
-	//TODO: Loop through all velocityLevelPlayers in the future.
-	this->velocityLevelPlayer.processBlock();
+	for (int i = 0; i < this->velocityLevelPlayers.size(); i++) {
+		this->velocityLevelPlayers.at(i)->processBlock();
+	}	
 }
 
 void NoteSound::setBlockSize(int blockSize)
@@ -40,17 +48,22 @@ void NoteSound::setBlockSize(int blockSize)
 	this->blockSize = blockSize;
 
 	//TODO: Loop through all velocityLevelPlayers in the future.
-	velocityLevelPlayer.setBlockSize(blockSize);
+	for (int i = 0; i < this->velocityLevelPlayers.size(); i++) {
+		this->velocityLevelPlayers.at(i)->setBlockSize(blockSize);
+	}
 }
 
 void NoteSound::killSound(int killTimeStamp)
 {
 
 	//TODO: Loop through all velocityLevelPlayers in the future.
-	this->velocityLevelPlayer.kill(killTimeStamp);
-
+	for (int i = 0; i < this->velocityLevelPlayers.size(); i++) {
+		this->velocityLevelPlayers.at(i)->kill(killTimeStamp);
+	}
 }
 
 NoteSound::~NoteSound() {
-
+	for (int i = 0; i < this->velocityLevelPlayers.size(); i++) {
+		delete this->velocityLevelPlayers.at(i);
+	}
 }

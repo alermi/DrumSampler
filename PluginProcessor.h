@@ -16,6 +16,8 @@
 #include "ParameterBuilder.h"
 #include "MicController.h"
 #include "OutputManager.h"
+#include "./Constants.h"
+
 using namespace std;
 //==============================================================================
 /**

@@ -33,16 +33,18 @@ public:
 	AudioProcessor* processor;
 	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, AudioProcessor *processor);
 	void killSound(int killTimeStamp);
-	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs);
+	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int velocityCount, int roundRobinCount);
 	void fillFromIterators();
 	void setBlockSize(int blockSize);
 	~NoteSound();
 
 private:
-	//HitIterator *hitIterator1;
-	//HitIterator *hitIterator2;
-	VelocityLevelPlayer velocityLevelPlayer;
+
+	//TODO: Find a way to make this non pointer
+	std::vector<VelocityLevelPlayer*> velocityLevelPlayers;
+	//VelocityLevelPlayer velocityLevelPlayer;
 	int blockSize;
+	int roundRobinCount;
 
 public:
 	//JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteSound)

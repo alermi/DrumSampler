@@ -10,7 +10,7 @@
 
 #include "VelocityLevelPlayer.h"
 
-VelocityLevelPlayer::VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int numHitIterators, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs)
+VelocityLevelPlayer::VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int roundRobinCount)
   {
 	this->processor = processor;
 	this->blockSize = blockSize;
@@ -19,14 +19,14 @@ VelocityLevelPlayer::VelocityLevelPlayer(AudioProcessor * processor, FileManager
 	this->newTriggers.reserve(MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL);
 	this->newKills.reserve(MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL);
 	this->stopPoints.reserve(MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL + MAX_NUM_KILLS_IN_BLOCK_PER_VELOCITY_LEVEL);
-
+	this -> roundRobinCount = roundRobinCount;
 	createBuffers(fileManager, noteProperties);
 	//for (int i = 0; i < numHitIterators; i++) {
 	//	this->hitIterators.push_back(HitIterator(processor, micMap, micOutputs));
 	//}
 	blockEvents.clear();
 
-	hitIterator = new HitIterator(processor, micMap, micOutputs);
+	hitIterator = std::make_unique<HitIterator>(processor, micMap, micOutputs, bleedMap, roundRobinCount);
 }
 
 void VelocityLevelPlayer::trigger(TriggerInformation triggerInfo) {
@@ -111,13 +111,13 @@ void VelocityLevelPlayer::createBuffers(FileManager* fileManager, NoteProperties
 			//velocityName.append("v", 1);
 			velocityName.append(String(levelNum + 1), 1);
 
-			for (int versionNumber = 0; versionNumber < HitIterator::NUM_OF_SAME_SAMPLE; versionNumber++) {
+			for (int versionNumber = 0; versionNumber < this->roundRobinCount; versionNumber++) {
 
 				String version;
 				version.append(String(versionNumber + 1), 1);
 				// TODO: Adjust for real samples
 				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + " " + micName + " " + velocityName + " " + version + ".wav";
-				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v1_r1" + ".wav";
+				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v" + velocityName + "_r1" + ".wav";
 				auto buffer = fileManager->readBuffer(pathName);
 
 				// If the file exists, make sure that you get the right amount of channels
@@ -136,14 +136,14 @@ VelocityLevelPlayer::~VelocityLevelPlayer()
 {
 
 	//TODO: Figure out why the free works well here but not when freeing the samples of BufferIterators.
-	delete hitIterator;
+	//delete hitIterator;
 	std::vector<String> micNames = MicController::getMicNames();
 	auto it = micMap.begin();
 	auto end = micMap.end();
 
 	while (it != end) {
 
-		for (int versionNumber = 0; versionNumber < HitIterator::NUM_OF_SAME_SAMPLE; versionNumber++) {
+		for (int versionNumber = 0; versionNumber < this->roundRobinCount; versionNumber++) {
 
 			delete it->second[versionNumber];
 

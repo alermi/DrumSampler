@@ -28,11 +28,12 @@ private:
 	std::vector<int> stopPoints;
 	//HitIterator* findAvailableHitIterator();
 	int blockSize;
-	HitIterator* hitIterator;
+	std::unique_ptr<HitIterator> hitIterator;
+	//HitIterator* hitIterator;
 	BlockEvents blockEvents;
-
+	int roundRobinCount;
 public:	
-	VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int numHitIterators, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs);
+	VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int roundRobinCount);
 	void trigger(TriggerInformation triggerInfo);
 	void kill(int timeStamp);
 	void processBlock();
