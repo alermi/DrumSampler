@@ -13,7 +13,7 @@
 VelocityLevelPlayer::VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int roundRobinCount)
   {
 	this->processor = processor;
-	this->blockSize = blockSize;
+	//this->blockSize = blockSize;
 	//this->micMap = micMap;
 	this->levelNum = levelNum;
 	this->newTriggers.reserve(MAX_NUM_TRIGGERS_IN_BLOCK_PER_VELOCITY_LEVEL);
@@ -37,7 +37,7 @@ void VelocityLevelPlayer::kill(int timeStamp)
 {
 	blockEvents.processEvent(KillInformation(timeStamp));
 }
-void VelocityLevelPlayer::processBlock()
+void VelocityLevelPlayer::processBlock(bool isMutingBleeds)
 {
 
 	blockEvents.finishReceivingHits();
@@ -72,7 +72,7 @@ void VelocityLevelPlayer::processBlock()
 
 			if (nextEvent.isNoteOn) {
 				TriggerInformation *triggerInfo = (TriggerInformation*)&nextEvent;
-				hitIterator->trigger(*triggerInfo);
+				hitIterator->trigger(*triggerInfo, isMutingBleeds);
 			}
 		}
 	}
@@ -117,7 +117,9 @@ void VelocityLevelPlayer::createBuffers(FileManager* fileManager, NoteProperties
 				version.append(String(versionNumber + 1), 1);
 				// TODO: Adjust for real samples
 				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + " " + micName + " " + velocityName + " " + version + ".wav";
-				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v" + velocityName + "_r1" + ".wav";
+				//String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v" + velocityName + "_r1" + ".wav";
+				
+				String pathName = fileManager->getSamplesFolder()->getFullPathName() + "\\" + noteProperties->instrumentName + "_" + micName + "_v" + velocityName + "_r" + version + ".wav";
 				auto buffer = fileManager->readBuffer(pathName);
 
 				// If the file exists, make sure that you get the right amount of channels

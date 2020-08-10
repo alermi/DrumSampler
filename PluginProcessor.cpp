@@ -14,7 +14,7 @@
 #include "BlockEventsTest.cpp"
 
 #define TESTING 1
-#define ORIGINAL_SAMPLERATE 44100
+const int ORIGINAL_SAMPLERATE = 44100;
 #define LOADSAMPLES 1
 const int NUM_OF_SAME_SAMPLE = 5;
 
@@ -338,13 +338,27 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 				auto micGains = micController.getMicGains(generalControllerName, specificControllerName);
 				tempSound->triggerSound(micGains, noteVelocity, timeStamp, this);
 
-				//TODO: DELETE, TESTING PURPOSES
-				if (tempSound->noteProperties->noteNum == 50) {
-					instrumentMap[52]->killSound(timeStamp);
+
+				for (int currMutingNote : mutingMap.getMutingSet(noteNumber)) {
+					if (currMutingNote == noteNumber) {
+						continue;
+					}
+					std::map<int, NoteSound*>::iterator mutingIter = instrumentMap.find(currMutingNote);
+					// If a valid note
+					if (mutingIter != instrumentMap.end()) {
+						mutingIter->second->killSound(timeStamp);
+					}
+					else {
+						jassertfalse;
+					}
 				}
-				if (tempSound->noteProperties->noteNum == 80) {
-					instrumentMap[79]->killSound(timeStamp);
-				}
+				////TODO: DELETE, TESTING PURPOSES
+				//if (tempSound->noteProperties->noteNum == 50) {
+				//	instrumentMap[52]->killSound(timeStamp);
+				//}
+				//if (tempSound->noteProperties->noteNum == 80) {
+				//	instrumentMap[79]->killSound(timeStamp);
+				//}
 			}
 		}
 
@@ -357,7 +371,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	// Fills the buffer with all already activate instruments
 	for (it = instrumentMap.begin(); it != instrumentMap.end(); it++)
 	{
-		it->second->fillFromIterators();
+		it->second->fillFromIterators(micController.getMutingBleeds());
 	}
 
 	//for (auto const& mic : micOutputs) {

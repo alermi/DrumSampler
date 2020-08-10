@@ -17,9 +17,9 @@
 
 class HitIterator {
 public:
-	HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap, std::map<String, AudioSampleBuffer*> *micOutputs, std::map<String, bool> bleedMap, int roundRobinCount);
+	HitIterator(AudioProcessor* processor, std::map<String, std::map<int, AudioSampleBuffer*>> micMap, std::map<String, AudioSampleBuffer*> *micOutputs, std::map<String, bool> bleedMap, int roundRobinCount);
 	bool hasEnded();
-	void trigger(TriggerInformation triggerInfo);
+	void trigger(TriggerInformation triggerInfo, bool isMutingBleeds);
 	void iterate(int startSample, int endSample, bool fadeOut);
 	int timeStamp;
 	void reset();

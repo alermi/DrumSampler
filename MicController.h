@@ -54,6 +54,7 @@ public:
 	static std::vector<String> getMicNames();
 	static std::map<String, int> getMicChannelCountMap();
 	static std::map<String, int> getMicExtraChannelMap();
+	bool getMutingBleeds();
 	//LEFT OFF: In order to complete this getMicGain, create a constructor with the treeState to get the parameters from
 	std::map<String, float> getMicGains(String generalControllerName, String specificControllerName);
 	std::map<String, float> getEmptyMicGains();

@@ -17,7 +17,7 @@
 #include "MicController.h"
 #include "OutputManager.h"
 #include "./Constants.h"
-
+#include "MutingMap.h"
 using namespace std;
 //==============================================================================
 /**
@@ -79,6 +79,8 @@ protected:
 	std::map<int, NoteSound*> instrumentMap;
 private:
 	double samplingToOutputBlockSizeRatio;
+
+	MutingMap mutingMap;
 	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	AudioProcessorValueTreeState treeState;
 	MicController micController{ &treeState };

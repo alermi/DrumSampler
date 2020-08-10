@@ -28,7 +28,7 @@ HitIterator::HitIterator(AudioProcessor* processor, std::map<String, std::map<in
 	this->randomGenerator.setSeed(std::time(0));
 }
 
-void HitIterator::trigger(TriggerInformation triggerInfo) {
+void HitIterator::trigger(TriggerInformation triggerInfo, bool isMutingBleeds) {
 	this->timeStamp = triggerInfo.timeStamp;
 
 	int version;
@@ -69,7 +69,9 @@ void HitIterator::trigger(TriggerInformation triggerInfo) {
 		//jassert(it != end);
 		String micName = micNames[i];
 		AudioSampleBuffer* currBuffer = micMap[micName][version];
-		if (currBuffer->getNumChannels() > 0) {			
+		bool isBleed = bleedMap[micName];
+
+		if (currBuffer->getNumChannels() > 0 && !(isBleed && isMutingBleeds)) {			
 			//TODO: Uncomment when you got the choke samples and figured out tom1-5 mix up
 			//jassert(bleedMap[micName] == false);
 

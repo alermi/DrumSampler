@@ -99,6 +99,7 @@ AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 		return newBuffer;
 	}
 	else {
+		DBG("File " + pathName + " was not found");
 		return new AudioSampleBuffer();
 	}
 }

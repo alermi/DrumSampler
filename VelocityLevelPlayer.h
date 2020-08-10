@@ -36,7 +36,7 @@ public:
 	VelocityLevelPlayer(AudioProcessor * processor, FileManager* fileManager, NoteProperties* noteProperties, int levelNum, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int roundRobinCount);
 	void trigger(TriggerInformation triggerInfo);
 	void kill(int timeStamp);
-	void processBlock();
+	void processBlock(bool isMutingBleeds);
 	void setBlockSize(int blockSize);
 	void createBuffers(FileManager* fileManager, NoteProperties* noteProperties);
 	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;

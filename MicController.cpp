@@ -58,23 +58,41 @@ std::map<String, float> MicController::getMicGains(String generalControllerName,
 	float rideClose = *this->treeState->getRawParameterValue("Ride Close");
 
 
-	std::map<String, float> micGains = {
-		{"kickin", float(0.2f*master*kickIn)},
-		{"kickout", float(0.2f*master*kickOut)},
-		{"kicksub", float(0.2f* master * kickSub)},
-		{"snrtop", float(0.2f*master*snareTop)},
-		{"snrbot", float(0.2f*master*snareBottom)},
-		{"tom1", float(0.5f*master*tom1Close)},
-		{"tom2", float(0.5f*master*tom2Close)},
-		{"tom3", float(0.5f*master*tom3Close)},
-		{"tom4", float(0.5f*master*tom4Close)},
-		{"tom5", float(0.5f*master*tom5Close)},
-		{"hh", float(0.5f*master*hiHatClose)},
-		{"ride", float(0.5*master*rideClose)},
-		{"roommono", float(0.2*roomMono*master)},
-		{"roomstereo", float(0.2*roomStereo*master)},
-		{"roomfar", float(0.2*roomFar*master)},
-		{"oh", float(0.5*overHead*master)}
+	//std::map<String, float> micGains = {
+	//	{"kickin", float(0.2f*master*kickIn)},
+	//	{"kickout", float(0.2f*master*kickOut)},
+	//	{"kicksub", float(0.2f* master * kickSub)},
+	//	{"snrtop", float(0.2f*master*snareTop)},
+	//	{"snrbot", float(0.2f*master*snareBottom)},
+	//	{"tom1", float(0.5f*master*tom1Close)},
+	//	{"tom2", float(0.5f*master*tom2Close)},
+	//	{"tom3", float(0.5f*master*tom3Close)},
+	//	{"tom4", float(0.5f*master*tom4Close)},
+	//	{"tom5", float(0.5f*master*tom5Close)},
+	//	{"hh", float(0.5f*master*hiHatClose)},
+	//	{"ride", float(0.5*master*rideClose)},
+	//	{"roommono", float(0.2*roomMono*master)},
+	//	{"roomstereo", float(0.2*roomStereo*master)},
+	//	{"roomfar", float(0.2*roomFar*master)},
+	//	{"oh", float(0.5*overHead*master)}
+	//};
+		std::map<String, float> micGains = {
+		{"kickin", float(master*kickIn)},
+		{"kickout", float(master*kickOut)},
+		{"kicksub", float(master * kickSub)},
+		{"snrtop", float(master*snareTop)},
+		{"snrbot", float(master*snareBottom)},
+		{"tom1", float(master*tom1Close)},
+		{"tom2", float(master*tom2Close)},
+		{"tom3", float(master*tom3Close)},
+		{"tom4", float(master*tom4Close)},
+		{"tom5", float(master*tom5Close)},
+		{"hh", float(master*hiHatClose)},
+		{"ride", float(master*rideClose)},
+		{"roommono", float(roomMono*master)},
+		{"roomstereo", float(roomStereo*master)},
+		{"roomfar", float(roomFar*master)},
+		{"oh", float(overHead*master)}
 	};
 	// TODO: jassert if all the entries have been filled
 	if (generalControllerName.compare("Cymbal") == 0) {
@@ -103,4 +121,8 @@ void MicController::applyCymbalControl(std::map<String, float> *micGains, String
 	(*micGains)["roomstereo"] *= roomStereo;
 	(*micGains)["roommono"] *= roomMono;
 	(*micGains)["oh"] *= overhead;
+}
+
+bool MicController::getMutingBleeds() {
+	return *this->treeState->getRawParameterValue("Mute Bleeds");
 }

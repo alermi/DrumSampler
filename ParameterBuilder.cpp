@@ -27,8 +27,9 @@ AudioProcessorValueTreeState::ParameterLayout ParameterBuilder::createParameterL
 	auto masterGroup = std::make_unique<AudioProcessorParameterGroup>("Master", "Master", "|",
 		std::move(masterRoomMix),
 		std::move(masterMix));
-
 	layout.add(std::move(masterGroup));
+
+	layout.add(std::make_unique<AudioParameterBool>("Mute Bleeds", "Mute Bleeds", true));
 	return layout;
 }
 void ParameterBuilder::addKickParameters(AudioProcessorValueTreeState::ParameterLayout& layout) {

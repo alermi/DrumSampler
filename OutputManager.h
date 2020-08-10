@@ -30,6 +30,6 @@ private:
 	int fadeOutSamples;
 	int outputBlockSize;
 	int samplingBlockSize;
-	float OutputManager::getPanValue(String micName, int channelNum);
+	float getPanValue(String micName, int channelNum);
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OutputManager)
 };

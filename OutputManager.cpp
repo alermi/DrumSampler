@@ -42,7 +42,7 @@ void OutputManager::prepareToPlay(int samplingBlockSize, int outputBlockSize) {
 }
 
 void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *outputBuffer, std::map<String, AudioSampleBuffer*> *micOutputs) {
-	AudioSampleBuffer &mainBuffer = processor->getBusBuffer(*outputBuffer, false, 0);
+	const AudioSampleBuffer &mainBuffer = processor->getBusBuffer(*outputBuffer, false, 0);
 	//mainBuffer.getWritePointer(0)[0] = 1.0f;
 	jassert(outputBlockSize == mainBuffer.getNumSamples());
 	// Loop for each mic
@@ -62,7 +62,7 @@ void OutputManager::processBlock(AudioProcessor * processor, AudioSampleBuffer *
 		summingBuffer.clear();
 		panningBuffer.clear();
 		int extraChannelNum = MicController::getMicExtraChannelMap()[currMicName];
-		AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
+		const AudioSampleBuffer &extraBuffer = processor->getBusBuffer(*outputBuffer, false, extraChannelNum);
 		// Sum the necessary samples from both micOutputs and overflowBuffers into the summingBuffer
 		for (int i = 0; i < 2; i++) {
 			summingBuffer.copyFrom(i, 0, currOverflowBuffer, i, 0, numSamplesToCopy);
@@ -139,5 +139,6 @@ float OutputManager::getPanValue(String micName, int channelNum)
 	}
 	else {
 		jassertfalse;
+		return 0.5f;
 	}
 }

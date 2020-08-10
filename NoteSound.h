@@ -19,7 +19,7 @@
 #include <list>
 #include <iterator>
 #include <array>
-
+#include <cmath>
 //TODO: Remove all namespace stds
 using namespace std;
 
@@ -34,7 +34,7 @@ public:
 	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, AudioProcessor *processor);
 	void killSound(int killTimeStamp);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int velocityCount, int roundRobinCount);
-	void fillFromIterators();
+	void fillFromIterators(bool isMutingBleeds);
 	void setBlockSize(int blockSize);
 	~NoteSound();
 

@@ -11,8 +11,6 @@
 #include "Constants.h"
 
 std::map<String, std::map<String, bool>> Constants::getAllInstrumentsBleedFlags() {
-
-
 	return {
 		{"Kick",
 			{
@@ -315,4 +313,4 @@ std::map<String, std::map<String, bool>> Constants::getAllInstrumentsBleedFlags(
 			}
 		}
 	};
-};
+}

@@ -30,16 +30,17 @@ void NoteSound::triggerSound
 	//the number of available velocities.
 	int levelNumber = 128 * noteVelocity*float(noteProperties->velocityCount) / 129;
 	jassert(levelNumber < velocityLevelPlayers.size());
+	float modifiedVelocity = pow(0.55f, -noteVelocity) - 0.83f;
 	velocityLevelPlayers.at(levelNumber)->trigger(TriggerInformation(micGains, noteVelocity, timeStamp));
 
 }
 
 
 
-void NoteSound::fillFromIterators() {
+void NoteSound::fillFromIterators(bool isMutingBleeds) {
 
 	for (int i = 0; i < this->velocityLevelPlayers.size(); i++) {
-		this->velocityLevelPlayers.at(i)->processBlock();
+		this->velocityLevelPlayers.at(i)->processBlock(isMutingBleeds);
 	}	
 }
 
