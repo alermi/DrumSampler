@@ -81,8 +81,8 @@ AudioSampleBuffer* FileManager::readBuffer(String pathName) {
 
 	if (newFile.existsAsFile()) {
 		std::unique_ptr<AudioFormatReader> reader(this->formatManager->createReaderFor(newFile));
-		AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, reader->lengthInSamples);
-		reader->read(newBuffer, 0, reader->lengthInSamples, 0, true, true);
+		AudioSampleBuffer *newBuffer = new AudioSampleBuffer(reader->numChannels, int(reader->lengthInSamples & INT_MAX));
+		reader->read(newBuffer, 0, int(reader->lengthInSamples & INT_MAX), 0, true, true);
 
 		//Range<float> range1 = newBuffer->findMinMax(0, 0, reader->lengthInSamples);
 		//float max1 = (std::max)(abs(range1.getStart()), abs(range1.getEnd()));

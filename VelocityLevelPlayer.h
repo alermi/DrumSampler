@@ -37,7 +37,7 @@ public:
 	void trigger(TriggerInformation triggerInfo);
 	void kill(int timeStamp);
 	void processBlock(bool isMutingBleeds);
-	void setBlockSize(int blockSize);
+	void setBlockSize(int newBlockSize);
 	void createBuffers(FileManager* fileManager, NoteProperties* noteProperties);
 	std::map<String, std::map<int, AudioSampleBuffer*>> micMap;
 	~VelocityLevelPlayer();

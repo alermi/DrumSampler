@@ -172,7 +172,7 @@ void DrumSamplerAudioProcessor::changeProgramName (int index, const String& newN
 	int outputBlockSize = samplesPerBlock;
 	//int adjustedBlockSize = 
 	reset();
-	srand(time(0));
+	srand(static_cast<unsigned int>(time(0)));
 	for (auto const& instrument : instrumentMap) {
 		instrument.second->setBlockSize(samplingBlockSize);
 	}
@@ -289,7 +289,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 	}
 	
     ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    //auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
 	// MAGIC GUI: send midi messages to the keyboard state
@@ -321,7 +321,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 			const int noteNumber = currMessage.getNoteNumber();
 			const float noteVelocity = currMessage.getFloatVelocity();
 			//TODO: Uncomment samplingtooutput...
-			const int timeStamp = currMessage.getTimeStamp() * samplingToOutputBlockSizeRatio;
+			const int timeStamp = static_cast<int>(currMessage.getTimeStamp() * samplingToOutputBlockSizeRatio);
 			//Get the master parameters.
 			//masterFader = *treeState.getRawParameterValue("Master Mix");
 			//roomFader= *treeState.getRawParameterValue("Master Room Mix");
@@ -336,7 +336,7 @@ void DrumSamplerAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
 				//float pan = *treeState.getRawParameterValue(specificControllerName + " Pan");
 				auto micGains = micController.getMicGains(generalControllerName, specificControllerName);
-				tempSound->triggerSound(micGains, noteVelocity, timeStamp, this);
+				tempSound->triggerSound(micGains, noteVelocity, timeStamp);
 
 
 				for (int currMutingNote : mutingMap.getMutingSet(noteNumber)) {

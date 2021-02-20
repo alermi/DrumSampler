@@ -27,13 +27,13 @@ BufferIterator::~BufferIterator()
 	//delete sample;
 }
 
-void BufferIterator::trigger(AudioSampleBuffer* sample, float velocity, int extraBusNumber) {
-	this->sample = sample;
-	this->extraBusNumber = extraBusNumber;
+void BufferIterator::trigger(AudioSampleBuffer* newSample, float newVelocity, int newExtraBusNumber) {
+	this->sample = newSample;
+	this->extraBusNumber = newExtraBusNumber;
 	jassert(hasEnded == true);
-	this->velocity = velocity;
+	this->velocity = newVelocity;
 	// Samples left at the origin buffer to copy
-	this->samplesLeft = sample->getNumSamples();
+	this->samplesLeft = newSample->getNumSamples();
 	// Sample that we last left at in the origin buffer
 	this->sampleLeftAt = 0;
 	this->hasEnded = false;

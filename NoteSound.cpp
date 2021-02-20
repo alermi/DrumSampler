@@ -24,14 +24,14 @@ NoteSound::NoteSound(NoteProperties *noteProperties, FileManager* fileManager, A
 }
 
 void NoteSound::triggerSound
-(std::map<String, float> micGains, float noteVelocity, int timeStamp, AudioProcessor* processor) {
+(std::map<String, float> micGains, float noteVelocity, int timeStamp) {
 
 	//Calculate which hardness level of each sample top play based on velocity of the note and 
 	//the number of available velocities.
-	int levelNumber = 128 * noteVelocity*float(noteProperties->velocityCount) / 129;
+	int levelNumber = int(128 * noteVelocity*float(noteProperties->velocityCount) / 129);
 	jassert(levelNumber < velocityLevelPlayers.size());
 	float modifiedVelocity = pow(0.55f, -noteVelocity) - 0.83f;
-	velocityLevelPlayers.at(levelNumber)->trigger(TriggerInformation(micGains, noteVelocity, timeStamp));
+	velocityLevelPlayers.at(levelNumber)->trigger(TriggerInformation(micGains, modifiedVelocity, timeStamp));
 
 }
 
@@ -44,13 +44,13 @@ void NoteSound::fillFromIterators(bool isMutingBleeds) {
 	}	
 }
 
-void NoteSound::setBlockSize(int blockSize)
+void NoteSound::setBlockSize(int newBlockSize)
 {
-	this->blockSize = blockSize;
+	this->blockSize = newBlockSize;
 
 	//TODO: Loop through all velocityLevelPlayers in the future.
 	for (int i = 0; i < this->velocityLevelPlayers.size(); i++) {
-		this->velocityLevelPlayers.at(i)->setBlockSize(blockSize);
+		this->velocityLevelPlayers.at(i)->setBlockSize(newBlockSize);
 	}
 }
 

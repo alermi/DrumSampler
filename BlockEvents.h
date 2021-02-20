@@ -19,7 +19,7 @@ class BlockEvents {
 public:
 
 	BlockEvents();
-	void setBlockSize(int blockSize);
+	void setBlockSize(int newBlockSize);
 	void processEvent(EventInformation eventInfo);
 	void startReceivingHits();
 	void finishReceivingHits();

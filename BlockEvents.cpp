@@ -16,13 +16,13 @@ BlockEvents::BlockEvents()
 	this->blockSize = 0;
 }
 
-void BlockEvents::setBlockSize(int blockSize)
+void BlockEvents::setBlockSize(int newBlockSize)
 {
 	this->isReceivingEvents = true;
 	this->events.clear();
-	this->blockSize = blockSize;
+	this->blockSize = newBlockSize;
 	// TODO: reconsider the events size
-	this->events.reserve(blockSize / 2);
+	this->events.reserve(newBlockSize / 2);
 
 }
 

@@ -81,11 +81,11 @@ void VelocityLevelPlayer::processBlock(bool isMutingBleeds)
 
 }
 
-void VelocityLevelPlayer::setBlockSize(int blockSize)
+void VelocityLevelPlayer::setBlockSize(int newBlockSize)
 {
-	this->blockSize = blockSize;
+	this->blockSize = newBlockSize;
 	blockEvents.clear();
-	this->blockEvents.setBlockSize(blockSize);
+	this->blockEvents.setBlockSize(newBlockSize);
 	//this->blockEvents.startReceivingHits();
 }
 
@@ -99,7 +99,7 @@ void VelocityLevelPlayer::createBuffers(FileManager* fileManager, NoteProperties
 
 	for (int micNumber = 0; micNumber < micNames.size(); micNumber++) {
 		String micName = micNames[micNumber];
-		bool arrayCreated = 0;
+		//bool arrayCreated = 0;
 
 
 		//this->micMap[micName] = std::map<String, AudioSampleBuffer*>();

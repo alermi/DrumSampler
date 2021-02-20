@@ -29,15 +29,15 @@ OutputManager::OutputManager(int fadeOutSamples, AudioProcessorValueTreeState* t
 	this->samplingBlockSize = 0;
 }
 
-void OutputManager::prepareToPlay(int samplingBlockSize, int outputBlockSize) {
+void OutputManager::prepareToPlay(int newSamplingBlockSize, int newOutputBlockSize) {
 	//for (int i = 0; i < NUM_OUTPUT_CHANNELS_EXCLUDING_MAIN; i++) {
 	//	this->outputBuffers[i].setSize(2, blockSize);
 	//}
-	this->outputBlockSize = outputBlockSize;
-	this->samplingBlockSize = samplingBlockSize;
-	resamplingBuffer.setSize(2, outputBlockSize);
-	summingBuffer.setSize(2, samplingBlockSize);
-	panningBuffer.setSize(2, samplingBlockSize);
+	this->outputBlockSize = newOutputBlockSize;
+	this->samplingBlockSize = newSamplingBlockSize;
+	resamplingBuffer.setSize(2, newOutputBlockSize);
+	summingBuffer.setSize(2, newSamplingBlockSize);
+	panningBuffer.setSize(2, newSamplingBlockSize);
 	//ResamplingAudioSource resampling = ResamplingAudioSource(outputBuffers[0], false, 2);
 }
 

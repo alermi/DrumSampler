@@ -31,11 +31,11 @@ public:
 	NoteProperties *noteProperties;
 	FileManager* fileManager;
 	AudioProcessor* processor;
-	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp, AudioProcessor *processor);
+	void triggerSound(std::map<String, float> micGains, float noteVelocity, int timeStamp);
 	void killSound(int killTimeStamp);
 	NoteSound(NoteProperties* noteProperties, FileManager* fileManager, AudioProcessor* processor, std::map<String, AudioSampleBuffer*>* micOutputs, std::map<String, bool> bleedMap, int velocityCount, int roundRobinCount);
 	void fillFromIterators(bool isMutingBleeds);
-	void setBlockSize(int blockSize);
+	void setBlockSize(int newBlockSize);
 	~NoteSound();
 
 private:
